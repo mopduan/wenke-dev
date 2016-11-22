@@ -4,7 +4,6 @@ wenwen实时开发辅助工具
 [![NPM](https://nodei.co/npm/wenke-dev.svg?downloads=true)](https://nodei.co/npm/wenke-dev/)
 
 [![npm version](https://badge.fury.io/js/wenke-dev.svg)](https://badge.fury.io/js/wenke-dev)
-[![Build Status](https://travis-ci.org/mopduan/wenke-dev.svg?branch=master)](https://travis-ci.org/mopduan/wenke-dev)
 
 
 > wenke-dev是腾讯/搜狗问问实时开发辅助工具, 主要用于将ES6/7/8、React、Vue.js、前端模板、CSS、图片等静态资源实时编译为浏览器中可以正常运行的代码, 同时支持热加载(目前热加载只支持React)
