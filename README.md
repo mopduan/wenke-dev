@@ -122,7 +122,7 @@ livereload服务端口, 默认为: 8999
 设置webpack的devtool的编译方式为: inline-source-map, 默认编译方式为: eval
 
 ##Report an issue
->欢迎大家将使用wenke中遇到的任何问题提交给我，提问地址：<a href="https://github.com/mopduan/wenke-dev/issues" target="_blank">Report an issue</a>
+>欢迎大家将使用wenke-dev中遇到的任何问题提交给我，提问地址：<a href="https://github.com/mopduan/wenke-dev/issues" target="_blank">Report an issue</a>
 
 
 ##Pull Requests
