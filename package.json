@@ -1,6 +1,6 @@
 {
   "name": "wenke-dev",
-  "version": "1.4.12",
+  "version": "1.4.13",
   "description": "dev tool for wenke-webpack",
   "main": "index.js",
   "bin": {
@@ -57,7 +57,7 @@
     "vue-loader": "~8.5.x",
     "vue-html-loader": "~1.2.x",
     "vue-style-loader": "~1.0.x",
-    "vue-hot-reload-api": "~1.2.x",
+    "vue-hot-reload-api": "~2.x.x",
     "babel-plugin-transform-runtime": "~6.15.x"
   }
 }
