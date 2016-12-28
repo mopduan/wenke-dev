@@ -15,7 +15,7 @@ exports = module.exports = function (options) {
         webappDirectoryList = webappDirectory.split(',');
         webappDirectoryList.forEach(function (item, index) {
             item = item.trim();
-            if (!fs.existsSync(item)) {
+            if (!fs.existsSync(path.resolve(item))) {
                 console.log('can\'t find the webapp directory: ' + item);
                 process.exit();
             }
@@ -114,7 +114,7 @@ exports = module.exports = function (options) {
                             //需要使用ES6/7/8转换的JS
                             var isES = $2.toLowerCase().indexOf('babel="true"') > -1;
                             var isPureReact = $src.toLowerCase().indexOf(hotTag) > -1;
-                            var jsSrcPath = utils.normalizePath(path.join(global.staticDirectory, path.dirname(jsPath), 'main.js')).replace(global.deployPrefix, global.srcPrefix)
+                            var jsSrcPath = utils.normalizePath(path.join(global.staticDirectory, path.dirname(jsPath), 'main.js')).replace(global.deployPrefix, global.srcPrefix);
 
                             if (isPureReact) {
                                 jsCompileListWithPureReact.push({
@@ -143,21 +143,7 @@ exports = module.exports = function (options) {
     console.log('jsCompileListWithPureReact：');
     console.log(jsCompileListWithPureReact);
 
-    var LOOSE = {loose: true};
-    var babelSettings = {
-        cacheDirectory: true,
-        presets: [__dirname + '/node_modules/babel-preset-latest', __dirname + '/node_modules/babel-preset-react'],
-        plugins: [
-            [__dirname + '/node_modules/babel-plugin-transform-es2015-template-literals', LOOSE],
-            [__dirname + '/node_modules/babel-plugin-transform-es2015-classes', LOOSE],
-            [__dirname + '/node_modules/babel-plugin-transform-es2015-computed-properties', LOOSE],
-            [__dirname + '/node_modules/babel-plugin-transform-es2015-for-of', LOOSE],
-            [__dirname + '/node_modules/babel-plugin-transform-es2015-spread', LOOSE],
-            [__dirname + '/node_modules/babel-plugin-transform-es2015-destructuring', LOOSE],
-            [__dirname + '/node_modules/babel-plugin-transform-es2015-modules-commonjs', LOOSE]
-        ],
-        compact: false
-    };
+    var babelSettings = utils.getBabelSettings();
 
     var commonConfig = {
         cache: true,
@@ -188,7 +174,11 @@ exports = module.exports = function (options) {
 
         config.externals = {
             "react": "React",
-            "react-dom": "ReactDOM"
+            "react-dom": "ReactDOM",
+            "redux": "Redux",
+            "react-redux": "ReactRedux",
+            "react-router": "ReactRouter",
+            "immutable": "Immutable"
         };
 
         config.module = {loaders: utils.getLoaders()};
@@ -249,14 +239,23 @@ exports = module.exports = function (options) {
             var debugDomain = typeof options.debugDomain == 'string' ? options.debugDomain : 'local.wenwen.sogou.com';
             jsCompileListWithPureReact.forEach(function (jsCompileItemWithPureReact) {
                 var entryKey = jsCompileItemWithPureReact.path.replace(utils.normalizePath(path.join(global.staticDirectory, 'src/')), 'sf/deploy/').replace('/main.js', '');
-                entryList[entryKey] = ['webpack-hot-middleware/client', jsCompileItemWithPureReact.path];
+                entryList[entryKey] = [
+                    'react-hot-loader/patch',
+                    'webpack-hot-middleware/client',
+                    jsCompileItemWithPureReact.path
+                ];
             });
 
             var staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
 
             var config = {
+                dev: 'eval',
                 entry: entryList,
-                plugins: [new webpack.HotModuleReplacementPlugin()],
+                plugins: [
+                    new webpack.optimize.OccurenceOrderPlugin(),
+                    new webpack.HotModuleReplacementPlugin(),
+                    new webpack.NoErrorsPlugin()
+                ],
                 output: {
                     path: path.join(__dirname, 'deploy'),
                     filename: "[name]/bundle.js",
@@ -270,8 +269,7 @@ exports = module.exports = function (options) {
 
             config.module.loaders.push({
                 test: /\.(js|jsx)$/,
-                loaders: ['react-hot', 'babel?' + JSON.stringify(babelSettings)],
-                exclude: /(node_modules|bower_components)/,
+                loaders: ['babel-loader'],
                 include: [staticFilesSourceDir]
             });
 
