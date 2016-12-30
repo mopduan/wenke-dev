@@ -253,7 +253,11 @@ exports = module.exports = function (options) {
             var debugDomain = typeof options.debugDomain == 'string' ? options.debugDomain : 'local.wenwen.sogou.com';
             jsCompileListWithPureReact.forEach(function (jsCompileItemWithPureReact) {
                 var entryKey = jsCompileItemWithPureReact.path.replace(utils.normalizePath(path.join(global.staticDirectory, 'src/')), 'sf/deploy/').replace('/main.js', '');
-                entryList[entryKey] = ['webpack-hot-middleware/client', jsCompileItemWithPureReact.path];
+                entryList[entryKey] = [
+                    'react-hot-loader/patch',
+                    'webpack-hot-middleware/client',
+                    jsCompileItemWithPureReact.path
+                ];
             });
 
             var staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
@@ -261,7 +265,11 @@ exports = module.exports = function (options) {
             var config = {
                 devtool: "eval",
                 entry: entryList,
-                plugins: [new webpack.HotModuleReplacementPlugin()],
+                plugins: [
+                    new webpack.optimize.OccurenceOrderPlugin(),
+                    new webpack.HotModuleReplacementPlugin(),
+                    new webpack.NoErrorsPlugin()
+                ],
                 output: {
                     path: path.join(__dirname, 'deploy'),
                     filename: "[name]/bundle.js",
@@ -276,8 +284,7 @@ exports = module.exports = function (options) {
 
             config.module.loaders.push({
                 test: /\.(js|jsx)$/,
-                loaders: ['react-hot', 'babel?' + JSON.stringify(babelSettings)],
-                exclude: /(node_modules|bower_components)/,
+                loaders: ['babel'],
                 include: [staticFilesSourceDir]
             });
 
