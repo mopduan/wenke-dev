@@ -144,10 +144,11 @@ exports = module.exports = function (options) {
     console.log(jsCompileListWithPureReact);
 
     var LOOSE = {loose: true};
-    var babelSettings = {
-        cacheDirectory: true,
-        presets: [__dirname + '/node_modules/babel-preset-latest', __dirname + '/node_modules/babel-preset-react'],
-        plugins: [
+
+    var pluginList = [];
+
+    if (utils.hasArgument(process.argv, '--ie8')) {
+        var ie8PluginList = [
             [__dirname + '/node_modules/babel-plugin-transform-es2015-template-literals', LOOSE],
             [__dirname + '/node_modules/babel-plugin-transform-es2015-classes', LOOSE],
             [__dirname + '/node_modules/babel-plugin-transform-es2015-computed-properties', LOOSE],
@@ -155,7 +156,14 @@ exports = module.exports = function (options) {
             [__dirname + '/node_modules/babel-plugin-transform-es2015-spread', LOOSE],
             [__dirname + '/node_modules/babel-plugin-transform-es2015-destructuring', LOOSE],
             [__dirname + '/node_modules/babel-plugin-transform-es2015-modules-commonjs', LOOSE]
-        ],
+        ];
+        pluginList = pluginList.concat(ie8PluginList);
+    }
+
+    var babelSettings = {
+        cacheDirectory: true,
+        presets: [__dirname + '/node_modules/babel-preset-latest', __dirname + '/node_modules/babel-preset-react'],
+        plugins: pluginList,
         compact: false
     };
 
