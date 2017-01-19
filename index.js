@@ -6,7 +6,7 @@ var path = require('path');
 var utils = require('./lib/utils');
 global.srcPrefix = '/src/';
 global.deployPrefix = '/deploy/';
-global.debugDomain = /\$\{.+?\}/ig;
+global.debugDomain = /\$!{0,1}\{.+?\}/ig;
 
 exports = module.exports = function (options) {
     var webappDirectory = options.webappDirectory;
