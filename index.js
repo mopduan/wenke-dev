@@ -6,7 +6,7 @@ var path = require('path');
 var utils = require('./lib/utils');
 global.srcPrefix = '/src/';
 global.deployPrefix = '/deploy/';
-global.debugDomain = /\$!{0,1}\{.+?\}/ig;
+global.debugDomain = /\$!{0,1}\{.+?\}/i;
 
 exports = module.exports = function (options) {
     var webappDirectory = options.webappDirectory;
@@ -16,32 +16,27 @@ exports = module.exports = function (options) {
         webappDirectoryList.forEach(function (item, index) {
             item = item.trim();
             if (!fs.existsSync(item)) {
-                console.log('can\'t find the webapp directory: ' + item);
-                process.exit();
+                throw new Error('can\'t find the webapp directory: ' + item);
             }
         });
     } else {
-        console.log('can\'t find the arugment -w, this argument is webapp directory!');
-        process.exit();
+        throw new Error('can\'t find the arugment -w, this argument is webapp directory!');
     }
 
     var staticFilesDirectory = options.staticFilesDirectory;
 
     if (staticFilesDirectory && typeof staticFilesDirectory == 'string') {
         if (!fs.existsSync(staticFilesDirectory)) {
-            console.log('can\'t find the static files directory ', staticFilesDirectory);
-            process.exit();
+            throw new Error('can\'t find the static files directory ', staticFilesDirectory);
         }
     } else {
-        console.log('can\'t find the arugment -s, this argument is webapp static file directory!');
-        process.exit();
+        throw new Error('can\'t find the arugment -s, this argument is webapp static file directory!');
     }
 
     global.staticDirectory = utils.normalizePath(staticFilesDirectory);
 
     if (!fs.existsSync(path.join(global.staticDirectory, 'src'))) {
-        console.log("can't find 'src' directory in staticDirectory ");
-        process.exit();
+        throw new Error("can't find 'src' directory in staticDirectory ");
     }
 
     var defaultLiveReloadPort = 8999;
@@ -54,8 +49,7 @@ exports = module.exports = function (options) {
         var templateViewSrcPagePath = path.join(item, '/src/main/webapp/WEB-INF/view/src/');
         //if no webapp directory, then exit;
         if (!fs.existsSync(templateViewSrcPagePath)) {
-            console.log('can\'t find the webapp velocity template directory: ' + templateViewSrcPagePath);
-            process.exit();
+            throw new Error('can\'t find the webapp velocity template directory: ' + templateViewSrcPagePath);
         }
         utils.getAllFilesByDir(templateViewSrcPagePath, templateFileList, ['.vm', '.html', '.tpl']);
     });
@@ -66,11 +60,9 @@ exports = module.exports = function (options) {
 
     templateFileList.forEach(function (tplPath) {
         var tplContent = fs.readFileSync(tplPath).toString();
-        var regexpCSSLinkElements = /<link((?![\r\n>\+])[\s\S\w\W])+(rel\="stylesheet")((?![\r\n>\+])[\s\S\w\W])*>{1}?/gi;
-        var regexpCSSHrefValue = /<link((?![\r\n>\+])[\s\S\w\W])+href\="((?![\r\n>\+])[\s\S\w\W]+?)"((?![\r\n>\+])[\s\S\w\W])*>{1}?/gi;
 
-        tplContent.replace(regexpCSSLinkElements, function ($link) {
-            $link.replace(regexpCSSHrefValue, function ($cssLink, $someSplitStr, $href) {
+        tplContent.replace(utils.getRegexpCSSLinkElements(), function ($link) {
+            $link.replace(utils.getRegexpCSSHrefValue(), function ($cssLink, $someSplitStr, $href) {
                 var cssPath = $href.replace(regexpStaticFilesPrefix, '');
                 if (!cssCacheList[cssPath]) {
                     if ($href && !($href.indexOf('http') == 0)) {
@@ -91,12 +83,9 @@ exports = module.exports = function (options) {
     var jsCompileListWithPureReact = [];
 
     templateFileList.forEach(function (tplPath, index) {
-        var regexpScriptElements = /<script(((?![\r\n\+<])[\s\S\w\W])+)>[\s\S\w\W]{0,}?<\/script>/ig;
-        var regexpScriptElementSrcAttrValue = /<script[\s\S\w\W]{1,}?src\="([\s\S\w\W]{1,}?)"[\s\S\w\W]{0,}?><\/script>/gi;
-
         var tplContent = fs.readFileSync(tplPath).toString();
-        tplContent.replace(regexpScriptElements, function ($1, $2) {
-            if ($2.indexOf('type="text/html"') > -1) {
+        tplContent.replace(utils.getRegexpScriptElements(), function ($1, $2) {
+            if ($2.indexOf('type="text/html"') > -1 || $2.indexOf('x-template') > -1) {
                 return $1;
             }
 
@@ -104,7 +93,7 @@ exports = module.exports = function (options) {
                 return $1;
             }
 
-            $1.replace(regexpScriptElementSrcAttrValue, function ($2_1, $src) {
+            $1.replace(utils.getRegexpScriptElementSrcAttrValue(), function ($2_1, $src) {
                 //需要使用热加载的入口JS文件标识
                 var hotTag = '?hot=true';
                 if ($src && $src.toLowerCase().indexOf('http') == -1) {
@@ -143,38 +132,28 @@ exports = module.exports = function (options) {
     console.log('jsCompileListWithPureReact：');
     console.log(jsCompileListWithPureReact);
 
-    var LOOSE = {loose: true};
-
-    var pluginList = [];
-
-    if (utils.hasArgument(process.argv, '--ie8')) {
-        var ie8PluginList = [
-            [__dirname + '/node_modules/babel-plugin-transform-es2015-template-literals', LOOSE],
-            [__dirname + '/node_modules/babel-plugin-transform-es2015-classes', LOOSE],
-            [__dirname + '/node_modules/babel-plugin-transform-es2015-computed-properties', LOOSE],
-            [__dirname + '/node_modules/babel-plugin-transform-es2015-for-of', LOOSE],
-            [__dirname + '/node_modules/babel-plugin-transform-es2015-spread', LOOSE],
-            [__dirname + '/node_modules/babel-plugin-transform-es2015-destructuring', LOOSE],
-            [__dirname + '/node_modules/babel-plugin-transform-es2015-modules-commonjs', LOOSE]
-        ];
-        pluginList = pluginList.concat(ie8PluginList);
-    }
+    var commonConfig = {
+        cache: true,
+        resolve: {
+            modules: [
+                path.join(__dirname, "node_modules")
+            ],
+            extensions: ['.js', '.jsx']
+        },
+        resolveLoader: {
+            modules: [
+                path.join(__dirname, "node_modules")
+            ]
+        },
+        devtool: utils.hasArgument(process.argv, '--inline') ? "inline-source-map" : "eval"
+    };
 
     var babelSettings = {
         cacheDirectory: true,
-        presets: [__dirname + '/node_modules/babel-preset-latest', __dirname + '/node_modules/babel-preset-react'],
-        plugins: pluginList,
+        presets: [[__dirname + "/node_modules/babel-preset-es2015", {
+            "modules": false
+        }], __dirname + "/node_modules/babel-preset-es2016", __dirname + "/node_modules/babel-preset-es2017", __dirname + '/node_modules/babel-preset-react'],
         compact: false
-    };
-
-    var commonConfig = {
-        cache: true,
-        resolve: {extensions: ['', '.js', '.jsx'], fallback: path.join(__dirname, "node_modules")},
-        resolveLoader: {fallback: path.join(__dirname, "node_modules")},
-        devtool: utils.hasArgument(process.argv, '--inline') ? "#inline-source-map" : "eval",
-        babel: {
-            presets: [__dirname + '/node_modules/babel-preset-latest', __dirname + '/node_modules/babel-preset-react']
-        }
     };
 
     async.map(jsCompileList, function (jsCompileItem, callback) {
@@ -203,16 +182,15 @@ exports = module.exports = function (options) {
             "immutable": "Immutable"
         };
 
-        config.module = {loaders: utils.getLoaders()};
+        config.module = {rules: utils.getRules()};
         utils.extendConfig(config, commonConfig);
 
         if (jsCompileItem.babel) {
-            config.module.loaders.push({
+            config.module.rules.push({
                 test: /\.(js|jsx)$/,
-                loader: 'babel-loader',
+                use: [{loader: 'babel-loader', options: babelSettings}],
                 exclude: /(node_modules|bower_components)/,
-                include: [staticFilesSourceDir],
-                query: babelSettings
+                include: [staticFilesSourceDir]
             });
         }
 
@@ -263,7 +241,7 @@ exports = module.exports = function (options) {
                 var entryKey = jsCompileItemWithPureReact.path.replace(utils.normalizePath(path.join(global.staticDirectory, 'src/')), 'sf/deploy/').replace('/main.js', '');
                 entryList[entryKey] = [
                     'react-hot-loader/patch',
-                    'webpack-hot-middleware/client',
+                    'webpack-hot-middleware/client?reload=true',
                     jsCompileItemWithPureReact.path
                 ];
             });
@@ -274,9 +252,11 @@ exports = module.exports = function (options) {
                 devtool: "eval",
                 entry: entryList,
                 plugins: [
-                    new webpack.optimize.OccurenceOrderPlugin(),
                     new webpack.HotModuleReplacementPlugin(),
-                    new webpack.NoErrorsPlugin()
+                    new webpack.NoEmitOnErrorsPlugin(),
+                    new webpack.LoaderOptionsPlugin({
+                        options: {context: __dirname}
+                    })
                 ],
                 output: {
                     path: path.join(__dirname, 'deploy'),
@@ -286,13 +266,15 @@ exports = module.exports = function (options) {
                 }
             };
 
-            config.module = {loaders: utils.getLoaders()};
+            config.module = {rules: utils.getRules()};
             utils.extendConfig(config, commonConfig);
             config.externals = {};
 
-            config.module.loaders.push({
+            config.module.rules.push({
                 test: /\.(js|jsx)$/,
-                loaders: ['babel'],
+                use: [{
+                    loader: 'babel-loader', options: babelSettings
+                }],
                 include: [staticFilesSourceDir]
             });
 
