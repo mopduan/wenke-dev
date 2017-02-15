@@ -150,9 +150,7 @@ exports = module.exports = function (options) {
 
     var babelSettings = {
         cacheDirectory: true,
-        presets: [[__dirname + "/node_modules/babel-preset-es2015", {
-            "modules": false
-        }], __dirname + "/node_modules/babel-preset-es2016", __dirname + "/node_modules/babel-preset-es2017", __dirname + '/node_modules/babel-preset-react'],
+        presets: [[__dirname + "/node_modules/babel-preset-es2015"], __dirname + "/node_modules/babel-preset-es2016", __dirname + "/node_modules/babel-preset-es2017", __dirname + '/node_modules/babel-preset-react'],
         compact: false
     };
 
