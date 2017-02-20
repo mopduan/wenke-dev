@@ -14,8 +14,9 @@ npm install -g wenke-dev
 ```
 
 ##兼容说明
+从1.5.0版本开始，不再支持IE8，如需兼容IE8，请安装使用[wenke-devie8](https://github.com/mopduan/wenke-devie8)：
 ```
-从1.5.0版本开始，不再支持IE8，如需兼容IE8，请安装1.4.23：npm install -g wenke-dev@1.4.23
+npm install -g wenke-devie8
 ```
 
 ##使用说明
