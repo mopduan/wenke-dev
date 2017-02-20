@@ -1,6 +1,6 @@
 {
   "name": "wenke-dev",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "dev tool for wenke-webpack",
   "main": "index.js",
   "bin": {
@@ -18,6 +18,8 @@
     "react-router",
     "react-hot-loader",
     "vue.js",
+    "vue-router",
+    "vuex",
     "babel",
     "es6",
     "es7",
@@ -61,7 +63,9 @@
     "file-loader": "~0.9.x",
     "raw-loader": "~0.5.x",
     "vue": "~2.x",
-    "vue-loader": "~10.x",
+    "vue-router": "~2.x",
+    "vuex": "~2.x",
+    "vue-loader": "~11.x",
     "vue-html-loader": "~1.x",
     "vue-style-loader": "~1.x",
     "vue-hot-reload-api": "~2.x",
