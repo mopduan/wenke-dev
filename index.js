@@ -191,7 +191,7 @@ exports = module.exports = function (options) {
         if (jsCompileItem.babel) {
             config.module.rules.push({
                 test: /\.(js|jsx)$/,
-                use: [{loader: 'babel-loader', options: babelSettings}],
+                use: [{loader: 'babel-loader', options: JSON.stringify(babelSettings)}],
                 exclude: /(node_modules|bower_components)/,
                 include: [staticFilesSourceDir]
             });
@@ -276,7 +276,7 @@ exports = module.exports = function (options) {
             config.module.rules.push({
                 test: /\.(js|jsx)$/,
                 use: [{
-                    loader: 'babel-loader', options: babelSettings
+                    loader: 'babel-loader', options: JSON.stringify(babelSettings)
                 }],
                 include: [staticFilesSourceDir]
             });
