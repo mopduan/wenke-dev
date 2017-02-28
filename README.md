@@ -13,6 +13,12 @@ wenwen实时开发辅助工具
 npm install -g wenke-dev
 ```
 
+##兼容说明
+从1.5.0版本开始，不再支持IE8，如需兼容IE8，请安装使用[wenke-devie8](https://github.com/mopduan/wenke-devie8)：
+```
+npm install -g wenke-devie8
+```
+
 ##使用说明
 ```
 wenke-dev -w 后端模板文件目录（同时处理多个工程请用"," 英文逗号分隔) -s 静态资源文件目录
