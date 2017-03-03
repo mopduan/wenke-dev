@@ -70,6 +70,7 @@
     "vue-style-loader": "~2.x",
     "vue-hot-reload-api": "~2.x",
     "vue-template-compiler": "~2.x",
+    "vuex-router-sync": "~4.x",
     "scriptjs": "2.5.8"
   }
 }
