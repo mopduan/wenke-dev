@@ -258,7 +258,10 @@ exports = module.exports = function (options) {
                     new webpack.HotModuleReplacementPlugin(),
                     new webpack.NoEmitOnErrorsPlugin(),
                     new webpack.LoaderOptionsPlugin({
-                        options: {context: __dirname}
+                        options: {
+                            context: __dirname,
+                            babel: babelSettings
+                        }
                     })
                 ],
                 output: {
