@@ -168,7 +168,7 @@ exports = module.exports = function (options) {
             output: {
                 path: path.join(global.staticDirectory, global.deployPrefix, 'js', utils.normalizePath(path.dirname(jsCompileItem.path)).replace(utils.normalizePath(contextPath), '')),
                 filename: "bundle.js",
-                chunkFilename: "[id].bundle.js",
+                chunkFilename: "[name].bundle.js",
                 publicPath: utils.normalizePath(path.join("/sf/", utils.normalizePath(path.join(global.deployPrefix, 'js', utils.normalizePath(path.dirname(jsCompileItem.path)).replace(utils.normalizePath(contextPath), ''))), '/'))
             }
         };
@@ -267,7 +267,7 @@ exports = module.exports = function (options) {
                 output: {
                     path: path.join(__dirname, 'deploy'),
                     filename: "[name]/bundle.js",
-                    chunkFilename: "[id].bundle.js",
+                    chunkFilename: "[name].bundle.js",
                     publicPath: 'http://' + debugDomain + ':' + global.hotPort + '/'
                 }
             };
