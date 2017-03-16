@@ -81,6 +81,7 @@ exports = module.exports = function (options) {
     var jsCacheList = {};
     var jsCompileList = [];
     var jsCompileListWithPureReact = [];
+    var jsCompileListWithVue = [];
 
     templateFileList.forEach(function (tplPath, index) {
         var tplContent = fs.readFileSync(tplPath).toString();
@@ -96,20 +97,27 @@ exports = module.exports = function (options) {
             $1.replace(utils.getRegexpScriptElementSrcAttrValue(), function ($2_1, $src) {
                 //需要使用热加载的入口JS文件标识
                 var hotTag = '?hot=true';
+                //增加一个vue热加载的标识
+                var vueHotTag = '?vuehot=true';
                 if ($src && $src.toLowerCase().indexOf('http') == -1) {
-                    var jsPath = $src.replace(regexpStaticFilesPrefix, '').replace(hotTag, '');
+                    var jsPath = $src.replace(regexpStaticFilesPrefix, '').replace(hotTag, '').replace(vueHotTag, '');
                     if (!jsCacheList[jsPath]) {
                         if ($src.indexOf('bundle.js') != -1) {
                             //需要使用ES6/7/8转换的JS
                             var isES = $2.toLowerCase().indexOf('babel="true"') > -1;
                             var isPureReact = $src.toLowerCase().indexOf(hotTag) > -1;
+                            var isVue = $src.toLowerCase().indexOf(vueHotTag) > -1;
                             var jsSrcPath = utils.normalizePath(path.join(global.staticDirectory, path.dirname(jsPath), 'main.js')).replace(global.deployPrefix, global.srcPrefix)
 
                             if (isPureReact) {
                                 jsCompileListWithPureReact.push({
                                     "path": jsSrcPath
                                 });
-                            } else {
+                            } else if(isVue){
+                                jsCompileListWithVue.push({
+                                    "path": jsSrcPath
+                                })
+                            }else {
                                 jsCompileList.push({
                                     "babel": isES,
                                     "path": jsSrcPath
@@ -131,6 +139,9 @@ exports = module.exports = function (options) {
 
     console.log('jsCompileListWithPureReact：');
     console.log(jsCompileListWithPureReact);
+
+    console.log('jsCompileListWithVue: ');
+    console.log(jsCompileListWithVue);
 
     var commonConfig = {
         cache: true,
@@ -241,15 +252,24 @@ exports = module.exports = function (options) {
         }
 
         //如果有需要使用react-hot-loader的入口JS
-        if (jsCompileListWithPureReact.length) {
+        if (jsCompileListWithPureReact.length || jsCompileListWithVue.length) {
             var entryList = {};
-            var debugDomain = typeof options.debugDomain == 'string' ? options.debugDomain : 'local.wenwen.sogou.com';
+            var debugDomain = typeof options.debugDomain == 'string' ? options.debugDomain : (jsCompileListWithPureReact.length ? 'local.wenwen.sogou.com' : 'local.baike.m.sogou.com');
             jsCompileListWithPureReact.forEach(function (jsCompileItemWithPureReact) {
                 var entryKey = jsCompileItemWithPureReact.path.replace(utils.normalizePath(path.join(global.staticDirectory, 'src/')), 'sf/deploy/').replace('/main.js', '');
                 entryList[entryKey] = [
                     'react-hot-loader/patch',
                     'webpack-hot-middleware/client?reload=true',
                     jsCompileItemWithPureReact.path
+                ];
+            });
+
+            //Vue入口文件的处理
+            jsCompileListWithVue.forEach(function (jsCompileItemWithVue) {
+                var entryKey = jsCompileItemWithVue.path.replace(utils.normalizePath(path.join(global.staticDirectory, 'src/')), 'sf/deploy/').replace('/main.js', '');
+                entryList[entryKey] = [
+                    'webpack-hot-middleware/client?reload=true',
+                    jsCompileItemWithVue.path
                 ];
             });
 
