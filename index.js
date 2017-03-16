@@ -99,7 +99,7 @@ exports = module.exports = function (options) {
                 var hotTag = '?hot=true';
                 //增加一个vue热加载的标识
                 var vueHotTag = '?vuehot=true';
-                if ($src && $src.toLowerCase().indexOf('http') == -1) {
+                if ($src && global.debugDomain.test($src)) { //改为判断是否以$!{开头
                     var jsPath = $src.replace(regexpStaticFilesPrefix, '').replace(hotTag, '').replace(vueHotTag, '');
                     if (!jsCacheList[jsPath]) {
                         if ($src.indexOf('bundle.js') != -1) {
