@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-var wenkeDev = require('..');
+let wenkeDev = require('..');
 
-var program = require('commander');
+let program = require('commander');
 
 program.version(require('../package').version);
 
