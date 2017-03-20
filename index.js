@@ -1,16 +1,16 @@
-var webpack = require("webpack");
-var async = require('async');
-var gulp = require('gulp');
-var fs = require('fs');
-var path = require('path');
-var utils = require('./lib/utils');
+let webpack = require("webpack");
+let async = require('async');
+let gulp = require('gulp');
+let fs = require('fs');
+let path = require('path');
+let utils = require('./lib/utils');
 global.srcPrefix = '/src/';
 global.deployPrefix = '/deploy/';
 global.debugDomain = /\$!{0,1}\{.+?\}/i;
 
 exports = module.exports = function (options) {
-    var webappDirectory = options.webappDirectory;
-    var webappDirectoryList = [];
+    let webappDirectory = options.webappDirectory;
+    let webappDirectoryList = [];
     if (webappDirectory && typeof webappDirectory == 'string') {
         webappDirectoryList = webappDirectory.split(',');
         webappDirectoryList.forEach(function (item, index) {
@@ -23,7 +23,7 @@ exports = module.exports = function (options) {
         throw new Error('can\'t find the arugment -w, this argument is webapp directory!');
     }
 
-    var staticFilesDirectory = options.staticFilesDirectory;
+    let staticFilesDirectory = options.staticFilesDirectory;
 
     if (staticFilesDirectory && typeof staticFilesDirectory == 'string') {
         if (!fs.existsSync(staticFilesDirectory)) {
@@ -39,14 +39,14 @@ exports = module.exports = function (options) {
         throw new Error("can't find 'src' directory in staticDirectory ");
     }
 
-    var defaultLiveReloadPort = 8999;
-    var defaultHotPort = 9797;
+    let defaultLiveReloadPort = 8999;
+    let defaultHotPort = 9797;
     global.livereloadPort = typeof options.livereloadPort != 'undefined' && utils.isInt(options.livereloadPort) ? parseInt(options.livereloadPort) : defaultLiveReloadPort;
     global.hotPort = typeof options.hotPort != 'undefined' && utils.isInt(options.hotPort) ? parseInt(options.hotPort) : defaultHotPort;
 
-    var templateFileList = [];
+    let templateFileList = [];
     webappDirectoryList.forEach(function (item, index) {
-        var templateViewSrcPagePath = path.join(item, '/src/main/webapp/WEB-INF/view/src/');
+        let templateViewSrcPagePath = path.join(item, '/src/main/webapp/WEB-INF/view/src/');
         //if no webapp directory, then exit;
         if (!fs.existsSync(templateViewSrcPagePath)) {
             throw new Error('can\'t find the webapp velocity template directory: ' + templateViewSrcPagePath);
@@ -54,16 +54,16 @@ exports = module.exports = function (options) {
         utils.getAllFilesByDir(templateViewSrcPagePath, templateFileList, ['.vm', '.html', '.tpl']);
     });
 
-    var cssCacheList = {};
-    var cssCompileList = [];
-    var regexpStaticFilesPrefix = utils.getRegexpStaticFilesPrefix();
+    let cssCacheList = {};
+    let cssCompileList = [];
+    let regexpStaticFilesPrefix = utils.getRegexpStaticFilesPrefix();
 
     templateFileList.forEach(function (tplPath) {
-        var tplContent = fs.readFileSync(tplPath).toString();
+        let tplContent = fs.readFileSync(tplPath).toString();
 
         tplContent.replace(utils.getRegexpCSSLinkElements(), function ($link) {
             $link.replace(utils.getRegexpCSSHrefValue(), function ($cssLink, $someSplitStr, $href) {
-                var cssPath = $href.replace(regexpStaticFilesPrefix, '');
+                let cssPath = $href.replace(regexpStaticFilesPrefix, '');
                 if (!cssCacheList[cssPath]) {
                     if ($href && !($href.indexOf('http') == 0)) {
                         cssCompileList.push(path.join(global.staticDirectory, cssPath));
@@ -78,13 +78,13 @@ exports = module.exports = function (options) {
         });
     });
 
-    var jsCacheList = {};
-    var jsCompileList = [];
-    var jsCompileListWithPureReact = [];
-    var jsCompileListWithVue = [];
+    let jsCacheList = {};
+    let jsCompileList = [];
+    let jsCompileListWithPureReact = [];
+    let jsCompileListWithVue = [];
 
     templateFileList.forEach(function (tplPath, index) {
-        var tplContent = fs.readFileSync(tplPath).toString();
+        let tplContent = fs.readFileSync(tplPath).toString();
         tplContent.replace(utils.getRegexpScriptElements(), function ($1, $2) {
             if ($2.indexOf('type="text/html"') > -1 || $2.indexOf('x-template') > -1) {
                 return $1;
@@ -96,18 +96,18 @@ exports = module.exports = function (options) {
 
             $1.replace(utils.getRegexpScriptElementSrcAttrValue(), function ($2_1, $src) {
                 //需要使用热加载的入口JS文件标识
-                var hotTag = '?hot=true';
+                let hotTag = '?hot=true';
                 //增加一个vue热加载的标识
-                var vueHotTag = '?vuehot=true';
-                if ($src && $src.toLowerCase().indexOf('http') == -1) {
-                    var jsPath = $src.replace(regexpStaticFilesPrefix, '').replace(hotTag, '').replace(vueHotTag, '');
+                let vueHotTag = '?vuehot=true';
+                if ($src && global.debugDomain.test($src)) { //改为判断是否以$!{开头
+                    let jsPath = $src.replace(regexpStaticFilesPrefix, '').replace(hotTag, '').replace(vueHotTag, '');
                     if (!jsCacheList[jsPath]) {
                         if ($src.indexOf('bundle.js') != -1) {
                             //需要使用ES6/7/8转换的JS
-                            var isES = $2.toLowerCase().indexOf('babel="true"') > -1;
-                            var isPureReact = $src.toLowerCase().indexOf(hotTag) > -1;
-                            var isVue = $src.toLowerCase().indexOf(vueHotTag) > -1;
-                            var jsSrcPath = utils.normalizePath(path.join(global.staticDirectory, path.dirname(jsPath), 'main.js')).replace(global.deployPrefix, global.srcPrefix)
+                            let isES = $2.toLowerCase().indexOf('babel="true"') > -1;
+                            let isPureReact = $src.toLowerCase().indexOf(hotTag) > -1;
+                            let isVue = $src.toLowerCase().indexOf(vueHotTag) > -1;
+                            let jsSrcPath = utils.normalizePath(path.join(global.staticDirectory, path.dirname(jsPath), 'main.js')).replace(global.deployPrefix, global.srcPrefix)
 
                             if (isPureReact) {
                                 jsCompileListWithPureReact.push({
@@ -143,7 +143,7 @@ exports = module.exports = function (options) {
     console.log('jsCompileListWithVue: ');
     console.log(jsCompileListWithVue);
 
-    var commonConfig = {
+    let commonConfig = {
         cache: true,
         resolve: {
             modules: [
@@ -159,7 +159,7 @@ exports = module.exports = function (options) {
         devtool: utils.hasArgument(process.argv, '--inline') ? "inline-source-map" : "eval"
     };
 
-    var babelSettings = {
+    let babelSettings = {
         cacheDirectory: true,
         presets: [
             [__dirname + "/node_modules/babel-preset-es2015", {"modules": false}],
@@ -172,11 +172,11 @@ exports = module.exports = function (options) {
     };
 
     async.map(jsCompileList, function (jsCompileItem, callback) {
-        var rebuildCompile = false;
-        var contextPath = path.join(global.staticDirectory, global.srcPrefix, 'js');
-        var staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
-        var entryPath = './' + jsCompileItem.path.replace(utils.normalizePath(contextPath), '');
-        var config = {
+        let rebuildCompile = false;
+        let contextPath = path.join(global.staticDirectory, global.srcPrefix, 'js');
+        let staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
+        let entryPath = './' + jsCompileItem.path.replace(utils.normalizePath(contextPath), '');
+        let config = {
             context: contextPath,
             entry: entryPath,
             plugins: [],
@@ -212,7 +212,7 @@ exports = module.exports = function (options) {
             });
         }
 
-        var compiler = webpack(config);
+        let compiler = webpack(config);
         compiler.watch({
             aggregateTimeout: 300,
             poll: true
@@ -253,10 +253,10 @@ exports = module.exports = function (options) {
 
         //如果有需要使用react-hot-loader的入口JS
         if (jsCompileListWithPureReact.length || jsCompileListWithVue.length) {
-            var entryList = {};
-            var debugDomain = typeof options.debugDomain == 'string' ? options.debugDomain : (jsCompileListWithPureReact.length ? 'local.wenwen.sogou.com' : 'local.baike.m.sogou.com');
+            let entryList = {};
+            let debugDomain = typeof options.debugDomain == 'string' ? options.debugDomain : (jsCompileListWithPureReact.length ? 'local.wenwen.sogou.com' : 'local.baike.m.sogou.com');
             jsCompileListWithPureReact.forEach(function (jsCompileItemWithPureReact) {
-                var entryKey = jsCompileItemWithPureReact.path.replace(utils.normalizePath(path.join(global.staticDirectory, 'src/')), 'sf/deploy/').replace('/main.js', '');
+                let entryKey = jsCompileItemWithPureReact.path.replace(utils.normalizePath(path.join(global.staticDirectory, 'src/')), 'sf/deploy/').replace('/main.js', '');
                 entryList[entryKey] = [
                     'react-hot-loader/patch',
                     'webpack-hot-middleware/client?reload=true',
@@ -266,16 +266,16 @@ exports = module.exports = function (options) {
 
             //Vue入口文件的处理
             jsCompileListWithVue.forEach(function (jsCompileItemWithVue) {
-                var entryKey = jsCompileItemWithVue.path.replace(utils.normalizePath(path.join(global.staticDirectory, 'src/')), 'sf/deploy/').replace('/main.js', '');
+                let entryKey = jsCompileItemWithVue.path.replace(utils.normalizePath(path.join(global.staticDirectory, 'src/')), 'sf/deploy/').replace('/main.js', '');
                 entryList[entryKey] = [
                     'webpack-hot-middleware/client?reload=true',
                     jsCompileItemWithVue.path
                 ];
             });
 
-            var staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
+            let staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
 
-            var config = {
+            let config = {
                 devtool: "eval",
                 entry: entryList,
                 plugins: [
@@ -308,9 +308,9 @@ exports = module.exports = function (options) {
                 include: [staticFilesSourceDir]
             });
 
-            var express = require('express');
-            var app = express();
-            var compiler = webpack(config);
+            let express = require('express');
+            let app = express();
+            let compiler = webpack(config);
 
             app.use(require('webpack-dev-middleware')(compiler, {
                 publicPath: config.output.publicPath
@@ -333,10 +333,10 @@ exports = module.exports = function (options) {
 
         if (!utils.hasArgument(process.argv, '--norefresh')) {
             gulp.task('default', function () {
-                var watchFiles = [];
+                let watchFiles = [];
 
                 webappDirectoryList.forEach(function (item, index) {
-                    var webappViewSrcDir = item + '/src/main/webapp/WEB-INF/view/src/';
+                    let webappViewSrcDir = item + '/src/main/webapp/WEB-INF/view/src/';
                     watchFiles.push(path.join(webappViewSrcDir + "/**/*.vm"));
                     watchFiles.push(path.join(webappViewSrcDir + "/**/*.html"));
                     watchFiles.push(path.join(webappViewSrcDir + "/**/*.tpl"));
