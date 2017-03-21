@@ -377,6 +377,8 @@ exports = module.exports = function (options) {
                                         watchFiles.push(path.join(item, filePath, "/src/**/*.jsx"));
                                         watchFiles.push(path.join(item, filePath, "/**/*.html"));
                                         watchFiles.push(path.join(item, filePath, "/**/*.tpl"));
+                                    } else if (filePath.toLowerCase() == 'bin') {
+                                        watchFiles.push(path.join(item, filePath, "/www"));
                                     } else {
                                         watchFiles.push(path.join(item, filePath, "/**/*.js"));
                                     }
