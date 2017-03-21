@@ -179,7 +179,14 @@ exports = module.exports = function (options) {
         let config = {
             context: contextPath,
             entry: entryPath,
-            plugins: [],
+            plugins: [
+                new webpack.LoaderOptionsPlugin({
+                    options: {
+                        context: __dirname,
+                        babel: babelSettings
+                    }
+                })
+            ],
             output: {
                 path: path.join(global.staticDirectory, global.deployPrefix, 'js', utils.normalizePath(path.dirname(jsCompileItem.path)).replace(utils.normalizePath(contextPath), '')),
                 filename: "bundle.js",
