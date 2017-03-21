@@ -13,7 +13,8 @@ program.usage('[dir] [options]')
     .option('--hot-port, --hot-port [react-hot-loader server\'s port]', 'react-hot-loader server\' port')
     .option('-livereload-port, --livereload-port [livereload\'s port]', 'livereload\'s port')
     .option('--norefresh [don\'t auto refresh]', 'norefresh')
-    .option('--inline [use inline-source-map]', 'use inline-source-map');
+    .option('--inline [use inline-source-map]', 'use inline-source-map')
+    .option('--express [build express project]', 'build express project');
 
 program.parse(process.argv);
 

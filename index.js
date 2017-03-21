@@ -6,23 +6,11 @@ let path = require('path');
 let utils = require('./lib/utils');
 global.srcPrefix = '/src/';
 global.deployPrefix = '/deploy/';
-global.debugDomain = /\$!{0,1}\{.+?\}/i;
+global.debugDomain = /^\$!{0,1}\{.+?\}/i;
+global.sfPrefix = '/sf/';
 
 exports = module.exports = function (options) {
-    let webappDirectory = options.webappDirectory;
-    let webappDirectoryList = [];
-    if (webappDirectory && typeof webappDirectory == 'string') {
-        webappDirectoryList = webappDirectory.split(',');
-        webappDirectoryList.forEach(function (item, index) {
-            item = item.trim();
-            if (!fs.existsSync(item)) {
-                throw new Error('can\'t find the webapp directory: ' + item);
-            }
-        });
-    } else {
-        throw new Error('can\'t find the arugment -w, this argument is webapp directory!');
-    }
-
+    let isExpressProject = utils.hasArgument(process.argv, '--express');
     let staticFilesDirectory = options.staticFilesDirectory;
 
     if (staticFilesDirectory && typeof staticFilesDirectory == 'string') {
@@ -39,20 +27,39 @@ exports = module.exports = function (options) {
         throw new Error("can't find 'src' directory in staticDirectory ");
     }
 
-    let defaultLiveReloadPort = 8999;
-    let defaultHotPort = 9797;
-    global.livereloadPort = typeof options.livereloadPort != 'undefined' && utils.isInt(options.livereloadPort) ? parseInt(options.livereloadPort) : defaultLiveReloadPort;
-    global.hotPort = typeof options.hotPort != 'undefined' && utils.isInt(options.hotPort) ? parseInt(options.hotPort) : defaultHotPort;
+    let webappDirectory = options.webappDirectory;
+    let webappDirectoryList = [];
+    if (webappDirectory && typeof webappDirectory == 'string') {
+        webappDirectoryList = webappDirectory.split(',');
+        webappDirectoryList.forEach(function (item, index) {
+            item = item.trim();
+            if (!fs.existsSync(item)) {
+                throw new Error('can\'t find the webapp directory: ' + item);
+            }
+        });
+    } else {
+        throw new Error('can\'t find the arugment -w, this argument is webapp directory!');
+    }
 
     let templateFileList = [];
+
     webappDirectoryList.forEach(function (item, index) {
         let templateViewSrcPagePath = path.join(item, '/src/main/webapp/WEB-INF/view/src/');
+
+        if (isExpressProject) {
+            templateViewSrcPagePath = path.join(item, '/views/src/');
+        }
         //if no webapp directory, then exit;
         if (!fs.existsSync(templateViewSrcPagePath)) {
             throw new Error('can\'t find the webapp velocity template directory: ' + templateViewSrcPagePath);
         }
-        utils.getAllFilesByDir(templateViewSrcPagePath, templateFileList, ['.vm', '.html', '.tpl']);
+        utils.getAllFilesByDir(templateViewSrcPagePath, templateFileList, isExpressProject ? ['.js', '.jsx', '.html', '.tpl'] : ['.vm', '.html', '.tpl']);
     });
+
+    let defaultLiveReloadPort = 8999;
+    let defaultHotPort = 9797;
+    global.livereloadPort = typeof options.livereloadPort != 'undefined' && utils.isInt(options.livereloadPort) ? parseInt(options.livereloadPort) : defaultLiveReloadPort;
+    global.hotPort = typeof options.hotPort != 'undefined' && utils.isInt(options.hotPort) ? parseInt(options.hotPort) : defaultHotPort;
 
     let cssCacheList = {};
     let cssCompileList = [];
@@ -66,7 +73,12 @@ exports = module.exports = function (options) {
                 let cssPath = $href.replace(regexpStaticFilesPrefix, '');
                 if (!cssCacheList[cssPath]) {
                     if ($href && !($href.indexOf('http') == 0)) {
-                        cssCompileList.push(path.join(global.staticDirectory, cssPath));
+                        if (isExpressProject) {
+                            cssCompileList.push(utils.normalizePath(path.join(global.staticDirectory, cssPath.replace(global.sfPrefix, '/'))));
+                        } else {
+                            cssCompileList.push(path.join(global.staticDirectory, cssPath));
+                        }
+
                         cssCacheList[cssPath] = true;
                     }
                 }
@@ -99,25 +111,30 @@ exports = module.exports = function (options) {
                 let hotTag = '?hot=true';
                 //增加一个vue热加载的标识
                 let vueHotTag = '?vuehot=true';
-                if ($src && global.debugDomain.test($src)) { //改为判断是否以$!{开头
+                if ($src && (global.debugDomain.test($src) || isExpressProject)) { //改为判断是否以$!{开头或者是express工程
                     let jsPath = $src.replace(regexpStaticFilesPrefix, '').replace(hotTag, '').replace(vueHotTag, '');
+
+                    if (isExpressProject) {
+                        jsPath = $src.replace(global.sfPrefix, '/').replace(hotTag, '').replace(vueHotTag, '');
+                    }
+
                     if (!jsCacheList[jsPath]) {
                         if ($src.indexOf('bundle.js') != -1) {
                             //需要使用ES6/7/8转换的JS
                             let isES = $2.toLowerCase().indexOf('babel="true"') > -1;
                             let isPureReact = $src.toLowerCase().indexOf(hotTag) > -1;
                             let isVue = $src.toLowerCase().indexOf(vueHotTag) > -1;
-                            let jsSrcPath = utils.normalizePath(path.join(global.staticDirectory, path.dirname(jsPath), 'main.js')).replace(global.deployPrefix, global.srcPrefix)
+                            let jsSrcPath = utils.normalizePath(path.join(global.staticDirectory, path.dirname(jsPath), 'main.js')).replace(global.deployPrefix, global.srcPrefix);
 
                             if (isPureReact) {
                                 jsCompileListWithPureReact.push({
                                     "path": jsSrcPath
                                 });
-                            } else if(isVue){
+                            } else if (isVue) {
                                 jsCompileListWithVue.push({
                                     "path": jsSrcPath
                                 })
-                            }else {
+                            } else {
                                 jsCompileList.push({
                                     "babel": isES,
                                     "path": jsSrcPath
@@ -191,7 +208,7 @@ exports = module.exports = function (options) {
                 path: path.join(global.staticDirectory, global.deployPrefix, 'js', utils.normalizePath(path.dirname(jsCompileItem.path)).replace(utils.normalizePath(contextPath), '')),
                 filename: "bundle.js",
                 chunkFilename: "[name].bundle.js",
-                publicPath: utils.normalizePath(path.join("/sf/", utils.normalizePath(path.join(global.deployPrefix, 'js', utils.normalizePath(path.dirname(jsCompileItem.path)).replace(utils.normalizePath(contextPath), ''))), '/'))
+                publicPath: utils.normalizePath(path.join(global.sfPrefix, utils.normalizePath(path.join(global.deployPrefix, 'js', utils.normalizePath(path.dirname(jsCompileItem.path)).replace(utils.normalizePath(contextPath), ''))), '/'))
             }
         };
 
@@ -258,7 +275,7 @@ exports = module.exports = function (options) {
             throw err;
         }
 
-        //如果有需要使用react-hot-loader的入口JS
+        //如果有需要使用react-hot-loader和vue-hot-reload-api的入口JS
         if (jsCompileListWithPureReact.length || jsCompileListWithVue.length) {
             let entryList = {};
             let debugDomain = typeof options.debugDomain == 'string' ? options.debugDomain : (jsCompileListWithPureReact.length ? 'local.wenwen.sogou.com' : 'local.baike.m.sogou.com');
@@ -344,9 +361,37 @@ exports = module.exports = function (options) {
 
                 webappDirectoryList.forEach(function (item, index) {
                     let webappViewSrcDir = item + '/src/main/webapp/WEB-INF/view/src/';
-                    watchFiles.push(path.join(webappViewSrcDir + "/**/*.vm"));
-                    watchFiles.push(path.join(webappViewSrcDir + "/**/*.html"));
-                    watchFiles.push(path.join(webappViewSrcDir + "/**/*.tpl"));
+
+                    if (isExpressProject) {
+                        let webappViewsDir = item + '/views';
+                        webappViewSrcDir = webappViewsDir + '/src/';
+                        let fileList = fs.readdirSync(item);
+
+                        fileList.forEach(function (filePath, index) {
+                            let stat = fs.statSync(path.join(item, filePath));
+
+                            //采用express推荐目录，只监控静态资源文件目录public以外的目录，同时忽略.svn等目录
+                            if (stat.isDirectory()) {
+                                if (filePath.toLowerCase() != 'public' && filePath.indexOf('.') != 0 && filePath.indexOf('node_modules') != 0) {
+                                    if (filePath.toLowerCase() == 'views') {
+                                        watchFiles.push(path.join(item, filePath, "/src/**/*.jsx"));
+                                        watchFiles.push(path.join(item, filePath, "/**/*.html"));
+                                        watchFiles.push(path.join(item, filePath, "/**/*.tpl"));
+                                    } else {
+                                        watchFiles.push(path.join(item, filePath, "/**/*.js"));
+                                    }
+                                }
+                            } else {
+                                if (path.extname(filePath) == '.js') {
+                                    watchFiles.push(path.join(item, filePath));
+                                }
+                            }
+                        });
+                    } else {
+                        watchFiles.push(path.join(webappViewSrcDir + "/**/*.vm"));
+                        watchFiles.push(path.join(webappViewSrcDir + "/**/*.html"));
+                        watchFiles.push(path.join(webappViewSrcDir + "/**/*.tpl"));
+                    }
                 });
                 watchFiles.push(cssCompileList);
                 console.log('watchFiles List: ');
