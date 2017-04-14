@@ -375,8 +375,8 @@ exports = module.exports = function (options) {
                                 if (filePath.toLowerCase() != 'public' && filePath.indexOf('.') != 0 && filePath.indexOf('node_modules') != 0) {
                                     if (filePath.toLowerCase() == 'views') {
                                         watchFiles.push(path.join(item, filePath, "/src/**/*.jsx"));
-                                        watchFiles.push(path.join(item, filePath, "/**/*.html"));
-                                        watchFiles.push(path.join(item, filePath, "/**/*.tpl"));
+                                        watchFiles.push(path.join(item, filePath, "/src/**/*.html"));
+                                        watchFiles.push(path.join(item, filePath, "/src/**/*.tpl"));
                                     } else if (filePath.toLowerCase() == 'bin') {
                                         watchFiles.push(path.join(item, filePath, "/www"));
                                     } else {
