@@ -6,7 +6,8 @@ let path = require('path');
 let utils = require('./lib/utils');
 global.srcPrefix = '/src/';
 global.deployPrefix = '/deploy/';
-global.debugDomain = /^\$!{0,1}\{.+?\}/i;
+//global.debugDomain = /^\$!{0,1}\{.+?\}/i;
+global.debugDomain = /\/sf/;
 global.sfPrefix = '/sf/';
 
 exports = module.exports = function (options) {
