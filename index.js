@@ -364,8 +364,6 @@ exports = module.exports = function (options) {
                     let webappViewSrcDir = item + '/src/main/webapp/WEB-INF/view/src/';
 
                     if (isExpressProject) {
-                        let webappViewsDir = item + '/views';
-                        webappViewSrcDir = webappViewsDir + '/src/';
                         let fileList = fs.readdirSync(item);
 
                         fileList.forEach(function (filePath, index) {
