@@ -317,7 +317,7 @@ exports = module.exports = function (options) {
                     path: path.join(__dirname, 'deploy'),
                     filename: "[name]/bundle.js",
                     chunkFilename: "[name].bundle.js",
-                    publicPath: 'http://' + debugDomain + ':' + global.hotPort + '/'
+                    publicPath: '//' + debugDomain + ':' + global.hotPort + '/'
                 }
             };
 
