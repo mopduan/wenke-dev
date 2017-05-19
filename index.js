@@ -12,6 +12,7 @@ global.sfPrefix = '/sf/';
 
 exports = module.exports = function (options) {
     let isExpressProject = utils.hasArgument(process.argv, '--express');
+    let isHttps = utils.hasArgument(process.argv, '--https');
     let staticFilesDirectory = options.staticFilesDirectory;
 
     if (staticFilesDirectory && typeof staticFilesDirectory == 'string') {
@@ -58,8 +59,10 @@ exports = module.exports = function (options) {
     });
 
     let defaultLiveReloadPort = 8999;
+    let defaultHttpsLiveReloadPort = 8998;
     let defaultHotPort = 9797;
     global.livereloadPort = typeof options.livereloadPort != 'undefined' && utils.isInt(options.livereloadPort) ? parseInt(options.livereloadPort) : defaultLiveReloadPort;
+    global.httpsLivereloadPort = typeof options.httpsLivereloadPort != 'undefined' && utils.isInt(options.httpsLivereloadPort) ? parseInt(options.httpsLivereloadPort) : defaultHttpsLiveReloadPort;
     global.hotPort = typeof options.hotPort != 'undefined' && utils.isInt(options.hotPort) ? parseInt(options.hotPort) : defaultHotPort;
 
     let cssCacheList = {};
@@ -260,6 +263,11 @@ exports = module.exports = function (options) {
                     global.socket.emit("refresh", {"refresh": 1});
                     console.log("files changed： trigger refresh...");
                 }
+
+                if(isHttps && global.httpsSocket) {
+                    global.httpsSocket.emit("refresh", {"refresh": 1});
+                    console.log("[https] files changed: trigger refresh...");
+                }
             }
 
             if (typeof callback == 'function') {
@@ -402,8 +410,13 @@ exports = module.exports = function (options) {
                         global.socket.emit("refresh", {"refresh": 1});
                         console.log("files changed： trigger refresh...");
                     }
+
+                    if(isHttps && global.httpsSocket) {
+                        global.httpsSocket.emit("refresh", {"refresh": 1});
+                        console.log("[https] file changed: trigger refresh...");
+                    }
                 });
-                utils.startWebSocketServer();
+                utils.startWebSocketServer(isHttps);
             });
 
             gulp.start();

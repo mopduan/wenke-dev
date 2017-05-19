@@ -14,7 +14,9 @@ program.usage('[dir] [options]')
     .option('-livereload-port, --livereload-port [livereload\'s port]', 'livereload\'s port')
     .option('--norefresh [don\'t auto refresh]', 'norefresh')
     .option('--inline [use inline-source-map]', 'use inline-source-map')
-    .option('--express [build express project]', 'build express project');
+    .option('--express [build express project]', 'build express project')
+    .option('--https [build https]', 'build https')
+    .option('-https-livereload-port, --https-livereload-port [https livereload port]', 'https livereload port');
 
 program.parse(process.argv);
 
