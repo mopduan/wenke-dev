@@ -177,7 +177,7 @@ exports = module.exports = function (options) {
                 path.join(__dirname, "node_modules")
             ]
         },
-        devtool: utils.hasArgument(process.argv, '--inline') ? "inline-source-map" : "eval"
+        devtool: utils.hasArgument(process.argv, '--eval') ? "eval" : "inline-source-map"
     };
 
     let babelSettings = {
