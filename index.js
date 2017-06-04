@@ -124,8 +124,6 @@ exports = module.exports = function (options) {
 
                     if (!jsCacheList[jsPath]) {
                         if ($src.indexOf('bundle.js') != -1) {
-                            //需要使用ES6/7/8转换的JS
-                            let isES = $2.toLowerCase().indexOf('babel="true"') > -1;
                             let isPureReact = $src.toLowerCase().indexOf(hotTag) > -1;
                             let isVue = $src.toLowerCase().indexOf(vueHotTag) > -1;
                             let jsSrcPath = utils.normalizePath(path.join(global.staticDirectory, path.dirname(jsPath), 'main.js')).replace(global.deployPrefix, global.srcPrefix);
@@ -140,7 +138,6 @@ exports = module.exports = function (options) {
                                 })
                             } else {
                                 jsCompileList.push({
-                                    "babel": isES,
                                     "path": jsSrcPath
                                 });
                             }
@@ -231,14 +228,12 @@ exports = module.exports = function (options) {
         config.module = {rules: utils.getRules()};
         utils.extendConfig(config, commonConfig);
 
-        if (jsCompileItem.babel) {
-            config.module.rules.push({
-                test: /\.(js|jsx)$/,
-                use: [{loader: 'babel-loader', options: JSON.stringify(babelSettings)}],
-                exclude: /(node_modules|bower_components)/,
-                include: [staticFilesSourceDir]
-            });
-        }
+        config.module.rules.push({
+            test: /\.(js|jsx)$/,
+            use: [{loader: 'babel-loader', options: JSON.stringify(babelSettings)}],
+            exclude: /(node_modules|bower_components)/,
+            include: [staticFilesSourceDir]
+        });
 
         let compiler = webpack(config);
         compiler.watch({
