@@ -197,14 +197,6 @@ exports = module.exports = function (options) {
         let config = {
             context: contextPath,
             entry: entryPath,
-            plugins: [
-                new webpack.LoaderOptionsPlugin({
-                    options: {
-                        context: __dirname,
-                        babel: babelSettings
-                    }
-                })
-            ],
             output: {
                 path: path.join(global.staticDirectory, global.deployPrefix, 'js', utils.normalizePath(path.dirname(jsCompileItem.path)).replace(utils.normalizePath(contextPath), '')),
                 filename: "bundle.js",
@@ -308,13 +300,7 @@ exports = module.exports = function (options) {
                 entry: entryList,
                 plugins: [
                     new webpack.HotModuleReplacementPlugin(),
-                    new webpack.NoEmitOnErrorsPlugin(),
-                    new webpack.LoaderOptionsPlugin({
-                        options: {
-                            context: __dirname,
-                            babel: babelSettings
-                        }
-                    })
+                    new webpack.NoEmitOnErrorsPlugin()
                 ],
                 output: {
                     path: path.join(__dirname, 'deploy'),
