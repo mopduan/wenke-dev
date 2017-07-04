@@ -197,6 +197,7 @@ exports = module.exports = function (options) {
         let config = {
             context: contextPath,
             entry: entryPath,
+            plugins: [],
             output: {
                 path: path.join(global.staticDirectory, global.deployPrefix, 'js', utils.normalizePath(path.dirname(jsCompileItem.path)).replace(utils.normalizePath(contextPath), '')),
                 filename: "bundle.js",
@@ -251,7 +252,7 @@ exports = module.exports = function (options) {
                     console.log("files changed： trigger refresh...");
                 }
 
-                if(isHttps && global.httpsSocket) {
+                if (isHttps && global.httpsSocket) {
                     global.httpsSocket.emit("refresh", {"refresh": 1});
                     console.log("[https] files changed: trigger refresh...");
                 }
@@ -392,7 +393,7 @@ exports = module.exports = function (options) {
                         console.log("files changed： trigger refresh...");
                     }
 
-                    if(isHttps && global.httpsSocket) {
+                    if (isHttps && global.httpsSocket) {
                         global.httpsSocket.emit("refresh", {"refresh": 1});
                         console.log("[https] file changed: trigger refresh...");
                     }
