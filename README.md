@@ -123,8 +123,8 @@ livereload服务端口, 默认为: 8999
 ### --norefresh
 禁用livereload服务, 当此参数存在时, --livereload-port参数设置无效
 
-### --inline
-设置webpack的devtool的编译方式为: inline-source-map, 默认编译方式为: eval
+### --eval
+设置webpack的devtool的编译方式为: eval, 默认编译方式为: inline-source-map
 
 ### --express
 编译Express工程
