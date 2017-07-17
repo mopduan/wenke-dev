@@ -200,7 +200,11 @@ exports = module.exports = function (options) {
             plugins: [
                 new webpack.LoaderOptionsPlugin({
                     options: {
-                        babel: babelSettings
+                        vue:{
+                            loaders:{
+                                js:`babel-loader?${JSON.stringify(babelSettings)}`
+                            }
+                        }
                     }
                 })
             ],
@@ -310,7 +314,11 @@ exports = module.exports = function (options) {
                     new webpack.NoEmitOnErrorsPlugin(),
                     new webpack.LoaderOptionsPlugin({
                         options: {
-                            babel: babelSettings
+                            vue:{
+                                loaders:{
+                                    js:`babel-loader?${JSON.stringify(babelSettings)}`
+                                }
+                            }
                         }
                     })
                 ],
