@@ -43,6 +43,7 @@
     "babel-preset-es2016": "6.24.1",
     "babel-preset-es2017": "6.24.1",
     "babel-preset-react": "6.24.1",
+    "babel-preset-preact": "1.1.0",
     "babel-preset-stage-3": "6.24.1",
     "commander": "2.11.0",
     "css-loader": "0.28.4",
@@ -72,5 +73,8 @@
     "webpack": "3.3.0",
     "webpack-dev-middleware": "1.10.2",
     "webpack-hot-middleware": "2.18.0"
+  },
+  "devDependencies": {
+    "preact": "^8.2.1"
   }
 }

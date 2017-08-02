@@ -177,19 +177,27 @@ exports = module.exports = function (options) {
         devtool: utils.hasArgument(process.argv, '--eval') ? "eval" : "inline-source-map"
     };
 
+    let _presets = [
+        [__dirname + "/node_modules/babel-preset-es2015", {"modules": false}],
+        __dirname + "/node_modules/babel-preset-es2016",
+        __dirname + "/node_modules/babel-preset-es2017",
+        __dirname + "/node_modules/babel-preset-stage-3"
+    ];
+
+    if(options.preact) {
+        _presets.push(__dirname + "/node_modules/babel-preset-preact");
+    } else {
+        _presets.push(__dirname + "/node_modules/babel-preset-react");
+    }
+
     let babelSettings = {
         cacheDirectory: true,
-        presets: [
-            [__dirname + "/node_modules/babel-preset-es2015", {"modules": false}],
-            __dirname + "/node_modules/babel-preset-es2016",
-            __dirname + "/node_modules/babel-preset-es2017",
-            __dirname + "/node_modules/babel-preset-stage-3",
-            __dirname + '/node_modules/babel-preset-react'
-        ],
+        presets: _presets,
         compact: false
     };
 
     async.map(jsCompileList, function (jsCompileItem, callback) {
+        console.log(jsCompileList);
         let rebuildCompile = false;
         let contextPath = path.join(global.staticDirectory, global.srcPrefix, 'js');
         let staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
@@ -225,7 +233,8 @@ exports = module.exports = function (options) {
             "immutable": "Immutable",
             "vue": "Vue",
             "vue-router": "VueRouter",
-            "vuex": "Vuex"
+            "vuex": "Vuex",
+            "preact": "preact"
         };
 
         config.module = {rules: utils.getRules()};
