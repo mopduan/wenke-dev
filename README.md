@@ -129,6 +129,9 @@ livereload服务端口, 默认为: 8999
 ### --express
 编译Express工程
 
+### --preact
+使用preact来编译工程
+
 ## Report an issue
 >欢迎大家将使用wenke-dev中遇到的任何问题提交给我，提问地址：<a href="https://github.com/mopduan/wenke-dev/issues" target="_blank">Report an issue</a>
 
