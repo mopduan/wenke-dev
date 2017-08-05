@@ -389,19 +389,20 @@ exports = module.exports = function (options) {
 
                             //采用express推荐目录，只监控静态资源文件目录public以外的目录，同时忽略.svn等目录
                             if (stat.isDirectory()) {
-                                if (filePath.toLowerCase() != 'public' && filePath.indexOf('.') != 0 && filePath.indexOf('node_modules') != 0) {
-                                    if (filePath.toLowerCase() == 'views') {
+                                if (filePath.toLowerCase() !== 'public' && filePath.indexOf('.') !== 0 && filePath.indexOf('node_modules') !== 0) {
+                                    if (filePath.toLowerCase() === 'views') {
+                                        watchFiles.push(path.join(item, filePath, "/src/**/*.js"));
                                         watchFiles.push(path.join(item, filePath, "/src/**/*.jsx"));
                                         watchFiles.push(path.join(item, filePath, "/src/**/*.html"));
                                         watchFiles.push(path.join(item, filePath, "/src/**/*.tpl"));
-                                    } else if (filePath.toLowerCase() == 'bin') {
+                                    } else if (filePath.toLowerCase() === 'bin') {
                                         watchFiles.push(path.join(item, filePath, "/www"));
                                     } else {
                                         watchFiles.push(path.join(item, filePath, "/**/*.js"));
                                     }
                                 }
                             } else {
-                                if (path.extname(filePath) == '.js') {
+                                if (path.extname(filePath) === '.js') {
                                     watchFiles.push(path.join(item, filePath));
                                 }
                             }
