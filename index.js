@@ -184,7 +184,7 @@ exports = module.exports = function (options) {
         __dirname + "/node_modules/babel-preset-stage-3"
     ];
 
-    if(options.preact) {
+    if (options.preact) {
         _presets.push(__dirname + "/node_modules/babel-preset-preact");
     } else {
         _presets.push(__dirname + "/node_modules/babel-preset-react");
@@ -208,12 +208,15 @@ exports = module.exports = function (options) {
             plugins: [
                 new webpack.LoaderOptionsPlugin({
                     options: {
-                        vue:{
-                            loaders:{
-                                js:`babel-loader?${JSON.stringify(babelSettings)}`
+                        vue: {
+                            loaders: {
+                                js: `babel-loader?${JSON.stringify(babelSettings)}`
                             }
                         }
                     }
+                }),
+                new webpack.DefinePlugin({
+                    __DEVTOOLS__: options.preact ? true : false
                 })
             ],
             output: {
@@ -233,8 +236,7 @@ exports = module.exports = function (options) {
             "immutable": "Immutable",
             "vue": "Vue",
             "vue-router": "VueRouter",
-            "vuex": "Vuex",
-            "preact": "preact"
+            "vuex": "Vuex"
         };
 
         config.module = {rules: utils.getRules()};
@@ -323,9 +325,9 @@ exports = module.exports = function (options) {
                     new webpack.NoEmitOnErrorsPlugin(),
                     new webpack.LoaderOptionsPlugin({
                         options: {
-                            vue:{
-                                loaders:{
-                                    js:`babel-loader?${JSON.stringify(babelSettings)}`
+                            vue: {
+                                loaders: {
+                                    js: `babel-loader?${JSON.stringify(babelSettings)}`
                                 }
                             }
                         }
