@@ -331,6 +331,9 @@ exports = module.exports = function (options) {
                                 }
                             }
                         }
+                    }),
+                    new webpack.DefinePlugin({
+                        __DEVTOOLS__: options.preact ? true : false
                     })
                 ],
                 output: {
