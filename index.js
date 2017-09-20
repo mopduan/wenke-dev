@@ -167,7 +167,11 @@ exports = module.exports = function (options) {
             modules: [
                 path.join(__dirname, "node_modules")
             ],
-            extensions: ['.js', '.jsx']
+            extensions: ['.js', '.jsx'],
+            alias: {
+                'react': 'preact-compat',
+                'react-dom': 'preact-compat'
+            }
         },
         resolveLoader: {
             modules: [
@@ -233,6 +237,8 @@ exports = module.exports = function (options) {
             "redux": "Redux",
             "react-redux": "ReactRedux",
             "react-router": "ReactRouter",
+            "react-router-dom": "ReactRouterDOM",
+            "preact-redux": "preactRedux",
             "immutable": "Immutable",
             "vue": "Vue",
             "vue-router": "VueRouter",
