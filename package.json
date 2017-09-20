@@ -1,6 +1,6 @@
 {
   "name": "wenke-dev",
-  "version": "1.7.11",
+  "version": "1.7.12",
   "description": "dev tool for wenke-webpack",
   "main": "index.js",
   "bin": {
