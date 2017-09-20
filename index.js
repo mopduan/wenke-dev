@@ -184,10 +184,10 @@ exports = module.exports = function (options) {
         __dirname + "/node_modules/babel-preset-stage-3"
     ];
 
-    if (options.preact) {
-        _presets.push(__dirname + "/node_modules/babel-preset-preact");
-    } else {
+    if (options.react) {
         _presets.push(__dirname + "/node_modules/babel-preset-react");
+    } else {
+        _presets.push(__dirname + "/node_modules/babel-preset-preact");
     }
 
     let babelSettings = {
@@ -216,7 +216,7 @@ exports = module.exports = function (options) {
                     }
                 }),
                 new webpack.DefinePlugin({
-                    __DEVTOOLS__: options.preact ? true : false
+                    __DEVTOOLS__: options.react ? false : true
                 })
             ],
             output: {
@@ -333,7 +333,7 @@ exports = module.exports = function (options) {
                         }
                     }),
                     new webpack.DefinePlugin({
-                        __DEVTOOLS__: options.preact ? true : false
+                        __DEVTOOLS__: options.react ? false : true
                     })
                 ],
                 output: {
