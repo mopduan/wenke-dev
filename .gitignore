@@ -21,3 +21,5 @@ node_modules
 .idea/vcs.xml
 .idea/jsLibraryMappings.xml
 .idea/wenke-dev.iml
+
+package-lock.json
