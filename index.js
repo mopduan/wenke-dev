@@ -168,10 +168,10 @@ exports = module.exports = function (options) {
                 path.join(__dirname, "node_modules")
             ],
             extensions: ['.js', '.jsx'],
-            alias: {
+            alias: options.preact ? {
                 'react': 'preact-compat',
                 'react-dom': 'preact-compat'
-            }
+            } : {}
         },
         resolveLoader: {
             modules: [
