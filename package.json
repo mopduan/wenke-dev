@@ -1,6 +1,6 @@
 {
   "name": "wenke-dev",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "dev tool for wenke-webpack",
   "main": "index.js",
   "bin": {
@@ -54,7 +54,7 @@
     "raw-loader": "0.5.1",
     "react": "16.0.0",
     "react-dom": "16.0.0",
-    "react-hot-loader": "3.0.0-beta.7",
+    "react-hot-loader": "3.0.0",
     "react-redux": "5.0.2",
     "react-router": "4.0.0",
     "redux": "3.6.0",
