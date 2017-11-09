@@ -18,12 +18,23 @@ program.usage('[dir] [options]')
     .option('--express [build express project]', 'build express project')
     .option('--https [build https]', 'build https')
     .option('-https-livereload-port, --https-livereload-port [https livereload port]', 'https livereload port')
-    .option('--preact [use preact]', 'use preact');
+    .option('--preact [use preact]', 'use preact')
+    .option('--force-update [force update]', 'force update');
 
 program.parse(process.argv);
 
-utils.verifyVersion(function () {
+let isForceUpdate = utils.hasArgument(process.argv, '--force-update');
+if(isForceUpdate) {
+    utils.verifyVersion(function () {
+        wenkeDev(program);
+    }, function () {
+        process.exit(-1);
+    });
+} else {
     wenkeDev(program);
-}, function () {
-    process.exit(-1);
-});
+}
+
+
+
+
+
