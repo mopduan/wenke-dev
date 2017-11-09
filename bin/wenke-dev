@@ -19,19 +19,21 @@ program.usage('[dir] [options]')
     .option('--https [build https]', 'build https')
     .option('-https-livereload-port, --https-livereload-port [https livereload port]', 'https livereload port')
     .option('--preact [use preact]', 'use preact')
-    .option('--force-update [force update]', 'force update');
+    .option('--disable-update [ disable force update]', ' disable force update');
+
+
 
 program.parse(process.argv);
 
-let isForceUpdate = utils.hasArgument(process.argv, '--force-update');
-if(isForceUpdate) {
+let disableUpdate = utils.hasArgument(process.argv, '--disable-update');
+if(disableUpdate) {
+    wenkeDev(program);
+} else {
     utils.verifyVersion(function () {
         wenkeDev(program);
     }, function () {
         process.exit(-1);
     });
-} else {
-    wenkeDev(program);
 }
 
 
