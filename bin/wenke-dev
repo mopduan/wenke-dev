@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 let wenkeDev = require('..');
+let utils = require('../lib/utils');
 
 let program = require('commander');
 
@@ -21,4 +22,8 @@ program.usage('[dir] [options]')
 
 program.parse(process.argv);
 
-wenkeDev(program);
+utils.verifyVersion(function () {
+    wenkeDev(program);
+}, function () {
+    process.exit(-1);
+});
