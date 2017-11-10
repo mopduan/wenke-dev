@@ -201,7 +201,6 @@ exports = module.exports = function (options) {
     };
 
     async.map(jsCompileList, function (jsCompileItem, callback) {
-        console.log(jsCompileList);
         let rebuildCompile = false;
         let contextPath = path.join(global.staticDirectory, global.srcPrefix, 'js');
         let staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
