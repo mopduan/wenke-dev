@@ -197,7 +197,8 @@ exports = module.exports = function (options) {
     let babelSettings = {
         cacheDirectory: true,
         presets: _presets,
-        compact: false
+        compact: false,
+        plugins: [__dirname + "/node_modules/babel-plugin-transform-decorators-legacy"]
     };
 
     async.map(jsCompileList, function (jsCompileItem, callback) {
