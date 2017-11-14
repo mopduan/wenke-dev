@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 let wenkeDev = require('..');
+let utils = require('../lib/utils');
 
 let program = require('commander');
 
@@ -17,8 +18,25 @@ program.usage('[dir] [options]')
     .option('--express [build express project]', 'build express project')
     .option('--https [build https]', 'build https')
     .option('-https-livereload-port, --https-livereload-port [https livereload port]', 'https livereload port')
-    .option('--preact [use preact]', 'use preact');
+    .option('--preact [use preact]', 'use preact')
+    .option('--disable-update [ disable force update]', ' disable force update');
+
+
 
 program.parse(process.argv);
 
-wenkeDev(program);
+let disableUpdate = utils.hasArgument(process.argv, '--disable-update');
+if(disableUpdate) {
+    wenkeDev(program);
+} else {
+    utils.verifyVersion(function () {
+        wenkeDev(program);
+    }, function () {
+        process.exit(-1);
+    });
+}
+
+
+
+
+
