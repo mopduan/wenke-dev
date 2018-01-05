@@ -484,6 +484,5 @@ exports = module.exports = function (options) {
                 console.log('Hot loader server start listening at http://' + debugDomain + ':' + global.hotPort + '/');
             });
         }
-        ;
     }
 };
