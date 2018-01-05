@@ -189,7 +189,7 @@ exports = module.exports = function (options) {
         compact: false,
         plugins: [__dirname + "/node_modules/babel-plugin-transform-decorators-legacy"]
     };
-    if (!options["vue-hot"]) {
+    if (!options["vuehot"]) {
     async.map(jsCompileList, function (jsCompileItem, callback) {
         let rebuildCompile = false;
         let contextPath = path.join(global.staticDirectory, global.srcPrefix, 'js');
@@ -456,6 +456,14 @@ exports = module.exports = function (options) {
 
             let express = require('express');
             let app = express();
+            app.all('*', function (req, res, next) {
+                res.header("Access-Control-Allow-Origin", "*");
+                res.header("Access-Control-Allow-Headers", "X-Requested-With");
+                res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+                res.header("X-Powered-By", ' 3.2.1')
+                res.header("Content-Type", "application/json;charset=utf-8");
+                next();
+            });
             let compiler = webpack(config);
 
             app.use(require('webpack-dev-middleware')(compiler, {
