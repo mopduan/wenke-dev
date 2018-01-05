@@ -412,7 +412,7 @@ exports = module.exports = function (options) {
         //vue热替换 默认开启
         if (jsCompileList.length) {
             let entryList = {};
-            let debugDomain = 'local.baike.sogou.com';
+            let debugDomain = options.debugDomain || 'local.baike.sogou.com';
             //Vue入口文件的处理
             jsCompileList.forEach(function (item) {
                 let entryKey = item.path.replace(utils.normalizePath(path.join(global.staticDirectory, 'src/')), 'sf/deploy/').replace('/main.js', '');
