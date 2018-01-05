@@ -97,7 +97,6 @@ exports = module.exports = function (options) {
     let jsCacheList = {};
     let jsCompileList = [];
     let jsCompileListWithPureReact = [];
-    let jsCompileListWithVue = [];
 
     templateFileList.forEach(function (tplPath, index) {
         let tplContent = fs.readFileSync(tplPath).toString();
@@ -113,29 +112,22 @@ exports = module.exports = function (options) {
             $1.replace(utils.getRegexpScriptElementSrcAttrValue(), function ($2_1, $src) {
                 //需要使用热加载的入口JS文件标识
                 let hotTag = '?hot=true';
-                //增加一个vue热加载的标识
-                let vueHotTag = '?vuehot=true';
                 if ($src && (global.debugDomain.test($src) || isExpressProject)) { //改为判断是否以$!{开头或者是express工程
-                    let jsPath = $src.replace(regexpStaticFilesPrefix, '').replace(hotTag, '').replace(vueHotTag, '');
+                    let jsPath = $src.replace(regexpStaticFilesPrefix, '').replace(hotTag, '');
 
                     if (isExpressProject) {
-                        jsPath = $src.replace(global.sfPrefix, '/').replace(hotTag, '').replace(vueHotTag, '');
+                        jsPath = $src.replace(global.sfPrefix, '/').replace(hotTag, '');
                     }
 
                     if (!jsCacheList[jsPath]) {
                         if ($src.indexOf('bundle.js') != -1) {
                             let isPureReact = $src.toLowerCase().indexOf(hotTag) > -1;
-                            let isVue = $src.toLowerCase().indexOf(vueHotTag) > -1;
                             let jsSrcPath = utils.normalizePath(path.join(global.staticDirectory, path.dirname(jsPath), 'main.js')).replace(global.deployPrefix, global.srcPrefix);
 
                             if (isPureReact) {
                                 jsCompileListWithPureReact.push({
                                     "path": jsSrcPath
                                 });
-                            } else if (isVue) {
-                                jsCompileListWithVue.push({
-                                    "path": jsSrcPath
-                                })
                             } else {
                                 jsCompileList.push({
                                     "path": jsSrcPath
@@ -157,9 +149,6 @@ exports = module.exports = function (options) {
 
     console.log('jsCompileListWithPureReact：');
     console.log(jsCompileListWithPureReact);
-
-    console.log('jsCompileListWithVue: ');
-    console.log(jsCompileListWithVue);
 
     let commonConfig = {
         cache: true,
@@ -200,7 +189,7 @@ exports = module.exports = function (options) {
         compact: false,
         plugins: [__dirname + "/node_modules/babel-plugin-transform-decorators-legacy"]
     };
-
+    if (!options["vue-hot"]) {
     async.map(jsCompileList, function (jsCompileItem, callback) {
         let rebuildCompile = false;
         let contextPath = path.join(global.staticDirectory, global.srcPrefix, 'js');
@@ -210,15 +199,6 @@ exports = module.exports = function (options) {
             context: contextPath,
             entry: entryPath,
             plugins: [
-                new webpack.LoaderOptionsPlugin({
-                    options: {
-                        vue: {
-                            loaders: {
-                                js: `babel-loader?${JSON.stringify(babelSettings)}`
-                            }
-                        }
-                    }
-                }),
                 new webpack.DefinePlugin({
                     __DEVTOOLS__: options.preact ? true : false
                 })
@@ -299,25 +279,16 @@ exports = module.exports = function (options) {
             throw err;
         }
 
-        //如果有需要使用react-hot-loader和vue-hot-reload-api的入口JS
-        if (jsCompileListWithPureReact.length || jsCompileListWithVue.length) {
+        //如果有需要使用react-hot-loader的入口JS
+        if (jsCompileListWithPureReact.length) {
             let entryList = {};
-            let debugDomain = typeof options.debugDomain == 'string' ? options.debugDomain : (jsCompileListWithPureReact.length ? 'local.wenwen.sogou.com' : 'local.baike.m.sogou.com');
+            let debugDomain = typeof options.debugDomain == 'string' ? options.debugDomain : 'local.wenwen.sogou.com';
             jsCompileListWithPureReact.forEach(function (jsCompileItemWithPureReact) {
                 let entryKey = jsCompileItemWithPureReact.path.replace(utils.normalizePath(path.join(global.staticDirectory, 'src/')), 'sf/deploy/').replace('/main.js', '');
                 entryList[entryKey] = [
                     'react-hot-loader/patch',
                     'webpack-hot-middleware/client?reload=true',
                     jsCompileItemWithPureReact.path
-                ];
-            });
-
-            //Vue入口文件的处理
-            jsCompileListWithVue.forEach(function (jsCompileItemWithVue) {
-                let entryKey = jsCompileItemWithVue.path.replace(utils.normalizePath(path.join(global.staticDirectory, 'src/')), 'sf/deploy/').replace('/main.js', '');
-                entryList[entryKey] = [
-                    'webpack-hot-middleware/client?reload=true',
-                    jsCompileItemWithVue.path
                 ];
             });
 
@@ -329,15 +300,6 @@ exports = module.exports = function (options) {
                 plugins: [
                     new webpack.HotModuleReplacementPlugin(),
                     new webpack.NoEmitOnErrorsPlugin(),
-                    new webpack.LoaderOptionsPlugin({
-                        options: {
-                            vue: {
-                                loaders: {
-                                    js: `babel-loader?${JSON.stringify(babelSettings)}`
-                                }
-                            }
-                        }
-                    }),
                     new webpack.DefinePlugin({
                         __DEVTOOLS__: options.preact ? true : false
                     })
@@ -383,6 +345,7 @@ exports = module.exports = function (options) {
                 console.log('Hot loader server start listening at http://' + debugDomain + ':' + global.hotPort + '/');
             });
         }
+
 
         if (!utils.hasArgument(process.argv, '--norefresh')) {
             gulp.task('default', function () {
@@ -445,4 +408,74 @@ exports = module.exports = function (options) {
             console.log('status: norefresh');
         }
     });
+    } else {
+        //vue热替换 默认开启
+        if (jsCompileList.length) {
+            let entryList = {};
+            let debugDomain = 'local.baike.sogou.com';
+            //Vue入口文件的处理
+            jsCompileList.forEach(function (item) {
+                let entryKey = item.path.replace(utils.normalizePath(path.join(global.staticDirectory, 'src/')), 'sf/deploy/').replace('/main.js', '');
+                entryList[entryKey] = [
+                    'webpack-hot-middleware/client',
+                    item.path
+                ];
+            });
+
+            let staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
+            let config = {
+                devtool: "eval",
+                entry: entryList,
+                plugins: [
+                    new webpack.optimize.OccurrenceOrderPlugin(),
+                    new webpack.HotModuleReplacementPlugin(),
+                    new webpack.NoEmitOnErrorsPlugin()
+                ],
+                output: {
+                    filename: "[name]/bundle.js",
+                    chunkFilename: "[name].bundle.js",
+                    publicPath: '//' + debugDomain + ':' + global.hotPort + '/'
+                }
+            };
+            config.module = {rules: utils.getRules()};
+            utils.extendConfig(config, commonConfig);
+            config.externals = {
+                "immutable": "Immutable",
+                "vue": "Vue",
+                "vue-router": "VueRouter",
+                "vuex": "Vuex"
+            };
+
+            config.module.rules.push({
+                test: /\.(js|jsx)$/,
+                use: [{
+                    loader: 'babel-loader', options: JSON.stringify(babelSettings)
+                }],
+                include: [staticFilesSourceDir]
+            });
+
+            let express = require('express');
+            let app = express();
+            let compiler = webpack(config);
+
+            app.use(require('webpack-dev-middleware')(compiler, {
+                publicPath: config.output.publicPath
+            }));
+
+            app.use(require('webpack-hot-middleware')(compiler));
+
+            app.get('*', function (req, res) {
+
+            });
+
+            app.listen(global.hotPort, function (err) {
+                if (err) {
+                    return console.error(err);
+                }
+
+                console.log('Hot loader server start listening at http://' + debugDomain + ':' + global.hotPort + '/');
+            });
+        }
+        ;
+    }
 };
