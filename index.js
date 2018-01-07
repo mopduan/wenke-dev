@@ -286,7 +286,6 @@ exports = module.exports = function (options) {
                 jsCompileListWithPureReact.forEach(function (jsCompileItemWithPureReact) {
                     let entryKey = jsCompileItemWithPureReact.path.replace(utils.normalizePath(path.join(global.staticDirectory, 'src/')), 'sf/deploy/').replace('/main.js', '');
                     entryList[entryKey] = [
-                        'react-hot-loader/patch',
                         'webpack-hot-middleware/client?reload=true',
                         jsCompileItemWithPureReact.path
                     ];
