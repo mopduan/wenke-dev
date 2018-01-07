@@ -132,6 +132,9 @@ livereload服务端口, 默认为: 8999
 ### --preact
 使用preact来编译工程
 
+### --vuehot
+开启vue热替换，当此参数存在时，自动禁用livereload服务。
+
 ### --disable-update
 去掉强制更新
 
