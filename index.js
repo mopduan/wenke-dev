@@ -187,7 +187,11 @@ exports = module.exports = function (options) {
         cacheDirectory: true,
         presets: _presets,
         compact: false,
-        plugins: [__dirname + "/node_modules/babel-plugin-transform-decorators-legacy"]
+        plugins: [
+                __dirname + "/node_modules/babel-plugin-transform-decorators-legacy",
+                __dirname + "/node_modules/babel-plugin-syntax-dynamic-import",
+                __dirname + "/node_modules/babel-plugin-transform-react-loadable",
+        ]
     };
     if (!options["vuehot"]) {
         async.map(jsCompileList, function (jsCompileItem, callback) {
@@ -428,7 +432,8 @@ exports = module.exports = function (options) {
                 plugins: [
                     new webpack.optimize.OccurrenceOrderPlugin(),
                     new webpack.HotModuleReplacementPlugin(),
-                    new webpack.NoEmitOnErrorsPlugin()
+                    new webpack.NoEmitOnErrorsPlugin(),
+                    new webpack.syntaxDynamicImport()
                 ],
                 output: {
                     filename: "[name]/bundle.js",
