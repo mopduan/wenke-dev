@@ -328,6 +328,12 @@ exports = module.exports = function (options) {
 
                 let express = require('express');
                 let app = express();
+
+                app.all('*', function (req, res, next) {
+                    res.header("Access-Control-Allow-Origin", "*");
+                    next();
+                });
+
                 let compiler = webpack(config);
 
                 app.use(require('webpack-dev-middleware')(compiler, {
@@ -340,12 +346,24 @@ exports = module.exports = function (options) {
 
                 });
 
-                app.listen(global.hotPort, function (err) {
+                let server;
+                if (isHttps) {
+                    let options = {
+                        key: fs.readFileSync(path.join(__dirname, '/lib/ssl', 'client.key')),
+                        cert: fs.readFileSync(path.join(__dirname, '/lib/ssl/', 'wenke.crt'))
+                    };
+
+                    server = require('https').createServer(options, app);
+                } else {
+                    server = require('http').createServer(app);
+                }
+
+                server.listen(global.hotPort, function (err) {
                     if (err) {
                         return console.error(err);
                     }
 
-                    console.log('Hot loader server start listening at http://' + debugDomain + ':' + global.hotPort + '/');
+                    console.log('Hot loader server start listening at ' + (isHttps? "https": "http") + '://' + debugDomain + ':' + global.hotPort + '/');
                 });
             }
 
