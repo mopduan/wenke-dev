@@ -19,23 +19,18 @@ program.usage('[dir] [options]')
     .option('--https [build https]', 'build https')
     .option('-https-livereload-port, --https-livereload-port [https livereload port]', 'https livereload port')
     .option('--preact [use preact]', 'use preact')
-    .option('--vuehot [use vuehot]', 'use vuehot')
-    .option('--disable-update [ disable force update]', ' disable force update');
+    .option('--vuehot [use vuehot]', 'use vuehot');
 
 
 
 program.parse(process.argv);
 
-let disableUpdate = utils.hasArgument(process.argv, '--disable-update');
-if(disableUpdate) {
+
+utils.verifyVersion(function () {
     wenkeDev(program);
-} else {
-    utils.verifyVersion(function () {
-        wenkeDev(program);
-    }, function () {
-        process.exit(-1);
-    });
-}
+}, function () {
+    process.exit(-1);
+});
 
 
 

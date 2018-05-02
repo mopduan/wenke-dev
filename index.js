@@ -167,7 +167,8 @@ exports = module.exports = function (options) {
                 path.join(__dirname, "node_modules")
             ]
         },
-        devtool: utils.hasArgument(process.argv, '--eval') ? "eval" : "inline-source-map"
+        devtool: utils.hasArgument(process.argv, '--eval') ? "eval" : "inline-source-map",
+        mode: 'development',
     };
 
     let _presets = [
@@ -234,6 +235,7 @@ exports = module.exports = function (options) {
 
             config.module.rules.push({
                 test: /\.(js|jsx)$/,
+                type: "javascript/auto",
                 use: [{loader: 'babel-loader', options: JSON.stringify(babelSettings)}],
                 exclude: /(node_modules|bower_components)/,
                 include: [staticFilesSourceDir]
@@ -253,7 +255,7 @@ exports = module.exports = function (options) {
                     console.log(stats.toString());
                     console.log('ERROR end   ==============================================================');
                 } else {
-                    console.log(stats.toString());
+                    console.log(stats.toString({colors: true}));
                 }
 
                 if (rebuildCompile) {
@@ -302,7 +304,6 @@ exports = module.exports = function (options) {
                     entry: entryList,
                     plugins: [
                         new webpack.HotModuleReplacementPlugin(),
-                        new webpack.NoEmitOnErrorsPlugin(),
                         new webpack.DefinePlugin({
                             __DEVTOOLS__: options.preact ? true : false
                         })
@@ -311,6 +312,9 @@ exports = module.exports = function (options) {
                         filename: "[name]/bundle.js",
                         chunkFilename: "[name].bundle.js",
                         publicPath: '//' + debugDomain + ':' + global.hotPort + '/'
+                    },
+                    optimization: {
+                        noEmitOnErrors: true,
                     }
                 };
 
@@ -320,6 +324,7 @@ exports = module.exports = function (options) {
 
                 config.module.rules.push({
                     test: /\.(js|jsx)$/,
+                    type: "javascript/auto",
                     use: [{
                         loader: 'babel-loader', options: JSON.stringify(babelSettings)
                     }],
@@ -450,13 +455,15 @@ exports = module.exports = function (options) {
                 plugins: [
                     new webpack.optimize.OccurrenceOrderPlugin(),
                     new webpack.HotModuleReplacementPlugin(),
-                    new webpack.NoEmitOnErrorsPlugin(),
                     new webpack.syntaxDynamicImport()
                 ],
                 output: {
                     filename: "[name]/bundle.js",
                     chunkFilename: "[name].bundle.js",
                     publicPath: '//' + debugDomain + ':' + global.hotPort + '/'
+                },
+                optimization: {
+                    noEmitOnErrors: true,
                 }
             };
             config.module = {rules: utils.getRules()};
@@ -470,6 +477,7 @@ exports = module.exports = function (options) {
 
             config.module.rules.push({
                 test: /\.(js|jsx)$/,
+                type: "javascript/auto",
                 use: [{
                     loader: 'babel-loader', options: JSON.stringify(babelSettings)
                 }],
