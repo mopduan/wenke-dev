@@ -1,9 +1,9 @@
-let webpack = require("webpack");
-let async = require('async');
-let gulp = require('gulp');
-let fs = require('fs');
-let path = require('path');
-let utils = require('./lib/utils');
+const webpack = require("webpack");
+const async = require('async');
+const gulp = require('gulp');
+const fs = require('fs');
+const path = require('path');
+const utils = require('./lib/utils');
 global.srcPrefix = '/src/';
 global.deployPrefix = '/deploy/';
 //global.debugDomain = /^\$!{0,1}\{.+?\}/i;

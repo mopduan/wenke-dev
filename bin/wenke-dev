@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-let wenkeDev = require('..');
-let utils = require('../lib/utils');
+const wenkeDev = require('..');
+const utils = require('../lib/utils');
 
-let program = require('commander');
+const program = require('commander');
 
 program.version(require('../package').version);
 
