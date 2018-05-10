@@ -6,7 +6,6 @@ const path = require('path');
 const utils = require('./lib/utils');
 global.srcPrefix = '/src/';
 global.deployPrefix = '/deploy/';
-//global.debugDomain = /^\$!{0,1}\{.+?\}/i;
 global.debugDomain = /\/sf/;
 global.sfPrefix = '/sf/';
 
@@ -51,7 +50,6 @@ exports = module.exports = function (options) {
         if (isExpressProject) {
             templateViewSrcPagePath = path.join(item, '/views/src/');
         }
-        //if no webapp directory, then exit;
         if (!fs.existsSync(templateViewSrcPagePath)) {
             throw new Error('can\'t find the webapp velocity template directory: ' + templateViewSrcPagePath);
         }
