@@ -10,7 +10,6 @@ global.debugDomain = /\/sf/;
 global.sfPrefix = '/sf/';
 
 exports = module.exports = function (options) {
-    let isExpressProject = utils.hasArgument(process.argv, '--express');
     let isHttps = utils.hasArgument(process.argv, '--https');
     let staticFilesDirectory = options.staticFilesDirectory;
 
@@ -47,13 +46,10 @@ exports = module.exports = function (options) {
     webappDirectoryList.forEach(function (item, index) {
         let templateViewSrcPagePath = path.join(item, '/src/main/webapp/WEB-INF/view/src/');
 
-        if (isExpressProject) {
-            templateViewSrcPagePath = path.join(item, '/views/src/');
-        }
         if (!fs.existsSync(templateViewSrcPagePath)) {
             throw new Error('can\'t find the webapp velocity template directory: ' + templateViewSrcPagePath);
         }
-        utils.getAllFilesByDir(templateViewSrcPagePath, templateFileList, isExpressProject ? ['.js', '.jsx', '.html', '.tpl'] : ['.vm', '.html', '.tpl']);
+        utils.getAllFilesByDir(templateViewSrcPagePath, templateFileList, ['.vm', '.html', '.tpl']);
     });
 
     let defaultLiveReloadPort = 8999;
@@ -75,12 +71,7 @@ exports = module.exports = function (options) {
                 let cssPath = $href.replace(regexpStaticFilesPrefix, '');
                 if (!cssCacheList[cssPath]) {
                     if ($href && !($href.indexOf('http') == 0)) {
-                        if (isExpressProject) {
-                            cssCompileList.push(utils.normalizePath(path.join(global.staticDirectory, cssPath.replace(global.sfPrefix, '/'))));
-                        } else {
-                            cssCompileList.push(path.join(global.staticDirectory, cssPath));
-                        }
-
+                        cssCompileList.push(path.join(global.staticDirectory, cssPath));
                         cssCacheList[cssPath] = true;
                     }
                 }
@@ -110,12 +101,8 @@ exports = module.exports = function (options) {
             $1.replace(utils.getRegexpScriptElementSrcAttrValue(), function ($2_1, $src) {
                 //需要使用热加载的入口JS文件标识
                 let hotTag = '?hot=true';
-                if ($src && (global.debugDomain.test($src) || isExpressProject)) { //改为判断是否以$!{开头或者是express工程
+                if ($src && global.debugDomain.test($src)) { //改为判断是否以$!{开头或者是express工程
                     let jsPath = $src.replace(regexpStaticFilesPrefix, '').replace(hotTag, '');
-
-                    if (isExpressProject) {
-                        jsPath = $src.replace(global.sfPrefix, '/').replace(hotTag, '');
-                    }
 
                     if (!jsCacheList[jsPath]) {
                         if ($src.indexOf('bundle.js') != -1) {
@@ -169,7 +156,7 @@ exports = module.exports = function (options) {
     };
 
     let _presets = [
-        [__dirname + "/node_modules/babel-preset-es2015", {"modules": false}],
+        [__dirname + "/node_modules/babel-preset-es2015", { "modules": false }],
         __dirname + "/node_modules/babel-preset-es2016",
         __dirname + "/node_modules/babel-preset-es2017",
         __dirname + "/node_modules/babel-preset-stage-3"
@@ -186,9 +173,9 @@ exports = module.exports = function (options) {
         presets: _presets,
         compact: false,
         plugins: [
-                __dirname + "/node_modules/babel-plugin-transform-decorators-legacy",
-                __dirname + "/node_modules/babel-plugin-syntax-dynamic-import",
-                __dirname + "/node_modules/babel-plugin-transform-react-loadable",
+            __dirname + "/node_modules/babel-plugin-transform-decorators-legacy",
+            __dirname + "/node_modules/babel-plugin-syntax-dynamic-import",
+            __dirname + "/node_modules/babel-plugin-transform-react-loadable",
         ]
     };
     if (!options["vuehot"]) {
@@ -227,12 +214,12 @@ exports = module.exports = function (options) {
                 "vuex": "Vuex"
             };
 
-            config.module = {rules: utils.getRules()};
+            config.module = { rules: utils.getRules() };
             utils.extendConfig(config, commonConfig);
 
             config.module.rules.push({
                 test: /\.(js|jsx)$/,
-                use: [{loader: 'babel-loader', options: JSON.stringify(babelSettings)}],
+                use: [{ loader: 'babel-loader', options: JSON.stringify(babelSettings) }],
                 exclude: /(node_modules|bower_components)/,
                 include: [staticFilesSourceDir]
             });
@@ -257,12 +244,12 @@ exports = module.exports = function (options) {
                 if (rebuildCompile) {
                     console.log('rebuild complete!');
                     if (global.socket) {
-                        global.socket.emit("refresh", {"refresh": 1});
+                        global.socket.emit("refresh", { "refresh": 1 });
                         console.log("files changed： trigger refresh...");
                     }
 
                     if (isHttps && global.httpsSocket) {
-                        global.httpsSocket.emit("refresh", {"refresh": 1});
+                        global.httpsSocket.emit("refresh", { "refresh": 1 });
                         console.log("[https] files changed: trigger refresh...");
                     }
                 }
@@ -312,7 +299,7 @@ exports = module.exports = function (options) {
                     }
                 };
 
-                config.module = {rules: utils.getRules()};
+                config.module = { rules: utils.getRules() };
                 utils.extendConfig(config, commonConfig);
                 config.externals = {};
 
@@ -361,7 +348,7 @@ exports = module.exports = function (options) {
                         return console.error(err);
                     }
 
-                    console.log('Hot loader server start listening at ' + (isHttps? "https": "http") + '://' + debugDomain + ':' + global.hotPort + '/');
+                    console.log('Hot loader server start listening at ' + (isHttps ? "https" : "http") + '://' + debugDomain + ':' + global.hotPort + '/');
                 });
             }
 
@@ -373,49 +360,21 @@ exports = module.exports = function (options) {
                     webappDirectoryList.forEach(function (item, index) {
                         let webappViewSrcDir = item + '/src/main/webapp/WEB-INF/view/src/';
 
-                        if (isExpressProject) {
-                            let fileList = fs.readdirSync(item);
-
-                            fileList.forEach(function (filePath, index) {
-                                let stat = fs.statSync(path.join(item, filePath));
-
-                                //采用express推荐目录，只监控静态资源文件目录public以外的目录，同时忽略.svn等目录
-                                if (stat.isDirectory()) {
-                                    if (filePath.toLowerCase() !== 'public' && filePath.indexOf('.') !== 0 && filePath.indexOf('node_modules') !== 0) {
-                                        if (filePath.toLowerCase() === 'views') {
-                                            watchFiles.push(path.join(item, filePath, "/src/**/*.js"));
-                                            watchFiles.push(path.join(item, filePath, "/src/**/*.jsx"));
-                                            watchFiles.push(path.join(item, filePath, "/src/**/*.html"));
-                                            watchFiles.push(path.join(item, filePath, "/src/**/*.tpl"));
-                                        } else if (filePath.toLowerCase() === 'bin') {
-                                            watchFiles.push(path.join(item, filePath, "/www"));
-                                        } else {
-                                            watchFiles.push(path.join(item, filePath, "/**/*.js"));
-                                        }
-                                    }
-                                } else {
-                                    if (path.extname(filePath) === '.js') {
-                                        watchFiles.push(path.join(item, filePath));
-                                    }
-                                }
-                            });
-                        } else {
-                            watchFiles.push(path.join(webappViewSrcDir + "/**/*.vm"));
-                            watchFiles.push(path.join(webappViewSrcDir + "/**/*.html"));
-                            watchFiles.push(path.join(webappViewSrcDir + "/**/*.tpl"));
-                        }
+                        watchFiles.push(path.join(webappViewSrcDir + "/**/*.vm"));
+                        watchFiles.push(path.join(webappViewSrcDir + "/**/*.html"));
+                        watchFiles.push(path.join(webappViewSrcDir + "/**/*.tpl"));
                     });
                     watchFiles.push(cssCompileList);
                     console.log('watchFiles List: ');
                     console.log(watchFiles);
                     gulp.watch(watchFiles).on('change', function () {
                         if (global.socket) {
-                            global.socket.emit("refresh", {"refresh": 1});
+                            global.socket.emit("refresh", { "refresh": 1 });
                             console.log("files changed： trigger refresh...");
                         }
 
                         if (isHttps && global.httpsSocket) {
-                            global.httpsSocket.emit("refresh", {"refresh": 1});
+                            global.httpsSocket.emit("refresh", { "refresh": 1 });
                             console.log("[https] file changed: trigger refresh...");
                         }
                     });
@@ -457,7 +416,7 @@ exports = module.exports = function (options) {
                     publicPath: '//' + debugDomain + ':' + global.hotPort + '/'
                 }
             };
-            config.module = {rules: utils.getRules()};
+            config.module = { rules: utils.getRules() };
             utils.extendConfig(config, commonConfig);
             config.externals = {
                 "immutable": "Immutable",
