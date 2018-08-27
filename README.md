@@ -126,9 +126,6 @@ livereload服务端口, 默认为: 8999
 ### --eval
 设置webpack的devtool的编译方式为: eval, 默认编译方式为: inline-source-map
 
-### --express
-编译Express工程
-
 ### --preact
 使用preact来编译工程
 
