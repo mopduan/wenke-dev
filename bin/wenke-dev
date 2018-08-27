@@ -2,7 +2,6 @@
 
 const wenkeDev = require('..');
 const utils = require('../lib/utils');
-
 const program = require('commander');
 
 program.version(require('../package').version);
@@ -18,20 +17,13 @@ program.usage('[dir] [options]')
     .option('--https [build https]', 'build https')
     .option('-https-livereload-port, --https-livereload-port [https livereload port]', 'https livereload port')
     .option('--preact [use preact]', 'use preact')
+    .option('--xcx [use xcx]', 'use xcx')
     .option('--vuehot [use vuehot]', 'use vuehot');
 
-
-
 program.parse(process.argv);
-
 
 utils.verifyVersion(function () {
     wenkeDev(program);
 }, function () {
     process.exit(-1);
 });
-
-
-
-
-
