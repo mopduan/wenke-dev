@@ -172,7 +172,7 @@ exports = module.exports = function (options) {
                     path.join(__dirname, "node_modules")
                 ]
             },
-            devtool: utils.hasArgument(process.argv, '--eval') ? "eval" : "inline-source-map"
+            devtool: "inline-source-map"
         };
 
         let _presets = [
