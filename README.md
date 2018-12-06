@@ -85,40 +85,8 @@ wenke-dev -w 后端模板文件目录（同时处理多个工程请用"," 英文
 ### -w 必需
 后端模板文件目录
 
-### -d
-本地调试域名, 默认为local.wenwen.sogou.com
-
-### --hot-port
-热加载服务端口, 默认为: 9797, 对于需要启用React热加载的JS, 需要在script标签中的JS路径后添加```?hot=true```参数, 例如: 
-
-```
-<script src="http://local.wenwen.sogou.com/src/js/project1/channel1/page1/bundle.js?hot=true"></script>
-```
-
-
 ### --livereload-port
 livereload服务端口, 默认为: 8999
-
-启动livereload服务的话还需要在页面中添加如下代码:
-```
-<script src="http://local.wenwen.sogou.com:8999/socket.io/socket.io.js" release="false"></script>
-<script release="false">
-    var socket = io('http://local.wenwen.sogou.com:8999');
-    socket.on('refresh', function (data) {
-        //接收到需要livereload刷新信号
-        location.reload(true);
-    });
-
-    socket.on('connect', function () {
-        //连接成功时的提示
-    });
-
-    socket.on('disconnect', function () {
-        //连接丢失时的提示
-    });
-</script>
-```
-
 
 ### --norefresh
 禁用livereload服务, 当此参数存在时, --livereload-port参数设置无效
@@ -131,9 +99,6 @@ livereload服务端口, 默认为: 8999
 
 ### --xcx
 编译小程序样式
-
-### --vuehot
-开启vue热替换，当此参数存在时，自动禁用livereload服务。
 
 ## Report an issue
 >欢迎大家将使用wenke-dev中遇到的任何问题提交给我，提问地址：<a href="https://github.com/mopduan/wenke-dev/issues" target="_blank">Report an issue</a>

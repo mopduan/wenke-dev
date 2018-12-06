@@ -6,7 +6,7 @@ const path = require('path');
 const utils = require('./lib/utils');
 global.srcPrefix = '/src/';
 global.deployPrefix = '/deploy/';
-global.debugDomain = /\/sf/;
+global.localStaticResourcesPrefix = /\/sf/;
 global.sfPrefix = '/sf/';
 
 exports = module.exports = function (options) {
@@ -89,10 +89,8 @@ exports = module.exports = function (options) {
 
         let defaultLiveReloadPort = 8999;
         let defaultHttpsLiveReloadPort = 8998;
-        let defaultHotPort = 9797;
         global.livereloadPort = typeof options.livereloadPort != 'undefined' && utils.isInt(options.livereloadPort) ? parseInt(options.livereloadPort) : defaultLiveReloadPort;
         global.httpsLivereloadPort = typeof options.httpsLivereloadPort != 'undefined' && utils.isInt(options.httpsLivereloadPort) ? parseInt(options.httpsLivereloadPort) : defaultHttpsLiveReloadPort;
-        global.hotPort = typeof options.hotPort != 'undefined' && utils.isInt(options.hotPort) ? parseInt(options.hotPort) : defaultHotPort;
 
         let cssCacheList = {};
         let cssCompileList = [];
@@ -120,7 +118,6 @@ exports = module.exports = function (options) {
 
         let jsCacheList = {};
         let jsCompileList = [];
-        let jsCompileListWithPureReact = [];
 
         templateFileList.forEach(function (tplPath, index) {
             let tplContent = fs.readFileSync(tplPath).toString();
@@ -134,25 +131,16 @@ exports = module.exports = function (options) {
                 }
 
                 $1.replace(utils.getRegexpScriptElementSrcAttrValue(), function ($2_1, $src) {
-                    //需要使用热加载的入口JS文件标识
-                    let hotTag = '?hot=true';
-                    if ($src && global.debugDomain.test($src)) { //改为判断是否以$!{开头或者是express工程
-                        let jsPath = $src.replace(regexpStaticFilesPrefix, '').replace(hotTag, '');
+                    if ($src && global.localStaticResourcesPrefix.test($src)) {
+                        let jsPath = $src.replace(regexpStaticFilesPrefix, '');
 
                         if (!jsCacheList[jsPath]) {
                             if ($src.indexOf('bundle.js') != -1) {
-                                let isPureReact = $src.toLowerCase().indexOf(hotTag) > -1;
                                 let jsSrcPath = utils.normalizePath(path.join(global.staticDirectory, path.dirname(jsPath), 'main.js')).replace(global.deployPrefix, global.srcPrefix);
 
-                                if (isPureReact) {
-                                    jsCompileListWithPureReact.push({
-                                        "path": jsSrcPath
-                                    });
-                                } else {
-                                    jsCompileList.push({
-                                        "path": jsSrcPath
-                                    });
-                                }
+                                jsCompileList.push({
+                                    "path": jsSrcPath
+                                });
 
                                 jsCacheList[jsPath] = true;
                             }
@@ -166,9 +154,6 @@ exports = module.exports = function (options) {
 
         console.log('jsCompileList：');
         console.log(jsCompileList);
-
-        console.log('jsCompileListWithPureReact：');
-        console.log(jsCompileListWithPureReact);
 
         let commonConfig = {
             cache: true,
@@ -213,71 +198,111 @@ exports = module.exports = function (options) {
                 __dirname + "/node_modules/babel-plugin-transform-react-loadable",
             ]
         };
-        if (!options["vuehot"]) {
-            async.map(jsCompileList, function (jsCompileItem, callback) {
-                let rebuildCompile = false;
-                let contextPath = path.join(global.staticDirectory, global.srcPrefix, 'js');
-                let staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
-                let entryPath = './' + jsCompileItem.path.replace(utils.normalizePath(contextPath), '');
-                let config = {
-                    context: contextPath,
-                    entry: entryPath,
-                    plugins: [
-                        new webpack.DefinePlugin({
-                            __DEVTOOLS__: options.preact ? true : false
-                        })
-                    ],
-                    output: {
-                        path: path.join(global.staticDirectory, global.deployPrefix, 'js', utils.normalizePath(path.dirname(jsCompileItem.path)).replace(utils.normalizePath(contextPath), '')),
-                        filename: "bundle.js",
-                        chunkFilename: "[name].bundle.js",
-                        publicPath: utils.normalizePath(path.join(global.sfPrefix, utils.normalizePath(path.join(global.deployPrefix, 'js', utils.normalizePath(path.dirname(jsCompileItem.path)).replace(utils.normalizePath(contextPath), ''))), '/'))
+
+        async.map(jsCompileList, function (jsCompileItem, callback) {
+            let rebuildCompile = false;
+            let contextPath = path.join(global.staticDirectory, global.srcPrefix, 'js');
+            let staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
+            let entryPath = './' + jsCompileItem.path.replace(utils.normalizePath(contextPath), '');
+            let config = {
+                context: contextPath,
+                entry: entryPath,
+                plugins: [
+                    new webpack.DefinePlugin({
+                        __DEVTOOLS__: options.preact ? true : false
+                    })
+                ],
+                output: {
+                    path: path.join(global.staticDirectory, global.deployPrefix, 'js', utils.normalizePath(path.dirname(jsCompileItem.path)).replace(utils.normalizePath(contextPath), '')),
+                    filename: "bundle.js",
+                    chunkFilename: "[name].bundle.js",
+                    publicPath: utils.normalizePath(path.join(global.sfPrefix, utils.normalizePath(path.join(global.deployPrefix, 'js', utils.normalizePath(path.dirname(jsCompileItem.path)).replace(utils.normalizePath(contextPath), ''))), '/'))
+                }
+            };
+
+            config.externals = {
+                "react": "React",
+                "react-dom": "ReactDOM",
+                "redux": "Redux",
+                "react-redux": "ReactRedux",
+                "react-router": "ReactRouter",
+                "react-router-dom": "ReactRouterDOM",
+                "preact-redux": "preactRedux",
+                "immutable": "Immutable",
+                "vue": "Vue",
+                "vue-router": "VueRouter",
+                "vuex": "Vuex"
+            };
+
+            config.module = { rules: utils.getRules() };
+            utils.extendConfig(config, commonConfig);
+
+            config.module.rules.push({
+                test: /\.(js|jsx)$/,
+                use: [{ loader: 'babel-loader', options: JSON.stringify(babelSettings) }],
+                exclude: /(node_modules|bower_components)/,
+                include: [staticFilesSourceDir]
+            });
+
+            let compiler = webpack(config);
+            compiler.watch({
+                aggregateTimeout: 300,
+                poll: true
+            }, function (err, stats) {
+                if (err) {
+                    throw err;
+                }
+
+                if (stats.hasErrors()) {
+                    console.log('ERROR start ==============================================================');
+                    console.log(stats.toString());
+                    console.log('ERROR end   ==============================================================');
+                } else {
+                    console.log(stats.toString());
+                }
+
+                if (rebuildCompile) {
+                    console.log('rebuild complete!');
+                    if (global.socket) {
+                        global.socket.emit("refresh", { "refresh": 1 });
+                        console.log("files changed： trigger refresh...");
                     }
-                };
 
-                config.externals = {
-                    "react": "React",
-                    "react-dom": "ReactDOM",
-                    "redux": "Redux",
-                    "react-redux": "ReactRedux",
-                    "react-router": "ReactRouter",
-                    "react-router-dom": "ReactRouterDOM",
-                    "preact-redux": "preactRedux",
-                    "immutable": "Immutable",
-                    "vue": "Vue",
-                    "vue-router": "VueRouter",
-                    "vuex": "Vuex"
-                };
-
-                config.module = { rules: utils.getRules() };
-                utils.extendConfig(config, commonConfig);
-
-                config.module.rules.push({
-                    test: /\.(js|jsx)$/,
-                    use: [{ loader: 'babel-loader', options: JSON.stringify(babelSettings) }],
-                    exclude: /(node_modules|bower_components)/,
-                    include: [staticFilesSourceDir]
-                });
-
-                let compiler = webpack(config);
-                compiler.watch({
-                    aggregateTimeout: 300,
-                    poll: true
-                }, function (err, stats) {
-                    if (err) {
-                        throw err;
+                    if (isHttps && global.httpsSocket) {
+                        global.httpsSocket.emit("refresh", { "refresh": 1 });
+                        console.log("[https] files changed: trigger refresh...");
                     }
+                }
 
-                    if (stats.hasErrors()) {
-                        console.log('ERROR start ==============================================================');
-                        console.log(stats.toString());
-                        console.log('ERROR end   ==============================================================');
-                    } else {
-                        console.log(stats.toString());
-                    }
+                if (typeof callback == 'function') {
+                    callback();
+                }
 
-                    if (rebuildCompile) {
-                        console.log('rebuild complete!');
+                if (!rebuildCompile) {
+                    rebuildCompile = true;
+                    callback = null;
+                }
+            });
+        }, function (err) {
+            if (err) {
+                throw err;
+            }
+
+            if (!utils.hasArgument(process.argv, '--norefresh')) {
+                gulp.task('default', function () {
+                    let watchFiles = [];
+
+                    webappDirectoryList.forEach(function (item, index) {
+                        let webappViewSrcDir = item + '/src/main/webapp/WEB-INF/view/src/';
+
+                        watchFiles.push(path.join(webappViewSrcDir + "/**/*.vm"));
+                        watchFiles.push(path.join(webappViewSrcDir + "/**/*.html"));
+                        watchFiles.push(path.join(webappViewSrcDir + "/**/*.tpl"));
+                    });
+                    watchFiles.push(cssCompileList);
+                    console.log('watchFiles List: ');
+                    console.log(watchFiles);
+                    gulp.watch(watchFiles).on('change', function () {
                         if (global.socket) {
                             global.socket.emit("refresh", { "refresh": 1 });
                             console.log("files changed： trigger refresh...");
@@ -285,219 +310,16 @@ exports = module.exports = function (options) {
 
                         if (isHttps && global.httpsSocket) {
                             global.httpsSocket.emit("refresh", { "refresh": 1 });
-                            console.log("[https] files changed: trigger refresh...");
+                            console.log("[https] file changed: trigger refresh...");
                         }
-                    }
-
-                    if (typeof callback == 'function') {
-                        callback();
-                    }
-
-                    if (!rebuildCompile) {
-                        rebuildCompile = true;
-                        callback = null;
-                    }
-                });
-            }, function (err) {
-                if (err) {
-                    throw err;
-                }
-
-                //如果有需要使用react-hot-loader的入口JS
-                if (jsCompileListWithPureReact.length) {
-                    let entryList = {};
-                    let debugDomain = typeof options.debugDomain == 'string' ? options.debugDomain : 'local.wenwen.sogou.com';
-                    jsCompileListWithPureReact.forEach(function (jsCompileItemWithPureReact) {
-                        let entryKey = jsCompileItemWithPureReact.path.replace(utils.normalizePath(path.join(global.staticDirectory, 'src/')), 'sf/deploy/').replace('/main.js', '');
-                        entryList[entryKey] = [
-                            'webpack-hot-middleware/client?reload=true',
-                            jsCompileItemWithPureReact.path
-                        ];
                     });
-
-                    let staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
-
-                    let config = {
-                        devtool: "eval",
-                        entry: entryList,
-                        plugins: [
-                            new webpack.HotModuleReplacementPlugin(),
-                            new webpack.NoEmitOnErrorsPlugin(),
-                            new webpack.DefinePlugin({
-                                __DEVTOOLS__: options.preact ? true : false
-                            })
-                        ],
-                        output: {
-                            filename: "[name]/bundle.js",
-                            chunkFilename: "[name].bundle.js",
-                            publicPath: '//' + debugDomain + ':' + global.hotPort + '/'
-                        }
-                    };
-
-                    config.module = { rules: utils.getRules() };
-                    utils.extendConfig(config, commonConfig);
-                    config.externals = {};
-
-                    config.module.rules.push({
-                        test: /\.(js|jsx)$/,
-                        use: [{
-                            loader: 'babel-loader', options: JSON.stringify(babelSettings)
-                        }],
-                        include: [staticFilesSourceDir]
-                    });
-
-                    let express = require('express');
-                    let app = express();
-
-                    app.all('*', function (req, res, next) {
-                        res.header("Access-Control-Allow-Origin", "*");
-                        next();
-                    });
-
-                    let compiler = webpack(config);
-
-                    app.use(require('webpack-dev-middleware')(compiler, {
-                        publicPath: config.output.publicPath
-                    }));
-
-                    app.use(require('webpack-hot-middleware')(compiler));
-
-                    app.get('*', function (req, res) {
-
-                    });
-
-                    let server;
-                    if (isHttps) {
-                        let options = {
-                            key: fs.readFileSync(path.join(__dirname, '/lib/ssl', 'client.key')),
-                            cert: fs.readFileSync(path.join(__dirname, '/lib/ssl/', 'wenke.crt'))
-                        };
-
-                        server = require('https').createServer(options, app);
-                    } else {
-                        server = require('http').createServer(app);
-                    }
-
-                    server.listen(global.hotPort, function (err) {
-                        if (err) {
-                            return console.error(err);
-                        }
-
-                        console.log('Hot loader server start listening at ' + (isHttps ? "https" : "http") + '://' + debugDomain + ':' + global.hotPort + '/');
-                    });
-                }
-
-
-                if (!utils.hasArgument(process.argv, '--norefresh')) {
-                    gulp.task('default', function () {
-                        let watchFiles = [];
-
-                        webappDirectoryList.forEach(function (item, index) {
-                            let webappViewSrcDir = item + '/src/main/webapp/WEB-INF/view/src/';
-
-                            watchFiles.push(path.join(webappViewSrcDir + "/**/*.vm"));
-                            watchFiles.push(path.join(webappViewSrcDir + "/**/*.html"));
-                            watchFiles.push(path.join(webappViewSrcDir + "/**/*.tpl"));
-                        });
-                        watchFiles.push(cssCompileList);
-                        console.log('watchFiles List: ');
-                        console.log(watchFiles);
-                        gulp.watch(watchFiles).on('change', function () {
-                            if (global.socket) {
-                                global.socket.emit("refresh", { "refresh": 1 });
-                                console.log("files changed： trigger refresh...");
-                            }
-
-                            if (isHttps && global.httpsSocket) {
-                                global.httpsSocket.emit("refresh", { "refresh": 1 });
-                                console.log("[https] file changed: trigger refresh...");
-                            }
-                        });
-                        utils.startWebSocketServer(isHttps);
-                    });
-
-                    gulp.start();
-                } else {
-                    console.log('status: norefresh');
-                }
-            });
-        } else {
-            //检测到--vuehot参数，启动Vue.js热加载
-            if (jsCompileList.length) {
-                let entryList = {};
-                let debugDomain = options.debugDomain || 'local.baike.sogou.com';
-                //Vue入口文件的处理
-                jsCompileList.forEach(function (item) {
-                    let entryKey = item.path.replace(utils.normalizePath(path.join(global.staticDirectory, 'src/')), 'sf/deploy/').replace('/main.js', '');
-                    entryList[entryKey] = [
-                        'webpack-hot-middleware/client',
-                        item.path
-                    ];
+                    utils.startWebSocketServer(isHttps);
                 });
 
-                let staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
-                let config = {
-                    devtool: "eval",
-                    entry: entryList,
-                    plugins: [
-                        new webpack.optimize.OccurrenceOrderPlugin(),
-                        new webpack.HotModuleReplacementPlugin(),
-                        new webpack.NoEmitOnErrorsPlugin(),
-                        new webpack.syntaxDynamicImport()
-                    ],
-                    output: {
-                        filename: "[name]/bundle.js",
-                        chunkFilename: "[name].bundle.js",
-                        publicPath: '//' + debugDomain + ':' + global.hotPort + '/'
-                    }
-                };
-                config.module = { rules: utils.getRules() };
-                utils.extendConfig(config, commonConfig);
-                config.externals = {
-                    "immutable": "Immutable",
-                    "vue": "Vue",
-                    "vue-router": "VueRouter",
-                    "vuex": "Vuex"
-                };
-
-                config.module.rules.push({
-                    test: /\.(js|jsx)$/,
-                    use: [{
-                        loader: 'babel-loader', options: JSON.stringify(babelSettings)
-                    }],
-                    include: [staticFilesSourceDir]
-                });
-
-                let express = require('express');
-                let app = express();
-                app.all('*', function (req, res, next) {
-                    res.header("Access-Control-Allow-Origin", "*");
-                    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-                    res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
-                    res.header("X-Powered-By", ' 3.2.1')
-                    res.header("Content-Type", "application/json;charset=utf-8");
-                    next();
-                });
-                let compiler = webpack(config);
-
-                app.use(require('webpack-dev-middleware')(compiler, {
-                    publicPath: config.output.publicPath
-                }));
-
-                app.use(require('webpack-hot-middleware')(compiler));
-
-                app.get('*', function (req, res) {
-
-                });
-
-                app.listen(global.hotPort, function (err) {
-                    if (err) {
-                        return console.error(err);
-                    }
-
-                    console.log('Hot loader server start listening at http://' + debugDomain + ':' + global.hotPort + '/');
-                });
+                gulp.start();
+            } else {
+                console.log('status: norefresh');
             }
-        }
+        });
     }
 };

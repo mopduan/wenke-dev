@@ -9,8 +9,6 @@ program.version(require('../package').version);
 program.usage('[dir] [options]')
     .option('-s, --static-files-directory [static files directory]', 'static files directory')
     .option('-w, --webapp-directory [webapp directory]', 'webapp directory')
-    .option('-d, --debug-domain [debug domain]', 'debug domain')
-    .option('--hot-port, --hot-port [react-hot-loader server\'s port]', 'react-hot-loader server\' port')
     .option('-livereload-port, --livereload-port [livereload\'s port]', 'livereload\'s port')
     .option('--norefresh [don\'t auto refresh]', 'norefresh')
     .option('--eval [use eval]', 'use eval')
@@ -18,7 +16,6 @@ program.usage('[dir] [options]')
     .option('-https-livereload-port, --https-livereload-port [https livereload port]', 'https livereload port')
     .option('--preact [use preact]', 'use preact')
     .option('--xcx [use xcx]', 'use xcx')
-    .option('--vuehot [use vuehot]', 'use vuehot');
 
 program.parse(process.argv);
 

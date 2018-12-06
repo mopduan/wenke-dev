@@ -26,3 +26,4 @@ package-lock.json
 
 .DS_Store
 .vscode
+.history
