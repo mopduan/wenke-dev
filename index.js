@@ -228,10 +228,7 @@ exports = module.exports = function (options) {
                 "react-router": "ReactRouter",
                 "react-router-dom": "ReactRouterDOM",
                 "preact-redux": "preactRedux",
-                "immutable": "Immutable",
-                "vue": "Vue",
-                "vue-router": "VueRouter",
-                "vuex": "Vuex"
+                "immutable": "Immutable"
             };
 
             config.module = { rules: utils.getRules() };
