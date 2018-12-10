@@ -45,10 +45,10 @@ exports = module.exports = function (options) {
         gulp.task('default', ['build:style', 'build:app', 'watch']);
         gulp.start();
     } else {
-        let isHttps = utils.hasArgument(process.argv, '--https');
-        let staticFilesDirectory = options.staticFilesDirectory;
+        const isHttps = utils.hasArgument(process.argv, '--https');
+        const staticFilesDirectory = options.staticFilesDirectory;
 
-        if (staticFilesDirectory && typeof staticFilesDirectory == 'string') {
+        if (staticFilesDirectory && typeof staticFilesDirectory === 'string') {
             if (!fs.existsSync(staticFilesDirectory)) {
                 throw new Error('can\'t find the static files directory ', staticFilesDirectory);
             }
@@ -62,14 +62,13 @@ exports = module.exports = function (options) {
             throw new Error("can't find 'src' directory in staticDirectory ");
         }
 
-        let webappDirectory = options.webappDirectory;
+        const webappDirectory = options.webappDirectory;
         let webappDirectoryList = [];
-        if (webappDirectory && typeof webappDirectory == 'string') {
+        if (webappDirectory && typeof webappDirectory === 'string') {
             webappDirectoryList = webappDirectory.split(',');
-            webappDirectoryList.forEach(function (item, index) {
-                item = item.trim();
-                if (!fs.existsSync(item)) {
-                    throw new Error('can\'t find the webapp directory: ' + item);
+            webappDirectoryList.forEach(function (webappDirectoryPath) {
+                if (!fs.existsSync(webappDirectoryPath)) {
+                    throw new Error('can\'t find the webapp directory: ' + webappDirectoryPath);
                 }
             });
         } else {
@@ -78,32 +77,32 @@ exports = module.exports = function (options) {
 
         let templateFileList = [];
 
-        webappDirectoryList.forEach(function (item, index) {
-            let templateViewSrcPagePath = path.join(item, '/src/main/webapp/WEB-INF/view/src/');
+        webappDirectoryList.forEach(function (item) {
+            const templateViewSrcPagePath = path.join(item, '/src/main/webapp/WEB-INF/view/src/');
 
             if (!fs.existsSync(templateViewSrcPagePath)) {
                 throw new Error('can\'t find the webapp velocity template directory: ' + templateViewSrcPagePath);
             }
-            utils.getAllFilesByDir(templateViewSrcPagePath, templateFileList, ['.vm', '.html', '.tpl']);
+            templateFileList = templateFileList.concat(utils.getAllFilesByDir(templateViewSrcPagePath, ['.vm', '.html', '.tpl']));
         });
 
-        let defaultLiveReloadPort = 8999;
-        let defaultHttpsLiveReloadPort = 8998;
-        global.livereloadPort = typeof options.livereloadPort != 'undefined' && utils.isInt(options.livereloadPort) ? parseInt(options.livereloadPort) : defaultLiveReloadPort;
-        global.httpsLivereloadPort = typeof options.httpsLivereloadPort != 'undefined' && utils.isInt(options.httpsLivereloadPort) ? parseInt(options.httpsLivereloadPort) : defaultHttpsLiveReloadPort;
+        const defaultLiveReloadPort = 8999;
+        const defaultHttpsLiveReloadPort = 8998;
+        global.livereloadPort = typeof options.livereloadPort !== 'undefined' && utils.isInt(options.livereloadPort) ? parseInt(options.livereloadPort) : defaultLiveReloadPort;
+        global.httpsLivereloadPort = typeof options.httpsLivereloadPort !== 'undefined' && utils.isInt(options.httpsLivereloadPort) ? parseInt(options.httpsLivereloadPort) : defaultHttpsLiveReloadPort;
 
-        let cssCacheList = {};
-        let cssCompileList = [];
-        let regexpStaticFilesPrefix = utils.getRegexpStaticFilesPrefix();
+        const cssCacheList = {};
+        const cssCompileList = [];
+        const regexpStaticFilesPrefix = utils.getRegexpStaticFilesPrefix();
 
         templateFileList.forEach(function (tplPath) {
-            let tplContent = fs.readFileSync(tplPath).toString();
+            const tplContent = fs.readFileSync(tplPath).toString();
 
             tplContent.replace(utils.getRegexpCSSLinkElements(), function ($link) {
                 $link.replace(utils.getRegexpCSSHrefValue(), function ($cssLink, $someSplitStr, $href) {
-                    let cssPath = $href.replace(regexpStaticFilesPrefix, '');
+                    const cssPath = $href.replace(regexpStaticFilesPrefix, '');
                     if (!cssCacheList[cssPath]) {
-                        if ($href && !($href.indexOf('http') == 0)) {
+                        if ($href && !($href.indexOf('http') === 0)) {
                             cssCompileList.push(path.join(global.staticDirectory, cssPath));
                             cssCacheList[cssPath] = true;
                         }
@@ -116,11 +115,11 @@ exports = module.exports = function (options) {
             });
         });
 
-        let jsCacheList = {};
+        const jsCacheList = {};
         let jsCompileList = [];
 
-        templateFileList.forEach(function (tplPath, index) {
-            let tplContent = fs.readFileSync(tplPath).toString();
+        templateFileList.forEach(function (tplPath) {
+            const tplContent = fs.readFileSync(tplPath).toString();
             tplContent.replace(utils.getRegexpScriptElements(), function ($1, $2) {
                 if ($2.indexOf('type="text/html"') > -1 || $2.indexOf('x-template') > -1) {
                     return $1;
@@ -132,11 +131,11 @@ exports = module.exports = function (options) {
 
                 $1.replace(utils.getRegexpScriptElementSrcAttrValue(), function ($2_1, $src) {
                     if ($src && global.localStaticResourcesPrefix.test($src)) {
-                        let jsPath = $src.replace(regexpStaticFilesPrefix, '');
+                        const jsPath = $src.replace(regexpStaticFilesPrefix, '');
 
                         if (!jsCacheList[jsPath]) {
-                            if ($src.indexOf('bundle.js') != -1) {
-                                let jsSrcPath = utils.normalizePath(path.join(global.staticDirectory, path.dirname(jsPath), 'main.js')).replace(global.deployPrefix, global.srcPrefix);
+                            if ($src.indexOf('bundle.js') !== -1) {
+                                const jsSrcPath = utils.normalizePath(path.join(global.staticDirectory, path.dirname(jsPath), 'main.js')).replace(global.deployPrefix, global.srcPrefix);
 
                                 jsCompileList.push({
                                     "path": jsSrcPath
@@ -155,7 +154,7 @@ exports = module.exports = function (options) {
         console.log('jsCompileList：');
         console.log(jsCompileList);
 
-        let commonConfig = {
+        const commonConfig = {
             cache: true,
             resolve: {
                 modules: [
@@ -175,7 +174,7 @@ exports = module.exports = function (options) {
             devtool: "inline-source-map"
         };
 
-        let _presets = [
+        const _presets = [
             [__dirname + "/node_modules/babel-preset-es2015", { "modules": false }],
             __dirname + "/node_modules/babel-preset-es2016",
             __dirname + "/node_modules/babel-preset-es2017",
@@ -188,7 +187,7 @@ exports = module.exports = function (options) {
             _presets.push(__dirname + "/node_modules/babel-preset-react");
         }
 
-        let babelSettings = {
+        const babelSettings = {
             cacheDirectory: true,
             presets: _presets,
             compact: false,
@@ -201,10 +200,10 @@ exports = module.exports = function (options) {
 
         async.map(jsCompileList, function (jsCompileItem, callback) {
             let rebuildCompile = false;
-            let contextPath = path.join(global.staticDirectory, global.srcPrefix, 'js');
-            let staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
-            let entryPath = './' + jsCompileItem.path.replace(utils.normalizePath(contextPath), '');
-            let config = {
+            const contextPath = path.join(global.staticDirectory, global.srcPrefix, 'js');
+            const staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
+            const entryPath = './' + jsCompileItem.path.replace(utils.normalizePath(contextPath), '');
+            const config = {
                 context: contextPath,
                 entry: entryPath,
                 plugins: [
@@ -241,7 +240,7 @@ exports = module.exports = function (options) {
                 include: [staticFilesSourceDir]
             });
 
-            let compiler = webpack(config);
+            const compiler = webpack(config);
             compiler.watch({
                 aggregateTimeout: 300,
                 poll: true
@@ -271,13 +270,11 @@ exports = module.exports = function (options) {
                     }
                 }
 
-                if (typeof callback == 'function') {
-                    callback();
-                }
-
                 if (!rebuildCompile) {
                     rebuildCompile = true;
-                    callback = null;
+                    if (typeof callback === 'function') {
+                        callback();
+                    }
                 }
             });
         }, function (err) {
@@ -287,10 +284,10 @@ exports = module.exports = function (options) {
 
             if (!utils.hasArgument(process.argv, '--norefresh')) {
                 gulp.task('default', function () {
-                    let watchFiles = [];
+                    const watchFiles = [];
 
-                    webappDirectoryList.forEach(function (item, index) {
-                        let webappViewSrcDir = item + '/src/main/webapp/WEB-INF/view/src/';
+                    webappDirectoryList.forEach(function (item) {
+                        const webappViewSrcDir = item + '/src/main/webapp/WEB-INF/view/src/';
 
                         watchFiles.push(path.join(webappViewSrcDir + "/**/*.vm"));
                         watchFiles.push(path.join(webappViewSrcDir + "/**/*.html"));

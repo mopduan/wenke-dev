@@ -14,7 +14,7 @@ program.usage('[dir] [options]')
     .option('--https [build https]', 'build https')
     .option('-https-livereload-port, --https-livereload-port [https livereload port]', 'https livereload port')
     .option('--preact [use preact]', 'use preact')
-    .option('--xcx [use xcx]', 'use xcx')
+    .option('--xcx [use xcx]', 'use xcx');
 
 program.parse(process.argv);
 
