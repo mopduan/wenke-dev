@@ -5,6 +5,7 @@ wenwen实时开发辅助工具
 
 [![npm version](https://badge.fury.io/js/wenke-dev.svg)](https://badge.fury.io/js/wenke-dev)
 
+[![Known Vulnerabilities](https://snyk.io/test/npm/wenke-dev/badge.svg)](https://snyk.io/test/npm/wenke-dev)
 
 > wenke-dev是腾讯/搜狗社区搜索部实时开发辅助工具, 主要用于将ES6/7/8、React、Preact、前端模板、CSS、图片等静态资源实时编译为浏览器中可以正常运行的代码
 
