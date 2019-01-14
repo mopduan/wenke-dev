@@ -107,7 +107,7 @@ exports = module.exports = function (options) {
                 poll: true
             }, function (err, stats) {
                 if (err) {
-                    throw err;
+                    reject(err);
                 }
 
                 if (stats.hasErrors()) {
