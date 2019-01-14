@@ -3,7 +3,6 @@
 const wenkeDev = require('..');
 const utils = require('../lib/utils');
 const program = require('commander');
-const xcxDev = require("../xcx.js");
 
 program.version(require('../package').version);
 
@@ -21,11 +20,7 @@ program.parse(process.argv);
 
 utils.verifyVersion(function () {
     global.startCompile = new Date();
-    if (program.xcx) {
-        xcxDev(program);
-    } else {
-        wenkeDev(program);
-    }
+    wenkeDev(program);
 }, function () {
     process.exit(-1);
 });

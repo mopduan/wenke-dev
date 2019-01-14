@@ -5,14 +5,16 @@ exports = module.exports = function () {
     const rename = require('gulp-rename');
     const gulp = require('gulp');
 
-    gulp.task('build:app', function () {
+    function buildApp() {
         gulp.src(['src/**/*', '!src/style{,/**}', '!src/app.less'], { base: 'src' })
             .pipe(gulp.dest('dist')).on('end', function () {
                 console.log('build:app complete!');
             });
-    });
+    }
 
-    gulp.task('build:style', function () {
+
+
+    function buildStyle() {
         return gulp.src(['src/app.less'], { base: 'src' })
             .pipe(less())
             .pipe(postcss([autoprefixer(['iOS >= 7', 'Android >= 4.1'])]))
@@ -22,14 +24,16 @@ exports = module.exports = function () {
             .pipe(gulp.dest('dist')).on('end', function () {
                 console.log('build:style complete!');
             });
-    });
+    }
 
-    gulp.task('watch', function () {
+
+    function gulpWatch() {
         gulp.watch(['src/**/*'], ['build:style', 'build:app']).on('change', function () {
             console.log('files change...');
         });
-    });
+    }
 
-    gulp.task('default', ['build:style', 'build:app', 'watch']);
-    gulp.start();
+
+    //gulp.task('default', gulp.parallel('build:style', 'build:app', 'watch'));
+    gulp.parallel(buildStyle, buildApp, gulpWatch)();
 }

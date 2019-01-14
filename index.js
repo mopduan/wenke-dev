@@ -9,7 +9,7 @@ global.localStaticResourcesPrefix = /\/sf/;
 global.sfPrefix = '/sf/';
 
 exports = module.exports = function (options) {
-    const { webappDirectoryList, staticDirectory, jsCompileList, cssCompileList } = validate(options);
+    const { webappDirectoryList, jsCompileList, cssCompileList } = validate(options);
     const isHttps = utils.hasArgument(process.argv, '--https');
     const commonConfig = {
         cache: true,
@@ -141,38 +141,32 @@ exports = module.exports = function (options) {
 
     let allCompilePromise = Promise.all(compilerPromiseList);
     allCompilePromise.then(() => {
-        console.log("**************** total compile time ****************");
-        console.log(new Date() - global.startCompile);
-        console.log("**************** total compile time ****************");
+        console.log(`**************** total compile time: ${new Date() - global.startCompile}ms ****************`);
         if (!utils.hasArgument(process.argv, '--norefresh')) {
-            gulp.task('default', function () {
-                const watchFiles = [];
+            let watchFiles = [];
 
-                webappDirectoryList.forEach(function (item) {
-                    const webappViewSrcDir = item + '/src/main/webapp/WEB-INF/view/src/';
+            webappDirectoryList.forEach(function (item) {
+                const webappViewSrcDir = item + '/src/main/webapp/WEB-INF/view/src/';
 
-                    watchFiles.push(path.join(webappViewSrcDir + "/**/*.vm"));
-                    watchFiles.push(path.join(webappViewSrcDir + "/**/*.html"));
-                    watchFiles.push(path.join(webappViewSrcDir + "/**/*.tpl"));
-                });
-                watchFiles.push(cssCompileList);
-                console.log('watchFiles List: ');
-                console.log(watchFiles);
-                gulp.watch(watchFiles).on('change', function () {
-                    if (global.socket) {
-                        global.socket.emit("refresh", { "refresh": 1 });
-                        console.log("files changed： trigger refresh...");
-                    }
-
-                    if (isHttps && global.httpsSocket) {
-                        global.httpsSocket.emit("refresh", { "refresh": 1 });
-                        console.log("[https] file changed: trigger refresh...");
-                    }
-                });
-                utils.startWebSocketServer(isHttps);
+                watchFiles.push(path.join(webappViewSrcDir + "/**/*.vm"));
+                watchFiles.push(path.join(webappViewSrcDir + "/**/*.html"));
+                watchFiles.push(path.join(webappViewSrcDir + "/**/*.tpl"));
             });
+            watchFiles = watchFiles.concat(cssCompileList);
+            console.log('watchFiles List: ');
+            console.log(watchFiles);
+            gulp.watch(watchFiles).on('change', function () {
+                if (global.socket) {
+                    global.socket.emit("refresh", { "refresh": 1 });
+                    console.log("files changed： trigger refresh...");
+                }
 
-            gulp.start();
+                if (isHttps && global.httpsSocket) {
+                    global.httpsSocket.emit("refresh", { "refresh": 1 });
+                    console.log("[https] file changed: trigger refresh...");
+                }
+            });
+            utils.startWebSocketServer(isHttps);
         } else {
             console.log('status: norefresh');
         }
