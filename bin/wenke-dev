@@ -20,6 +20,7 @@ program.usage('[dir] [options]')
 program.parse(process.argv);
 
 utils.verifyVersion(function () {
+    global.startCompile = new Date();
     if (program.xcx) {
         xcxDev(program);
     } else {

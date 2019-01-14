@@ -141,6 +141,9 @@ exports = module.exports = function (options) {
 
     let allCompilePromise = Promise.all(compilerPromiseList);
     allCompilePromise.then(() => {
+        console.log("**************** total compile time ****************");
+        console.log(new Date() - global.startCompile);
+        console.log("**************** total compile time ****************");
         if (!utils.hasArgument(process.argv, '--norefresh')) {
             gulp.task('default', function () {
                 const watchFiles = [];
