@@ -68,7 +68,7 @@ exports = module.exports = function (options) {
 
     const contextPath = path.join(global.staticDirectory, global.srcPrefix, 'js');
     const staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
-    let compilerPromiseList = [];
+    const compilerPromiseList = [];
     jsCompileList.forEach(jsCompileItem => {
         compilerPromiseList.push(new Promise((resolve, reject) => {
             let rebuildCompile = false;
@@ -136,10 +136,10 @@ exports = module.exports = function (options) {
                     resolve();
                 }
             });
-        }))
+        }));
     });
 
-    let allCompilePromise = Promise.all(compilerPromiseList);
+    const allCompilePromise = Promise.all(compilerPromiseList);
     allCompilePromise.then(() => {
         console.log(`**************** total compile time: ${new Date() - global.startCompile}ms ****************`);
         if (!utils.hasArgument(process.argv, '--norefresh')) {
@@ -170,5 +170,5 @@ exports = module.exports = function (options) {
         } else {
             console.log('status: norefresh');
         }
-    })
+    });
 };
