@@ -70,9 +70,10 @@ exports = module.exports = function (options) {
     const staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
     const entry = {};
     let rebuildCompile = false, chunkFileNamePrefix;
+    const oneEntryJs = jsCompileList[0];
     jsCompileList.forEach(jsCompileItem => {
         const entryItem = jsCompileItem.path.replace(utils.normalizePath(contextPath) + "/", '');
-        entry[entryItem] = './' + entryItem;
+        entry[entryItem.replace('main.js', 'bundle.js')] = './' + entryItem;
         if (!chunkFileNamePrefix) {
             chunkFileNamePrefix = entryItem.substring(0, entryItem.indexOf('/') + 1);
             global.chunkFileNamePrefix = chunkFileNamePrefix;
@@ -90,7 +91,7 @@ exports = module.exports = function (options) {
             path: path.join(global.staticDirectory, global.deployPrefix, 'js'),
             filename: "[name]",
             chunkFilename: chunkFileNamePrefix + "_chunks/[name].bundle.js",
-            publicPath: path.join(global.staticDirectory, global.deployPrefix, 'js')
+            publicPath: utils.normalizePath(path.join(global.sfPrefix, utils.normalizePath(path.join(global.deployPrefix, 'js')), '/'))
         }
     };
 
