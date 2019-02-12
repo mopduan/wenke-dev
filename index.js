@@ -70,7 +70,6 @@ exports = module.exports = function (options) {
     const staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
     const entry = {};
     let rebuildCompile = false, chunkFileNamePrefix;
-    const oneEntryJs = jsCompileList[0];
     jsCompileList.forEach(jsCompileItem => {
         const entryItem = jsCompileItem.path.replace(utils.normalizePath(contextPath) + "/", '');
         entry[entryItem.replace('main.js', 'bundle.js')] = './' + entryItem;
