@@ -68,58 +68,92 @@ exports = module.exports = function (options) {
 
     const contextPath = path.join(global.staticDirectory, global.srcPrefix, 'js');
     const staticFilesSourceDir = path.join(global.staticDirectory, global.srcPrefix);
-    const compilerPromiseList = [];
+    const entry = {};
+    let rebuildCompile = false, chunkFileNamePrefix;
     jsCompileList.forEach(jsCompileItem => {
-        compilerPromiseList.push(new Promise((resolve, reject) => {
-            let rebuildCompile = false;
-            const entryPath = './' + jsCompileItem.path.replace(utils.normalizePath(contextPath), '');
-            const config = {
-                context: contextPath,
-                entry: entryPath,
-                plugins: [
-                    new webpack.DefinePlugin({
-                        __DEVTOOLS__: options.preact ? true : false
-                    })
-                ],
-                output: {
-                    path: path.join(global.staticDirectory, global.deployPrefix, 'js', utils.normalizePath(path.dirname(jsCompileItem.path)).replace(utils.normalizePath(contextPath), '')),
-                    filename: "bundle.js",
-                    chunkFilename: "[name].bundle.js",
-                    publicPath: utils.normalizePath(path.join(global.sfPrefix, utils.normalizePath(path.join(global.deployPrefix, 'js', utils.normalizePath(path.dirname(jsCompileItem.path)).replace(utils.normalizePath(contextPath), ''))), '/'))
-                }
-            };
+        const entryItem = jsCompileItem.path.replace(utils.normalizePath(contextPath) + "/", '');
+        entry[entryItem] = './' + entryItem;
+        if (!chunkFileNamePrefix) {
+            chunkFileNamePrefix = entryItem.substring(0, entryItem.indexOf('/') + 1);
+            global.chunkFileNamePrefix = chunkFileNamePrefix;
+        }
+    });
+    const config = {
+        context: contextPath,
+        entry: entry,
+        plugins: [
+            new webpack.DefinePlugin({
+                __DEVTOOLS__: options.preact ? true : false
+            })
+        ],
+        output: {
+            path: path.join(global.staticDirectory, global.deployPrefix, 'js'),
+            filename: "[name]",
+            chunkFilename: chunkFileNamePrefix + "_chunks/[name].bundle.js",
+            publicPath: path.join(global.staticDirectory, global.deployPrefix, 'js')
+        }
+    };
 
-            config.externals = externals;
+    config.externals = externals;
 
-            config.module = { rules: utils.getRules() };
-            utils.extendConfig(config, commonConfig);
+    config.module = { rules: utils.getRules() };
+    utils.extendConfig(config, commonConfig);
 
-            config.module.rules.push({
-                test: /\.(js|jsx)$/,
-                use: [{ loader: 'babel-loader', options: JSON.stringify(babelSettings) }],
-                exclude: /(node_modules|bower_components)/,
-                include: [staticFilesSourceDir]
-            });
+    config.module.rules.push({
+        test: /\.(js|jsx)$/,
+        use: [{ loader: 'babel-loader', options: JSON.stringify(babelSettings) }],
+        exclude: /(node_modules|bower_components)/,
+        include: [staticFilesSourceDir]
+    });
 
-            const compiler = webpack(config);
-            compiler.watch({
-                aggregateTimeout: 300,
-                poll: true
-            }, function (err, stats) {
-                if (err) {
-                    reject(err);
-                }
+    const compiler = webpack(config);
+    compiler.watch({
+        aggregateTimeout: 300,
+        poll: true
+    }, function (err, stats) {
+        if (err) {
+            throw err;
+        }
 
-                if (stats.hasErrors()) {
-                    console.log('ERROR start ==============================================================');
-                    console.log(stats.toString());
-                    console.log('ERROR end   ==============================================================');
-                } else {
-                    console.log(stats.toString());
-                }
+        if (stats.hasErrors()) {
+            console.log('ERROR start ==============================================================');
+            console.log(stats.toString());
+            console.log('ERROR end   ==============================================================');
+        } else {
+            console.log(stats.toString());
+        }
 
-                if (rebuildCompile) {
-                    console.log('rebuild complete!');
+        if (rebuildCompile) {
+            console.log('rebuild complete!', (stats.endTime - stats.startTime) + "ms");
+            if (global.socket) {
+                global.socket.emit("refresh", { "refresh": 1 });
+                console.log("files changed： trigger refresh...");
+            }
+
+            if (isHttps && global.httpsSocket) {
+                global.httpsSocket.emit("refresh", { "refresh": 1 });
+                console.log("[https] files changed: trigger refresh...");
+            }
+        }
+
+        if (!rebuildCompile) {
+            rebuildCompile = true;
+
+            console.log(`**************** total compile time: ${new Date() - global.startCompile}ms ****************`);
+            if (!utils.hasArgument(process.argv, '--norefresh')) {
+                let watchFiles = [];
+
+                webappDirectoryList.forEach(function (item) {
+                    const webappViewSrcDir = item + '/src/main/webapp/WEB-INF/view/src/';
+
+                    watchFiles.push(path.join(webappViewSrcDir + "/**/*.vm"));
+                    watchFiles.push(path.join(webappViewSrcDir + "/**/*.html"));
+                    watchFiles.push(path.join(webappViewSrcDir + "/**/*.tpl"));
+                });
+                watchFiles = watchFiles.concat(cssCompileList);
+                console.log('watchFiles List: ');
+                console.log(watchFiles);
+                gulp.watch(watchFiles).on('change', function () {
                     if (global.socket) {
                         global.socket.emit("refresh", { "refresh": 1 });
                         console.log("files changed： trigger refresh...");
@@ -127,48 +161,13 @@ exports = module.exports = function (options) {
 
                     if (isHttps && global.httpsSocket) {
                         global.httpsSocket.emit("refresh", { "refresh": 1 });
-                        console.log("[https] files changed: trigger refresh...");
+                        console.log("[https] file changed: trigger refresh...");
                     }
-                }
-
-                if (!rebuildCompile) {
-                    rebuildCompile = true;
-                    resolve();
-                }
-            });
-        }));
-    });
-
-    const allCompilePromise = Promise.all(compilerPromiseList);
-    allCompilePromise.then(() => {
-        console.log(`**************** total compile time: ${new Date() - global.startCompile}ms ****************`);
-        if (!utils.hasArgument(process.argv, '--norefresh')) {
-            let watchFiles = [];
-
-            webappDirectoryList.forEach(function (item) {
-                const webappViewSrcDir = item + '/src/main/webapp/WEB-INF/view/src/';
-
-                watchFiles.push(path.join(webappViewSrcDir + "/**/*.vm"));
-                watchFiles.push(path.join(webappViewSrcDir + "/**/*.html"));
-                watchFiles.push(path.join(webappViewSrcDir + "/**/*.tpl"));
-            });
-            watchFiles = watchFiles.concat(cssCompileList);
-            console.log('watchFiles List: ');
-            console.log(watchFiles);
-            gulp.watch(watchFiles).on('change', function () {
-                if (global.socket) {
-                    global.socket.emit("refresh", { "refresh": 1 });
-                    console.log("files changed： trigger refresh...");
-                }
-
-                if (isHttps && global.httpsSocket) {
-                    global.httpsSocket.emit("refresh", { "refresh": 1 });
-                    console.log("[https] file changed: trigger refresh...");
-                }
-            });
-            utils.startWebSocketServer(isHttps);
-        } else {
-            console.log('status: norefresh');
+                });
+                utils.startWebSocketServer(isHttps);
+            } else {
+                console.log('status: norefresh');
+            }
         }
     });
 };
