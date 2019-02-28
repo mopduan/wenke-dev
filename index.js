@@ -120,16 +120,17 @@ exports = module.exports = function (options) {
                         }
                     });
 
-                    setTimeout(function () {
-                        chokidar.watch(path.join(global.staticDirectory, global.deployPrefix)).on("all", function () {
-                            if (global.socket) {
-                                global.socket.emit("refresh", { "refresh": 1 });
-                            }
-                            if (isHttps && global.httpsSocket) {
-                                global.httpsSocket.emit("refresh", { "refresh": 1 });
-                            }
-                        });
-                    }, 1000);
+                    const watcher = chokidar.watch(path.join(global.staticDirectory, global.deployPrefix));
+
+                    watcher.on("change", () => {
+                        if (global.socket) {
+                            global.socket.emit("refresh", { "refresh": 1 });
+                        }
+                        if (isHttps && global.httpsSocket) {
+                            global.httpsSocket.emit("refresh", { "refresh": 1 });
+                        }
+                    });
+
                 } else {
                     console.log('status: norefresh');
                 }
