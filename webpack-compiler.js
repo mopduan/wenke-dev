@@ -38,7 +38,6 @@ module.exports = function ({ jsCompileItem, externals, commonConfig, babelSettin
         aggregateTimeout: 300,
         poll: true
     }, function (err, stats) {
-        console.log("compile callbacl");
         if (err) {
             throw err;
         }
@@ -57,7 +56,7 @@ module.exports = function ({ jsCompileItem, externals, commonConfig, babelSettin
 
         if (!rebuildCompile) {
             rebuildCompile = true;
+            callback();
         }
-        callback();
     });
 };
