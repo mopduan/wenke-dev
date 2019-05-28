@@ -13,6 +13,7 @@ program.usage('[dir] [options]')
     .option('--norefresh [don\'t auto refresh]', 'norefresh')
     .option('--https [build https]', 'build https')
     .option('-https-livereload-port, --https-livereload-port [https livereload port]', 'https livereload port')
+    .option('--np [node project]', 'node project')
     .option('--preact [use preact]', 'use preact');
 
 program.parse(process.argv);

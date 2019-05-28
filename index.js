@@ -99,11 +99,12 @@ exports = module.exports = function (options) {
                     let watchFiles = [];
 
                     webappDirectoryList.forEach(function (item) {
-                        const webappViewSrcDir = item + '/src/main/webapp/WEB-INF/view/src/';
+                        const webappViewSrcDir = options.np ? item : item + '/src/main/webapp/WEB-INF/view/src/';
 
                         watchFiles.push(path.join(webappViewSrcDir + "/**/*.vm"));
                         watchFiles.push(path.join(webappViewSrcDir + "/**/*.html"));
                         watchFiles.push(path.join(webappViewSrcDir + "/**/*.tpl"));
+                        watchFiles.push(path.join(webappViewSrcDir + "/**/*.njk"));
                     });
                     watchFiles = watchFiles.concat(cssCompileList);
                     console.log('watchFiles List: ');
