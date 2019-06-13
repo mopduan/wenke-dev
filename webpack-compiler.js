@@ -1,7 +1,7 @@
 const webpack = require("webpack");
 const path = require("path");
 const utils = require('./lib/utils');
-module.exports = function ({ jsCompileItem, externals, commonConfig, babelSettings, preact, staticDirectory, srcPrefix, sfPrefix, deployPrefix }, callback) {
+module.exports = function ({ jsCompileItem, externals, commonConfig, babelSettings, preact, np, staticDirectory, srcPrefix, sfPrefix, deployPrefix }, callback) {
     const contextPath = path.join(staticDirectory, srcPrefix, 'js');
     const staticFilesSourceDir = path.join(staticDirectory, srcPrefix);
     const entryItem = jsCompileItem.path.replace(utils.normalizePath(contextPath) + "/", '');
@@ -25,12 +25,17 @@ module.exports = function ({ jsCompileItem, externals, commonConfig, babelSettin
     config.externals = externals;
     config.module = { rules: utils.getRules() };
     utils.extendConfig(config, commonConfig);
-    config.module.rules.push({
+    let jsRules = {
         test: /\.(js|jsx)$/,
         use: [{ loader: 'babel-loader', options: JSON.stringify(babelSettings) }],
         exclude: /(node_modules|bower_components)/,
         include: [staticFilesSourceDir]
-    });
+    };
+    if (np) {//针对模板工程需要引用工程下前端公用私有npm包
+        jsRules.exclude = [path.join(__dirname, 'node_modules'), /bower_components/];
+        jsRules.include = [path.join(staticDirectory, '../node_modules/@ares'), staticDirectory, /clientLib/]
+    }
+    config.module.rules.push(jsRules);
 
     let rebuildCompile = false;
     const compiler = webpack(config);

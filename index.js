@@ -49,6 +49,9 @@ exports = module.exports = function (options) {
         devtool: "inline-source-map",
         mode: "development"
     };
+    if (options.np) {//公用的客户端私有npm包需要从项目目录下查找依赖包
+        commonConfig.resolve.modules.push(path.join(options.staticFilesDirectory, '../node_modules'));
+    }
 
     const _presets = [
         __dirname + "/node_modules/@babel/preset-env"
@@ -85,12 +88,13 @@ exports = module.exports = function (options) {
     };
 
     const preact = !!options.preact;
+    const np = !!options.np;
     const { staticDirectory, srcPrefix, deployPrefix, webappDirectoryList, cssCompileList, sfPrefix } = global;
     let _leftCompileLen = jsCompileList.length;
     for (let i = 0, len = jsCompileList.length; i < len; i++) {
         const jsCompileItem = jsCompileList[i];
 
-        workers({ jsCompileItem, externals, commonConfig, babelSettings, preact, staticDirectory, srcPrefix, sfPrefix, deployPrefix, webappDirectoryList, cssCompileList, childId: i }, () => {
+        workers({ jsCompileItem, externals, commonConfig, babelSettings, preact, np, staticDirectory, srcPrefix, sfPrefix, deployPrefix, webappDirectoryList, cssCompileList, childId: i }, () => {
             _leftCompileLen = _leftCompileLen - 1;
             if (!_leftCompileLen) {
                 console.log(`**************** total compile time: ${new Date() - global.startCompile}ms ****************`);
