@@ -84,7 +84,8 @@ exports = module.exports = function (options) {
         "react-router-dom": "ReactRouterDOM",
         "preact-redux": "preactRedux",
         "immutable": "Immutable",
-        "preact": "preact"
+        "preact": "preact",
+        "antd": "antd"
     };
 
     const preact = !!options.preact;
