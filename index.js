@@ -8,7 +8,6 @@ global.srcPrefix = '/src/';
 global.deployPrefix = '/deploy/';
 global.localStaticResourcesPrefix = /\/sf/;
 global.sfPrefix = '/sf/';
-const isHttps = utils.hasArgument(process.argv, '--https');
 // In some cases cpus() returns undefined
 // https://github.com/nodejs/node/issues/19022
 const cpus = os.cpus() || { length: 1 };
@@ -114,15 +113,11 @@ exports = module.exports = function (options) {
                     watchFiles = watchFiles.concat(cssCompileList);
                     console.log('watchFiles List: ');
                     console.log(watchFiles);
-                    utils.startWebSocketServer(isHttps);
+                    utils.startWebSocketServer();
                     chokidar.watch(watchFiles).on('change', function () {
                         if (global.socket) {
                             global.socket.emit("refresh", { "refresh": 1 });
                             console.log("files changed： trigger refresh...");
-                        }
-                        if (isHttps && global.httpsSocket) {
-                            global.httpsSocket.emit("refresh", { "refresh": 1 });
-                            console.log("[https] file changed: trigger refresh...");
                         }
                     });
 
@@ -131,9 +126,6 @@ exports = module.exports = function (options) {
                     watcher.on("change", () => {
                         if (global.socket) {
                             global.socket.emit("refresh", { "refresh": 1 });
-                        }
-                        if (isHttps && global.httpsSocket) {
-                            global.httpsSocket.emit("refresh", { "refresh": 1 });
                         }
                     });
 
