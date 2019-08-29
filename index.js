@@ -100,24 +100,29 @@ exports = module.exports = function (options) {
                 console.log(`**************** total compile time: ${new Date() - global.startCompile}ms ****************`);
 
                 if (!utils.hasArgument(process.argv, '--norefresh')) {
-                    let watchFiles = [];
+                    let templateWatchFiles = [];
 
                     webappDirectoryList.forEach(function (item) {
                         const webappViewSrcDir = options.np ? item : item + '/src/main/webapp/WEB-INF/view/src/';
 
-                        watchFiles.push(path.join(webappViewSrcDir + "/**/*.vm"));
-                        watchFiles.push(path.join(webappViewSrcDir + "/**/*.html"));
-                        watchFiles.push(path.join(webappViewSrcDir + "/**/*.tpl"));
-                        watchFiles.push(path.join(webappViewSrcDir + "/**/*.njk"));
+                        templateWatchFiles.push(path.join(webappViewSrcDir + "/**/*.vm"));
+                        templateWatchFiles.push(path.join(webappViewSrcDir + "/**/*.html"));
+                        templateWatchFiles.push(path.join(webappViewSrcDir + "/**/*.tpl"));
+                        templateWatchFiles.push(path.join(webappViewSrcDir + "/**/*.njk"));
                     });
-                    watchFiles = watchFiles.concat(cssCompileList);
-                    console.log('watchFiles List: ');
-                    console.log(watchFiles);
+                    templateWatchFiles = templateWatchFiles.concat(cssCompileList);
+                    console.log('templateWatchFiles List: ');
+                    console.log(templateWatchFiles);
                     utils.startWebSocketServer();
-                    chokidar.watch(watchFiles).on('change', function () {
+                    chokidar.watch(templateWatchFiles).on('change', () => {
                         if (global.socket) {
                             global.socket.emit("refresh", { "refresh": 1 });
-                            console.log("files changed： trigger refresh...");
+                            console.log("some files changed: trigger refresh...");
+                        }
+                    }).on('unlink', () => {
+                        if (global.socket) {
+                            global.socket.emit("refresh", { "refresh": 1 });
+                            console.log("some files deleted: trigger refresh...");
                         }
                     });
 
@@ -126,9 +131,14 @@ exports = module.exports = function (options) {
                     watcher.on("change", () => {
                         if (global.socket) {
                             global.socket.emit("refresh", { "refresh": 1 });
+                            console.log("some static files changed: trigger refresh...");
+                        }
+                    }).on("unlink", () => {
+                        if (global.socket) {
+                            global.socket.emit("refresh", { "refresh": 1 });
+                            console.log("some static files deleted: trigger refresh...");
                         }
                     });
-
                 } else {
                     console.log('status: norefresh');
                 }
