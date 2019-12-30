@@ -15,6 +15,7 @@ module.exports = function ({ jsCompileItem, externals, commonConfig, babelSettin
             })
         ],
         output: {
+            jsonpFunction: utils.uniqueVal(),
             path: path.join(staticDirectory, deployPrefix, 'js', utils.normalizePath(path.dirname(jsCompileItem.path)).replace(utils.normalizePath(contextPath), '')),
             filename: "bundle.js",
             chunkFilename: "[name].bundle.js",
