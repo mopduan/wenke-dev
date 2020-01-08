@@ -26,7 +26,7 @@ module.exports = function ({ jsCompileItem, externals, commonConfig, babelSettin
     config.externals = externals;
     config.module = { rules: utils.getRules() };
     utils.extendConfig(config, commonConfig);
-    let jsRules = {
+    const jsRules = {
         test: /\.(js|jsx)$/,
         use: [{ loader: 'babel-loader', options: JSON.stringify(babelSettings) }],
         exclude: /(node_modules|bower_components)/,
@@ -34,7 +34,7 @@ module.exports = function ({ jsCompileItem, externals, commonConfig, babelSettin
     };
     if (np) {//针对模板工程需要引用工程下前端公用私有npm包
         jsRules.exclude = [path.join(__dirname, 'node_modules'), /bower_components/];
-        jsRules.include = [path.join(staticDirectory, '../node_modules/@ares'), staticDirectory, /clientLib/]
+        jsRules.include = [path.join(staticDirectory, '../node_modules/@ares'), staticDirectory, /clientLib/];
     }
     config.module.rules.push(jsRules);
 

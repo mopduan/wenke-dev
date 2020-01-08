@@ -52,6 +52,7 @@
     "socket.io": "2.3.0",
     "style-loader": "1.0.1",
     "webpack": "4.41.2",
-    "worker-farm": "1.7.0"
+    "worker-farm": "1.7.0",
+    "preact": "10.2.0"
   }
 }
