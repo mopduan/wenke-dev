@@ -13,16 +13,14 @@ module.exports = function (dir) {
     }
 
     const app = new Koa();
-    const contextdir = path.join(dir, 'src');
-    const distdir = path.join(contextdir, 'deploy'); // 兼容wenke
+    const contextdir = dir;
 
+    const distdir = path.join(contextdir, 'deploy'); // 兼容wenke? TODO
     /** 
      * 添加新的公共文件需要修改对应入口文件
      */
-
     const entries = {
         "deploy/js/lib/wenke/main.js": "./src/wenke/main.js",
-        "deploy/js/lib/monitor/main.js": "./src/monitor/main.js",
         "deploy/js/lib/connectLogin/pc/main.js": "./src/connectLogin/pc/main.js",
         "deploy/js/lib/connectLogin/wap/main.js": "./src/connectLogin/wap/main.js",
         "deploy/js/lib/deploy-test/main.js": "./src/deploy-test/main.js",
@@ -31,31 +29,19 @@ module.exports = function (dir) {
         "deploy/js/lib/hhy/main.js": "./src/hhy/main.js"
     };
 
-    // 补全 entries value值
-    for (const key in entries) {
-        entries[key] = path.join(dir, entries[key]);
-    }
-
     let rebuild = false;
-
-    del.sync([`${distdir}/**`]);
 
     const compiler = webpack({
         mode: 'development',
         context: contextdir,
         entry: entries,
         devtool: "inline-source-map",
-        devServer: {
-            contentBase: distdir,
-            compress: false,
-            port: 2080
-        },
         resolve: {
             extensions: ['.js', '.jsx'],
-            modules: [path.join(dir, '/node_modules')]
+            modules: [path.join(contextdir, "node_modules")]
         },
         resolveLoader: {
-            modules: [path.join(dir, '/node_modules')]
+            modules: [path.join(__dirname, "node_modules")]
         },
         module: {
             rules: [
@@ -97,7 +83,6 @@ module.exports = function (dir) {
             ]
         },
         output: {
-            path: distdir,
             hashFunction: 'sha256',
             hashDigest: 'hex',
             filename: "[name]",
@@ -121,18 +106,8 @@ module.exports = function (dir) {
         }
     });
 
+    // 将打包好的文件以 localhost:2080/[output.filename] 在内存中服务，无硬盘 IO
     app.use(koaWebpackDevMiddleware(compiler));
-
-    // TODO  delete
-    app.use(async (ctx) => {
-        console.log(ctx.path)
-        if (/\.js$/.test(ctx.path)) {
-            ctx.body = fs.readFileSync(path.join(__dirname, '..', 'test', ctx.path));
-        } else {
-            ctx.set("content-type", "text/html;charset=UTF-8");
-            ctx.body = fs.readFileSync(path.join(__dirname, '..', 'test', 'index.html'));
-        }
-    });
 
     const server = http.createServer(app.callback());
     const io = require('socket.io')(server);
