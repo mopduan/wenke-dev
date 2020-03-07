@@ -14,8 +14,6 @@ module.exports = function (dir) {
 
     const app = new Koa();
     const contextdir = dir;
-
-    const distdir = path.join(contextdir, 'deploy'); // 兼容wenke? TODO
     /** 
      * 添加新的公共文件需要修改对应入口文件
      */
@@ -26,7 +24,10 @@ module.exports = function (dir) {
         "deploy/js/lib/deploy-test/main.js": "./src/deploy-test/main.js",
         "deploy/js/lib/404.js": "./src/404/404.js",
         "deploy/js/lib/share/mobileShare.js": "./src/share/mobileShare.js",
-        "deploy/js/lib/hhy/main.js": "./src/hhy/main.js"
+        "deploy/js/lib/hhy/main.js": "./src/hhy/main.js",
+        "deploy/js/lib/reportAjax/main.js": "./src/reportAjax/main.js",
+        "deploy/js/lib/realNameVerify/main.js": "./src/realNameVerify/main.js",
+        "deploy/js/lib/ie8tips/main.js": './src/ie8tips/main.js'
     };
 
     let rebuild = false;

@@ -30,9 +30,9 @@ const workerOptions = process.platform === 'win32' ?
 const workers = workerFarm(workerOptions, require.resolve('./webpack-compiler'));
 
 exports = module.exports = function (options) {
-    if (options.updateCommonLib) {
+    if (options.bundleCommonLib) {
         
-        compileCommonLib(options.updateCommonLib);
+        compileCommonLib(options.bundleCommonLib);
 
     } else {
         const { jsCompileList } = validate(options);

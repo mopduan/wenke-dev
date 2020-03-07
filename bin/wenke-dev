@@ -14,7 +14,7 @@ program.usage('[dir] [optionfdsd]')
     .option('--np [node project]', 'node project')
     .option('--preact [use preact]', 'use preact')
     // common-lib 发布
-    .option('-c, --update-common-lib <common-library directory>', 'update common lib')
+    .option('-c, --bundle-common-lib <common-library directory>', 'bundle common library')
     .parse(process.argv);
 
 utils.verifyVersion(function () {
