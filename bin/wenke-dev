@@ -6,15 +6,16 @@ const program = require('commander');
 
 program.version(require('../package').version);
 
-program.usage('[dir] [options]')
+program.usage('[dir] [optionfdsd]')
     .option('-s, --static-files-directory [static files directory]', 'static files directory')
     .option('-w, --webapp-directory [webapp directory]', 'webapp directory')
     .option('-livereload-port, --livereload-port [livereload\'s port]', 'livereload\'s port')
     .option('--norefresh [don\'t auto refresh]', 'norefresh')
     .option('--np [node project]', 'node project')
-    .option('--preact [use preact]', 'use preact');
-
-program.parse(process.argv);
+    .option('--preact [use preact]', 'use preact')
+    // common-lib 发布
+    .option('-c, --bundle-common-lib <common-library directory>', 'bundle common library')
+    .parse(process.argv);
 
 utils.verifyVersion(function () {
     global.startCompile = new Date();

@@ -24,7 +24,7 @@ module.exports = function ({ jsCompileItem, externals, commonConfig, babelSettin
     };
 
     config.externals = externals;
-    config.module = { rules: utils.getRules() };
+    config.module = { rules: utils.getRules()};
     utils.extendConfig(config, commonConfig);
     const jsRules = {
         test: /\.(js|jsx)$/,
