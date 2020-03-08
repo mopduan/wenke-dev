@@ -57,7 +57,12 @@ module.exports = function (dir) {
                             presets: [
                                 [require.resolve('@babel/preset-env'), { modules: false }],
                                 require.resolve('@babel/preset-react')],
-                            compact: false
+                            compact: false,
+                            plugins: [
+                                [__dirname + "/node_modules/@babel/plugin-proposal-decorators", { legacy: true }],
+                                [__dirname + "/node_modules/@babel/plugin-proposal-class-properties", { "loose": false }],
+                                __dirname + "/node_modules/@babel/plugin-syntax-import-meta"
+                            ]
                         }
                     }
                 },
