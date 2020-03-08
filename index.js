@@ -4,7 +4,7 @@ const validate = require('./lib/validate');
 const workerFarm = require("worker-farm");
 const os = require('os');
 const chokidar = require("chokidar");
-const compileCommonLib = require('./compileCommonLib');
+const compileCommonLib = require('./hhy.compiler');
 
 global.srcPrefix = '/src/';
 global.deployPrefix = '/deploy/';
@@ -27,7 +27,7 @@ const workerOptions = process.platform === 'win32' ?
         maxConcurrentWorkers: maxConcurrentWorkers,
         maxConcurrentCallsPerWorker: 1
     } : { maxConcurrentWorkers: maxConcurrentWorkers };
-const workers = workerFarm(workerOptions, require.resolve('./webpack-compiler'));
+const workers = workerFarm(workerOptions, require.resolve('./webpack.compiler.js'));
 
 exports = module.exports = function (options) {
     if (options.bundleCommonLib) {

@@ -39,7 +39,7 @@ module.exports = function (dir) {
         devtool: "inline-source-map",
         resolve: {
             extensions: ['.js', '.jsx'],
-            modules: [path.join(contextdir, "node_modules")]
+            modules: [path.join(__dirname, "node_modules")]
         },
         resolveLoader: {
             modules: [path.join(__dirname, "node_modules")]
