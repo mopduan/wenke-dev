@@ -15,6 +15,7 @@ program.usage('[dir] [optionfdsd]')
     .option('--preact [use preact]', 'use preact')
     // common-lib 发布
     .option('-c, --bundle-common-lib <common-library directory>', 'bundle common library')
+    .option('--ie8tips <ie8tips directory>', 'uglify ie8tips')
     .parse(process.argv);
 
 utils.verifyVersion(function () {
