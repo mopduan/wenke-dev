@@ -1,13 +1,13 @@
 {
   "name": "wenke-dev",
-  "version": "4.7.1",
+  "version": "4.8.0",
   "description": "dev tool for wenke-webpack",
   "main": "index.js",
   "bin": {
     "wenke-dev": "bin/wenke-dev"
   },
-  "scripts": {
-    "publish:outer": "npm publish --registry https://registry.npmjs.org/"
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
   },
   "repository": {
     "type": "git",
