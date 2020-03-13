@@ -26,8 +26,7 @@ module.exports = function (dir) {
         "deploy/js/lib/share/mobileShare.js": "./src/share/mobileShare.js",
         "deploy/js/lib/hhy/main.js": "./src/hhy/main.js",
         "deploy/js/lib/reportAjax/main.js": "./src/reportAjax/main.js",
-        "deploy/js/lib/realNameVerify/main.js": "./src/realNameVerify/main.js",
-        "deploy/js/lib/ie8tips/main.js": './src/ie8tips/main.js'
+        "deploy/js/lib/realNameVerify/main.js": "./src/realNameVerify/main.js"
     };
 
     let rebuild = false;
