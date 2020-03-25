@@ -4,7 +4,6 @@ const validate = require('./lib/validate');
 const workerFarm = require("worker-farm");
 const os = require('os');
 const chokidar = require("chokidar");
-const compileCommonLib = require('./hhy.compiler');
 const uglifyIe8tips = require('./ie8.uglify');
 
 global.srcPrefix = '/src/';
@@ -33,11 +32,6 @@ const workers = workerFarm(workerOptions, require.resolve('./webpack.compiler.js
 exports = module.exports = function (options) {
     if (options.ie8tips) {
         uglifyIe8tips(options.ie8tips);
-        return;
-    }
-
-    if (options.bundleCommonLib) {
-        compileCommonLib(options.bundleCommonLib);
         return;
     }
 
