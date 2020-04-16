@@ -17,6 +17,8 @@ program.usage('[dir] [optionfdsd]')
     .parse(process.argv);
 
 utils.verifyVersion(function () {
+    utils.preCheck();
+
     global.startCompile = new Date();
     wenkeDev(program);
 }, function () {
