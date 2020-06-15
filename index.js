@@ -92,6 +92,7 @@ exports = module.exports = function (options) {
         "preact-redux": "preactRedux",
         "immutable": "Immutable",
         "preact": "preact",
+        "preactHooks": "preactHooks",
         "antd": "antd"
     };
 
