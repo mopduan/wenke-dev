@@ -16,11 +16,17 @@ program.usage('[dir] [optionfdsd]')
     .option('--ie8tips <ie8tips directory>', 'uglify ie8tips')
     .parse(process.argv);
 
-utils.verifyVersion(function () {
-    utils.preCheck();
 
-    global.startCompile = new Date();
-    wenkeDev(program);
-}, function () {
-    process.exit(-1);
-});
+
+utils.verifyVersion()
+    .then((res) => {
+        if (!res) return;
+
+        global.startCompile = new Date();
+        wenkeDev(program);
+    })
+    .catch((err) => {
+        console.log(err)
+    })
+
+
