@@ -106,7 +106,7 @@ exports = module.exports = function (options) {
         workers({ jsCompileItem, externals, commonConfig, babelSettings, preact, np, staticDirectory, srcPrefix, sfPrefix, deployPrefix, webappDirectoryList, cssCompileList, childId: i }, () => {
             _leftCompileLen = _leftCompileLen - 1;
             if (!_leftCompileLen) {
-                console.log(`**************** total compile time: ${new Date() - global.startCompile}ms ****************`);
+                console.log(`**************** total compile time: ${Date.now() - global.startCompile}ms ****************`);
 
                 if (!utils.hasArgument(process.argv, '--norefresh')) {
                     let templateWatchFiles = [];

@@ -20,7 +20,7 @@ utils.verifyVersion()
     .then((checkRes) => {
         if (!checkRes) return;
 
-        global.startCompile = new Date();
+        global.startCompile = Date.now();
         wenkeDev(program);
     })
     .catch((err) => {
