@@ -5,6 +5,8 @@ const workerFarm = require("worker-farm");
 const os = require('os');
 const chokidar = require("chokidar");
 const uglifyIe8tips = require('./ie8.uglify');
+const stylesCompiler = require('./style.compiler');
+const { option } = require('commander');
 
 global.srcPrefix = '/src/';
 global.deployPrefix = '/deploy/';
@@ -29,13 +31,18 @@ const workerOptions = process.platform === 'win32' ?
     } : { maxConcurrentWorkers: maxConcurrentWorkers };
 const workers = workerFarm(workerOptions, require.resolve('./webpack.compiler.js'));
 
-exports = module.exports = function (options) {
+module.exports = async function (options) {
     if (options.ie8tips) {
         uglifyIe8tips(options.ie8tips);
         return;
     }
 
+    await stylesCompiler(options);
+
+    return;// TEST
+
     const { jsCompileList } = validate(options);
+
     const commonConfig = {
         cache: true,
         resolve: {
@@ -56,6 +63,7 @@ exports = module.exports = function (options) {
         devtool: "inline-source-map",
         mode: "development"
     };
+    
     if (options.np) {//公用的客户端私有npm包需要从项目目录下查找依赖包
         commonConfig.resolve.modules.push(path.join(options.staticFilesDirectory, '../node_modules'));
     }
