@@ -56,7 +56,7 @@ module.exports = async function stylesCompiler(options) {
 
     let stylesOption = {
         useRetina: true,
-        // noHash: true
+        // noHash: true,
     }
     if (fs.existsSync(styleConfigLocation)) {
         stylesOption = require(styleConfigLocation);
@@ -226,10 +226,10 @@ module.exports = async function stylesCompiler(options) {
                 let _spritesmithConfig = {
                     padding: 2,
                     imgSrc: _imgSrc,
-                    imgName: `dist/images/sprite/wenke_sprite_${_dir}.png`,
+                    imgName: `dist/images/sprite/sprite_${_dir}.png`,
                     cssName: `src/css/sprite/_sprite_${_dir}.scss`,
                     // Optional path to use in CSS referring to image location
-                    imgPath: `/images/sprite/wenke_sprite_${_dir}.png`,
+                    imgPath: `/images/sprite/sprite_${_dir}.png`,
                     cssTemplate: cssTemplate,
                     dest: spriteSmithDest
                 };
@@ -239,32 +239,12 @@ module.exports = async function stylesCompiler(options) {
                     _spritesmithConfig = {
                         ..._spritesmithConfig,
                         imgSrc: `${spriteSmithDest}/.tempsprite/resizer/${_dir}/*.{png,jpg,gif}`,
-                        retinaImgName: `dist/images/sprite/wenke_sprite_${_dir}@2x.png`,
+                        retinaImgName: `dist/images/sprite/sprite_${_dir}@2x.png`,
                         retinaSrcFilter: `${spriteSmithDest}/.tempsprite/resizer/**/*@2x.png`,
                         retinaImgPath: `/images/sprite/sprite_${_dir}@2x.png`,
                         padding: 8,
                     }
                 }
-
-                // if (isRetina) {
-                //     const retinaTmpDir = _path.replace(srcLocation, `${distLocation}/.retina_tmp/`);
-
-                //     _imgSrc = `${retinaTmpDir}/*.{png,jpg,gif}`;
-
-                //     _spritesmithConfig = {
-                //         imgSrc: _imgSrc,
-                //         imgName: `images/sprite/dist/${_dir}/sprite_${_dir}@1x.png`,
-                //         imgPath: `/static/images/sprite/dist/${_dir}/sprite_${_dir}@1x.png`,
-                //         cssName: `css/sprite/sprite_${_dir}.scss`,
-                //         retinaImgName: `images/sprite/dist/${_dir}/sprite_${_dir}@2x.png`,
-                //         retinaSrcFilter: `${retinaTmpDir}/*@2x.{png,jpg,gif}`,
-                //         retinaImgPath: `/static/images/sprite/dist/${_dir}/sprite_${_dir}@2x.png`,
-                //         cssTemplate: cssTemplate,
-                //         dest: path.join(webappDirectory, spritePath.dist)
-                //     };
-                // }
-
-                console.log(_spritesmithConfig)
 
                 _spriteBundlePromises.push(new Promise(async (resolve, reject) => {
                     try {
@@ -325,17 +305,19 @@ module.exports = async function stylesCompiler(options) {
     // }
 
     const startBundleSpriteTime = Date.now();
-    console.log('start bundle the sprites')
+    console.log('start bundle the sprites...')
     await spritesBuilder();
 
-    console.log('end bundle, take', Date.now() - startBundleSpriteTime)
+    console.log('end bundle, take', Date.now() - startBundleSpriteTime + 'ms')
+
+
+    global.sassCompileList = getSassCompileList(global.cssCompileList).filter(name => name.includes('pc/src/css'))
+
+    if (global.sassCompileList && global.sassCompileList.length) {
+        await scssCompile(dir, config, dev);
+    }
 
     return;
-
-
-    // if (global.sassCompileList && global.sassCompileList.length) {
-    //     await scssCompile(dir, config, dev);
-    // }
 
 
     if (dev) {
@@ -395,3 +377,11 @@ module.exports = async function stylesCompiler(options) {
         });
     }
 };
+
+function getSassCompileList(csslist) {
+    return csslist.map(fileName => {
+
+        let scssFileName = fileName.replace('/dist/css', '/src/css').replace('.css', '.scss')
+        return scssFileName
+    });
+}

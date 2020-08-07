@@ -37,11 +37,11 @@ module.exports = async function (options) {
         return;
     }
 
+    const { jsCompileList } = validate(options);
+
     await stylesCompiler(options);
 
     return;// TEST
-
-    const { jsCompileList } = validate(options);
 
     const commonConfig = {
         cache: true,
