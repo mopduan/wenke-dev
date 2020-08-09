@@ -317,48 +317,55 @@ module.exports = async function stylesCompiler(options) {
         await scssCompile(dir, config, dev);
     }
 
-    return;
-
+    return
 
     if (dev) {
         const sprites = glob.sync(`${dir.replace(/\/$/, '')}${spritePath.src}/**/*.{png,jpg,gif}`);
 
         chokidar.watch(sprites).on('all', async function (event, changePath) {
-
             console.log(event, changePath)
-            const _extname = path.extname(changePath);
+            // const _extname = path.extname(changePath);
+
+            try {
+                // 只需要对该文件所属的sprite图进行处理
+                await spritesBuilder(changePath);
+            } catch (error) {
+                console.log(chalk.bold.red(error.message));
+                throw error
+            }
 
             // 只需要对`add`, `addDir`, `change`, `unlink`, `unlinkDir`事件进行处理
-            if (event === 'add' || event === 'addDir' || event === 'change' || event === 'unlink' || event === 'unlinkDir') {
-                // dist目录下的文件地址
-                // let distPath = [changePath.replace(srcLocation, 'sprite/dist/')];
+            // if (event === 'add' || event === 'addDir' || event === 'change' || event === 'unlink' || event === 'unlinkDir') {
+            //     // dist目录下的文件地址
+            //     // let distPath = [changePath.replace(srcLocation, 'sprite/dist/')];
 
-                let distPath = [changePath.replace(srcLocation, distLocation)];
+            //     let distPath = [changePath.replace(srcLocation, distLocation)];
 
-                // 移动端需要校验1倍图和2倍图同时存在。
-                if (isRetina) {
-                    distPath = [
-                        changePath.replace(srcLocation, `${distLocation}/.retina_tmp/`).replace('@2x', '').replace(_extname, `@1x.png`),//????
-                        changePath.replace(srcLocation, `${distLocation}/.retina_tmp/`).replace('@2x', '').replace(_extname, `@2x.png`)
-                    ];
-                }
+            //     // // 移动端需要校验1倍图和2倍图同时存在。
+            //     // if (isRetina) {
+            //     //     distPath = [
+            //     //         changePath.replace(srcLocation, `${distLocation}/.retina_tmp/`).replace('@2x', '').replace(_extname, `@1x.png`),//????
+            //     //         changePath.replace(srcLocation, `${distLocation}/.retina_tmp/`).replace('@2x', '').replace(_extname, `@2x.png`)
+            //     //     ];
+            //     // }
 
-                const isExisted = distPath.every(item => fs.existsSync(item));
+            //     const isExisted = distPath.every(item => fs.existsSync(item));
 
-                // 如果dist目录下没有对应文件，则需要进行打包处理
-                if (!isExisted || event === 'unlink' || event === 'unlinkDir') {
-                    try {
-                        // 只需要对该文件所属的sprite图进行处理
-                        await spritesBuilder(changePath);
-                    } catch (error) {
-                        console.log(chalk.bold.red(error.message));
-                        throw error
-                    }
-                }
-            }
+            //     // 如果dist目录下没有对应文件，则需要进行打包处理
+            //     if (!isExisted || event === 'unlink' || event === 'unlinkDir') {
+            //         try {
+            //             // 只需要对该文件所属的sprite图进行处理
+            //             await spritesBuilder(changePath);
+            //         } catch (error) {
+            //             console.log(chalk.bold.red(error.message));
+            //             throw error
+            //         }
+            //     }
+            // }
         }).on('error', function (error) {
             console.log(`file watcher encounter ${error}`);
         });
+
 
         let _cssDir = path.join(dir, 'static/src/ued/new_baike/pc/src/css');
 

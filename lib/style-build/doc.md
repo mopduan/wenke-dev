@@ -1,11 +1,34 @@
+# gulp 梳理
+
+1. 根目录 `gulpfile.js` export 的function 都会被添加进 gulp task system
+2. Each gulp task is an asynchronous JavaScript function
+
+# 现有项目文件位置
+
+```js
+// dir of sprite source
+path.join(webappDir,  `/static/src/ued/${app_name}/${pc_or_wap}/src/asset/sprite`) // 可以有一层子目录 将分别打包
+
+// dir of sprite dist
+path.join(webappDir,  `/static/src/ued/${app_name}/${pc_or_wap}/dist/images/sprite`)
+
+// dir of sprite-css
+path.join(webappDir,  `/static/src/ued/${app_name}/${pc_or_wap}/src/css/sprite`)
+
+// dir of css dist
+path.join(webappDir,  `/static/src/ued/${app_name}/${pc_or_wap}/dist/css`)
+```
+
 # todo
 
-1. 打包配置参数
-2. 路径自动化
-3. 测试成功后  wenke 添加相应逻辑  从此不再需要提交dist 的代码
-4. 兼容两种情况：1雪碧图文件平铺在 sprite 文件夹  2 嵌套子目录打包
-5. 定义一个变量
-6. resolve url
+- [] 测试阶段 添加打包配置参数 开启css打包 不影响之前的逻辑、如果发现问题能够尽快使用之前的方式打包发布
+- [] 测试成功后  wenke 添加相应逻辑  从此不再需要提交dist 的代码
+- []兼容两种情况：1雪碧图文件平铺在 sprite 文件夹  2 嵌套子目录打包
+- [] 定义路径变量、路径自动化
+- [x] resolve url
+- [ ] dev兼容
+- [ ] images 文件平移
+
 
 # note
 
@@ -16,3 +39,8 @@
 3. gulp 多了一步使用 gulp-imagemin 来压缩图片的步骤  // TODO
 4. 写入目标地址
 5. 删除temp文件
+
+
+## 改进
+
+1. --np 时   -w 参数也是传的是node-app的目录
