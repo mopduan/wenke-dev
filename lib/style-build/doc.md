@@ -29,7 +29,6 @@ path.join(webappDir,  `/static/src/ued/${app_name}/${pc_or_wap}/dist/css`)
 - [ ] dev兼容
 - [ ] images 文件平移
 
-
 # note
 
 ## gulp 打包雪碧图的流程

@@ -10,7 +10,9 @@ const chokidar = require('chokidar');
 const chalk = require('chalk');
 const file = require('./lib/customized/file');
 const customizeUtils = require('./lib/customized/utils');
-const { retry } = require('async');
+const { env } = require('process');
+const { anySeries } = require('async');
+// const { retry } = require('async');
 
 
 const spritePath = {
@@ -18,18 +20,6 @@ const spritePath = {
     scss: '/static/src/ued/new_baike/pc/src/css/sprite',
     src: '/static/src/ued/new_baike/pc/src/asset/sprite'
 }
-
-const srcLocation = 'src/asset/sprite';
-const distLocation = 'dist/images/sprite'
-
-function stylesCleaner(dir) {
-    console.log('start clean sprite dist directory sucesss')
-    const _spriteDistPath = path.join(dir, spritePath.dist, '**');
-    const _scssDistPath = path.join(dir, spritePath.scss, '**');
-
-    del.sync([_spriteDistPath, _scssDistPath]);
-    console.log('clean sprite dist directory sucesss')
-};
 
 /**
  * 打包雪碧图，并生成scss文件。
@@ -43,7 +33,6 @@ module.exports = async function stylesCompiler(options) {
 
     const dir = options.webappDirectory;
 
-    console.log(`start compile ${dir} styles`)
     const webappDirectory = dir;
 
     // TODO 存储 css build配置文件
@@ -77,41 +66,90 @@ module.exports = async function stylesCompiler(options) {
         dirPrefix: sprite2scssDir
     });
 
-    // clean
-    // stylesCleaner(dir);
 
-    // return;
+
+    const startBundleSpriteTime = Date.now();
+    console.log('start bundle the sprites...')
+    await buildSprite(_spritePath);
+    console.log('end bundle, take', Date.now() - startBundleSpriteTime + 'ms')
+    if (global.sassCompileList && global.sassCompileList.length) {
+        await scssCompile(dir, config, dev);
+    }
+
+    if (dev) {
+        let timerSpriteBuild = null;
+
+        chokidar
+            .watch('/Users/daipeng/Workspace/baike-projects/new-baike/static/src/ued/new_baike/pc/src/asset/sprite/')
+            .on('all', async function (event, changePath) {
+                // console.log(event, changePath)
+                // stylesCleaner(webappDirectory)
+                if (timerSpriteBuild) clearTimeout(timerSpriteBuild);// 避免首次watch 重复调用
+                timerSpriteBuild = setTimeout(rebuildSprite, 500)
+
+                async function rebuildSprite() {
+                    try {
+                        // 只需要对该文件所属的sprite图进行处理
+
+                        console.log('rebuild:'+path.dirname(changePath))
+                        await spritesBuilder(path.dirname(changePath));
+                    } catch (error) {
+                        console.log(chalk.bold.red(error.message));
+                        throw error
+                    }
+                }
+            })
+            .on('error', function (error) {
+                console.log(`file watcher encounter ${error}`);
+            });
+
+
+        let _cssDir = path.join(dir, 'static/src/ued/new_baike/pc/src/css');
+        console.log(chalk.blue(`SASS compilation: Watching for changes in ${_cssDir}/**/*.scss`));
+        global.sassCompileList = getSassCompileList(global.cssCompileList).filter(name => name.includes('pc/src/css'))
+
+        // 监听sass文件变化
+        chokidar.watch(`${_cssDir}/**/*.scss`).on('all', async (event, path) => {
+            console.log(event, path)
+            if (event !== 'change' && event !== 'unlink') return;
+
+            try {
+                await scssCompile(dir, config, dev);
+            } catch (error) {
+                console.log(chalk.bold.red(error));
+                throw error;
+            }
+        });
+
+
+
+    }
+
 
     /**
      * 打包雪碧图
      * @param {null|string} filePath
      * @returns {Promise<void>}
      */
-    const spritesBuilder = async function (filePath) {
+    async function spritesBuilder(_path, _dir) {
+
+        console.log('running spritesBuilder...')
 
         // 默认全量图片文件全部打包
         let globPath = `${dir.replace(/\/$/, '')}${spritePath.src}/**/*.{png,jpg,gif}`;
 
         // rebuild sprite
-        let rebuild = false;
+        // let rebuild = false;
 
-        let spriteDir = '';
+        // let spriteDir = '';
 
-        if (filePath) {
-            rebuild = true;
-            const _fileDir = path.dirname(filePath);
-            const _filePathWithoutPrefix = _fileDir.replace(customizeUtils.normalizePath(_spritePath), '').replace(/^\//, ''); // 例如 detail/some.png 或者 some.png
-            globPath = filePath;
-            spriteDir = _filePathWithoutPrefix;
-        }
-
-        // TODO 测试2倍图中不包含`@2x`的情况
-        if (isRetina) {
-
-            console.log('isRetina', isRetina)
-            // 将globPath中的图作为2倍图，压缩生成1倍图 分别以 @1.png @2.png 生成至与src同级下的  ./.tempsprite/resizer/目录中
-            await retinaResizer(globPath, 2);
-        }
+        // if (filePath) {
+        //     rebuild = true;
+        //     const _fileDir = path.dirname(filePath);
+        //     const _filePathWithoutPrefix = _fileDir.replace(customizeUtils.normalizePath(_spritePath), '').replace(/^\//, ''); // 例如 detail/some.png 或者 some.png
+        //     globPath = filePath;
+        //     spriteDir = _filePathWithoutPrefix;
+        // }
 
         let _spriteBundlePromises = [];
 
@@ -208,55 +246,48 @@ module.exports = async function stylesCompiler(options) {
         //         }));
         //     }
         // } else {
-        let _spriteDirs = fs.readdirSync(_spritePath);
-        console.log('214：', _spriteDirs)
 
-        // 遍历 assert/sprite 文件夹
-        _spriteDirs.forEach(_dir => {
-            let _path = path.join(_spritePath, _dir);
 
-            let _stats = fs.statSync(_path);
+        // 创建对应的雪碧图dist 目录，
+        file.mkdirRecursive(path.join(spriteSmithDest, 'dist/images/sprite'));
 
-            if (_stats.isDirectory()) {
-                // 创建对应的雪碧图dist 目录，
-                file.mkdirRecursive(path.join(spriteSmithDest, 'dist/images/sprite'));
+        let _imgSrc = `${_path}/*.{png,jpg,gif}`;
 
-                let _imgSrc = `${_path}/*.{png,jpg,gif}`;
+        let _spritesmithConfig = {
+            padding: 2,
+            imgSrc: _imgSrc,
+            imgName: `dist/images/sprite/sprite_${_dir}.png`,
+            cssName: `src/css/sprite/_sprite_${_dir}.scss`,
+            // Optional path to use in CSS referring to image location
+            imgPath: `/images/sprite/sprite_${_dir}.png`,
+            cssTemplate: cssTemplate,
+            dest: spriteSmithDest
+        };
 
-                let _spritesmithConfig = {
-                    padding: 2,
-                    imgSrc: _imgSrc,
-                    imgName: `dist/images/sprite/sprite_${_dir}.png`,
-                    cssName: `src/css/sprite/_sprite_${_dir}.scss`,
-                    // Optional path to use in CSS referring to image location
-                    imgPath: `/images/sprite/sprite_${_dir}.png`,
-                    cssTemplate: cssTemplate,
-                    dest: spriteSmithDest
-                };
+        if (isRetina) {
+            // 将globPath中的图作为2倍图，压缩生成1倍图 分别以 @1.png @2.png 生成至与src同级下的  ./.tempsprite/resizer/目录中
+            await retinaResizer(_path);
 
-                if (isRetina) {
-
-                    _spritesmithConfig = {
-                        ..._spritesmithConfig,
-                        imgSrc: `${spriteSmithDest}/.tempsprite/resizer/${_dir}/*.{png,jpg,gif}`,
-                        retinaImgName: `dist/images/sprite/sprite_${_dir}@2x.png`,
-                        retinaSrcFilter: `${spriteSmithDest}/.tempsprite/resizer/**/*@2x.png`,
-                        retinaImgPath: `/images/sprite/sprite_${_dir}@2x.png`,
-                        padding: 8,
-                    }
-                }
-
-                _spriteBundlePromises.push(new Promise(async (resolve, reject) => {
-                    try {
-                        await spriteBundler(_spritesmithConfig);
-
-                        resolve();
-                    } catch (e) {
-                        reject(e);
-                    }
-                }));
+            _spritesmithConfig = {
+                ..._spritesmithConfig,
+                imgSrc: `${spriteSmithDest}/.tempsprite/resizer/${_dir}/*.{png,jpg,gif}`,
+                retinaImgName: `dist/images/sprite/sprite_${_dir}@2x.png`,
+                retinaSrcFilter: `${spriteSmithDest}/.tempsprite/resizer/**/*@2x.png`,
+                retinaImgPath: `/images/sprite/sprite_${_dir}@2x.png`,
+                padding: 8,
             }
-        });
+        }
+
+        _spriteBundlePromises.push(new Promise(async (resolve, reject) => {
+            try {
+                await spriteBundler(_spritesmithConfig);
+
+                resolve();
+            } catch (e) {
+                reject(e);
+            }
+        }));
+
 
         // let _spriteBundlePath = `${_spritePath}/*.{png,jpg,gif}`;
         // const retinaTmpDir = _spritePath.replace(srcLocation, `${distLocation}/.retina_tmp/`);
@@ -298,97 +329,44 @@ module.exports = async function stylesCompiler(options) {
         // }
 
         await Promise.all(_spriteBundlePromises);
-    };
-
-    // if (fs.existsSync(path.join(dir, spritePath.src)) && fs.readdirSync(path.join(dir, spritePath.src)).length) {
-    //     await spritesBuilder();
-    // }
-
-    const startBundleSpriteTime = Date.now();
-    console.log('start bundle the sprites...')
-    await spritesBuilder();
-
-    console.log('end bundle, take', Date.now() - startBundleSpriteTime + 'ms')
-
-
-    global.sassCompileList = getSassCompileList(global.cssCompileList).filter(name => name.includes('pc/src/css'))
-
-    if (global.sassCompileList && global.sassCompileList.length) {
-        await scssCompile(dir, config, dev);
     }
 
-    return
+    async function buildSprite(_spritePath) {
+        let _spriteDirs = fs.readdirSync(_spritePath);
+        // 遍历 assert/sprite 文件夹
+        _spriteDirs.forEach(async _dir => {
+            let _path = path.join(_spritePath, _dir);
 
-    if (dev) {
-        const sprites = glob.sync(`${dir.replace(/\/$/, '')}${spritePath.src}/**/*.{png,jpg,gif}`);
-
-        chokidar.watch(sprites).on('all', async function (event, changePath) {
-            console.log(event, changePath)
-            // const _extname = path.extname(changePath);
-
-            try {
-                // 只需要对该文件所属的sprite图进行处理
-                await spritesBuilder(changePath);
-            } catch (error) {
-                console.log(chalk.bold.red(error.message));
-                throw error
+            if (fs.statSync(_path).isDirectory()) {
+                await spritesBuilder(_path, _dir)
+            } else {
+                // TODO  暂不支持sprite下直接打包
             }
-
-            // 只需要对`add`, `addDir`, `change`, `unlink`, `unlinkDir`事件进行处理
-            // if (event === 'add' || event === 'addDir' || event === 'change' || event === 'unlink' || event === 'unlinkDir') {
-            //     // dist目录下的文件地址
-            //     // let distPath = [changePath.replace(srcLocation, 'sprite/dist/')];
-
-            //     let distPath = [changePath.replace(srcLocation, distLocation)];
-
-            //     // // 移动端需要校验1倍图和2倍图同时存在。
-            //     // if (isRetina) {
-            //     //     distPath = [
-            //     //         changePath.replace(srcLocation, `${distLocation}/.retina_tmp/`).replace('@2x', '').replace(_extname, `@1x.png`),//????
-            //     //         changePath.replace(srcLocation, `${distLocation}/.retina_tmp/`).replace('@2x', '').replace(_extname, `@2x.png`)
-            //     //     ];
-            //     // }
-
-            //     const isExisted = distPath.every(item => fs.existsSync(item));
-
-            //     // 如果dist目录下没有对应文件，则需要进行打包处理
-            //     if (!isExisted || event === 'unlink' || event === 'unlinkDir') {
-            //         try {
-            //             // 只需要对该文件所属的sprite图进行处理
-            //             await spritesBuilder(changePath);
-            //         } catch (error) {
-            //             console.log(chalk.bold.red(error.message));
-            //             throw error
-            //         }
-            //     }
-            // }
-        }).on('error', function (error) {
-            console.log(`file watcher encounter ${error}`);
-        });
-
-
-        let _cssDir = path.join(dir, 'static/src/ued/new_baike/pc/src/css');
-
-        console.log(chalk.blue(`SASS compilation: Watching for changes in ${_cssDir}/**/*.scss`));
-
-        // 监听sass文件变化
-        chokidar.watch(`${_cssDir}/**/*.scss`).on('all', async (event, path) => {
-            if (event === 'change' || event === 'unlink') {
-                try {
-                    await scssCompile(dir, config, dev);
-                } catch (error) {
-                    console.log(chalk.bold.red(error));
-                    throw error;
-                }
-            }
-        });
+        })
     }
 };
 
 function getSassCompileList(csslist) {
+
+    if (!Array.isArray(csslist)) {
+        console.log(chalk.blue('expect params to be a array,please check'))
+        throw new Error('typeError')
+    }
     return csslist.map(fileName => {
 
         let scssFileName = fileName.replace('/dist/css', '/src/css').replace('.css', '.scss')
         return scssFileName
     });
 }
+
+
+function stylesCleaner(dir) {
+    console.log('start clean sprite dist directory')
+    const _spriteDistPath = path.join(dir, spritePath.dist, '**');
+    const _spriteTemp = path.join(dir, '/static/src/ued/new_baike/pc/', '.tempsprite/resizer/', '**');
+    const _scssDistPath = path.join(dir, spritePath.scss, '**');
+
+    del.sync([_spriteDistPath, _scssDistPath, _spriteTemp]);
+    console.log('clean sprite dist directory sucesss')
+};
+
