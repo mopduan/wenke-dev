@@ -12,19 +12,11 @@ const scssCompile = require('./lib/style-build/sass-compile');
 const chokidar = require('chokidar');
 const chalk = require('chalk');
 const file = require('./lib/customized/file');
+const webfontsGenerator = require('webfonts-generator');
 // const customizeUtils = require('./lib/customized/utils');
 // const { env } = require('process');
 // const { anySeries } = require('async');
 // const { retry } = require('async');
-
-const spritePath = {
-    dist: '/static/src/ued/new_baike/pc/dist/images/sprite',
-    scss: '/static/src/ued/new_baike/pc/src/css/sprite',
-    src: '/static/src/ued/new_baike/pc/src/asset/sprite'
-};
-
-const imgSrcLocation = '/Users/daipeng/Workspace/baike-projects/new-baike/static/src/ued/new_baike/pc/src/images/';
-const imgDistLocation = imgSrcLocation.replace('/src/images/', '/dist/images/');
 
 /**
  * 打包雪碧图，并生成scss文件。
@@ -34,19 +26,43 @@ const imgDistLocation = imgSrcLocation.replace('/src/images/', '/dist/images/');
  * @param {*} config
  * @param {boolean} dev dev模式下需要监听文件变动
  */
-module.exports = async function stylesCompiler(options) {
-    global.sassCompileList = getSassCompileList(global.cssCompileList).filter(name => name.includes('pc/src/css'))
+module.exports = async function () {
+    global.sassCompileList = getSassCompileList(global.cssCompileList)
 
-    const dir = options.webappDirectory;
+    // await Compiler('pc');
+    await Compiler('wap');
+}
 
-    const webappDirectory = dir;
+async function Compiler(compileDir) {
+
+
+    const webappDirectory = process.cwd();
+    let projectName = '';
+
+    try {
+        projectName = require(path.join(webappDirectory, 'package.json')).name;
+    } catch (e) {
+        console.log('please check your package.json name property!')
+    }
+
+    uedDirName = projectName.replace('-', '_');
+
+    const uedTaskDir = path.join(webappDirectory, `/static/src/ued/${uedDirName}/${compileDir}`)
+    const spriteConf = {
+        tempPath: path.join(uedTaskDir, `.tempsprite/resizer`),
+        distPath: path.join(uedTaskDir, `/dist/images/sprite`),
+        scssPath: path.join(uedTaskDir, `/src/css/sprite`),
+        srcPath: path.join(uedTaskDir, `/src/asset/sprite`)
+    };
+
+    const scssLocation = path.join(uedTaskDir, `/src/css`)
+    const cssDistLocation = scssLocation.replace('src/css', 'dist/css')
+    const imgSrcLocation = path.join(uedTaskDir, `src/images`)
+    const imgDistLocation = imgSrcLocation.replace('/src/images', '/dist/images')
 
     // TODO 存储 css build配置文件
-    const styleConfigLocation = path.join(webappDirectory, 'static/src/ued/new_baike/pc', 'style.config.js')
-    const sprite2scssDir = path.join(webappDirectory, 'static/src/ued/new_baike/pc', 'src/css/sprite')
-    const spriteSmithDest = path.join(webappDirectory, 'static/src/ued/new_baike/pc')
-
-    const _spritePath = path.join(webappDirectory, 'static/src/ued/new_baike/pc/src/asset/sprite') // 雪碧图源文件路径
+    const styleConfigLocation = path.join(uedTaskDir, `style.config.js`)
+    const sprite2scssDir = path.join(uedTaskDir, `src/css/sprite`)
 
     let stylesOption = {
         useRetina: true,
@@ -57,24 +73,18 @@ module.exports = async function stylesCompiler(options) {
     }
 
     const dev = true;
-    const config = { stylesOption }
+    const config = {
+        stylesOption,
+        spriteCssLocation: spriteConf.scssPath,
+        spriteDistLocation: spriteConf.distPath,
+    }
 
-    const isRetina = stylesOption && stylesOption.useRetina;
-    const divideBy2 = stylesOption && stylesOption.divideBy2;
-    const isRem = stylesOption && stylesOption.rem;
-
-    const cssTemplate = sprite2scss({
-        rem: isRem,
-        retina: isRetina,
-        divideBy2,
-        dirPrefix: sprite2scssDir
-    });
+    stylesCleaner();
 
     const startBundleSpriteTime = Date.now();
     console.log('start bundle the sprites...')
-    await buildSprite(_spritePath);
+    await buildSprite(spriteConf.srcPath);
     console.log('end bundle sprite, take', Date.now() - startBundleSpriteTime + 'ms')
-
 
     const startBundleCSSTime = Date.now();
     console.log('start bundle the css...')
@@ -88,7 +98,6 @@ module.exports = async function stylesCompiler(options) {
     console.log('end bundle image, take', Date.now() - startBundleImgTime + 'ms');
 
     async function buildImage() {
-
         const file = await imagemin([imgSrcLocation + '**/*.{jpg,png}'], {
             destination: imgDistLocation,
             plugins: [
@@ -103,18 +112,6 @@ module.exports = async function stylesCompiler(options) {
 
         // console.log('build img length:', file.length)
     }
-
-
-    async function buildScss() {
-        const { sassCompileList } = global;
-        if (!sassCompileList || !sassCompileList.length) return
-
-        for (let i = 0; i < sassCompileList.length; i++) {
-            const sourceFile = sassCompileList[i]
-            await scssCompile(sourceFile, config, dev);
-        }
-    }
-
     console.log('finish init bundle ')
 
     let initWatchSprite = true;
@@ -127,7 +124,7 @@ module.exports = async function stylesCompiler(options) {
         let timerImgBuild = null;
 
         chokidar
-            .watch('/Users/daipeng/Workspace/baike-projects/new-baike/static/src/ued/new_baike/pc/src/asset/sprite/')
+            .watch(spriteConf.srcPath)
             .on('all', async function (event, changePath) {
                 if (event === 'addDir') return;
                 // console.log('雪碧图 watch',event, changePath)
@@ -157,38 +154,36 @@ module.exports = async function stylesCompiler(options) {
                 console.log(`file watcher encounter ${error}`);
             });
 
-        let _cssDir = path.join(dir, 'static/src/ued/new_baike/pc/src/css');
-        console.log(chalk.blue(`SASS compilation: Watching for changes in ${_cssDir}/**/*.scss`));
-
-
         // 监听sass文件变化
-        chokidar.watch(_cssDir).on('all', async (event, changePath) => {
-            const isIgnoreFile = path.basename(changePath).startsWith('_');
-            if (isIgnoreFile || event === 'addDir') return;
+        chokidar
+            .watch(scssLocation)
+            .on('all', async (event, changePath) => {
+                const isIgnoreFile = path.basename(changePath).startsWith('_');
+                if (isIgnoreFile || event === 'addDir') return;
 
-            if (timerCssBuild) clearTimeout(timerCssBuild);
-            timerCssBuild = setTimeout(rebuildScss, 500);
+                if (timerCssBuild) clearTimeout(timerCssBuild);
+                timerCssBuild = setTimeout(rebuildScss, 500);
 
-            async function rebuildScss() {
-                if (initWatchScss) {
-                    initWatchScss = false;
-                    return;
+                async function rebuildScss() {
+                    if (initWatchScss) {
+                        initWatchScss = false;
+                        return;
+                    }
+
+                    try {
+                        console.log(`preparing rebuild css:${event} ${changePath}`)
+                        const startTime = Date.now();
+                        await scssCompile(changePath, config, dev);
+                        console.log(`rebuild take ${Date.now() - startTime}ms `)
+                    } catch (error) {
+                        console.log(chalk.bold.red(error));
+                        throw error;
+                    }
                 }
-
-                try {
-                    console.log(`preparing rebuild css:${event} ${changePath}`)
-                    const startTime = Date.now();
-                    await scssCompile(changePath, config, dev);
-                    console.log(`rebuild take ${Date.now() - startTime}ms `)
-                } catch (error) {
-                    console.log(chalk.bold.red(error));
-                    throw error;
-                }
-            }
-        });
+            });
 
         chokidar
-            .watch('/Users/daipeng/Workspace/baike-projects/new-baike/static/src/ued/new_baike/pc/src/images/')
+            .watch(imgSrcLocation)
             .on('all', async (event, changePath) => {
                 if (event === 'addDir') return;
 
@@ -216,6 +211,37 @@ module.exports = async function stylesCompiler(options) {
             })
     }
 
+
+    // TODO
+    async function buildIconFont(sourceFile) {
+
+        return new Promise((resolve, reject) => {
+            webfontsGenerator({
+                files: sourceFile,
+                dest: 'dest/',
+            }, function (error) {
+                if (error) {
+                    console.log('Fail!', error);
+                    reject(error)
+                } else {
+                    resolve()
+                    console.log('Done!');
+                }
+            })
+        })
+    }
+
+    async function buildScss() {
+        const { sassCompileList } = global;
+        const compilePath = sassCompileList.filter(fileName => fileName.includes(compileDir))
+        if (!compilePath || !compilePath.length) return
+
+        for (let i = 0; i < compilePath.length; i++) {
+            const sourceFile = compilePath[i]
+            await scssCompile(sourceFile, config, dev);
+        }
+    }
+
     /**
      * 打包雪碧图
      * @param {null|string} filePath
@@ -223,7 +249,23 @@ module.exports = async function stylesCompiler(options) {
      */
     async function spritesBuilder(_path, _dir) {
 
+
+        const isRetina = stylesOption && stylesOption.useRetina;
+        const divideBy2 = stylesOption && stylesOption.divideBy2;
+        const isRem = stylesOption && stylesOption.rem;
+
+        const cssTemplate = sprite2scss({
+            rem: isRem,
+            retina: isRetina,
+            divideBy2,
+            dirPrefix: sprite2scssDir
+        });
+
+
+        const spriteSmithDest = path.join(webappDirectory, `/static/src/ued/${uedDirName}/${compileDir}`)
+
         file.mkdirRecursive(path.join(spriteSmithDest, 'dist/images/sprite'));
+        file.mkdirRecursive(path.join(spriteSmithDest, 'src/css/sprite'));
         let _imgSrc = `${_path}/*.{png,jpg,gif}`;
 
         let _spritesmithConfig = {
@@ -239,7 +281,7 @@ module.exports = async function stylesCompiler(options) {
 
         if (isRetina) {
             // 将globPath中的图作为2倍图，压缩生成1倍图 分别以 @1.png @2.png 生成至与src同级下的  ./.tempsprite/resizer/目录中
-            await retinaResizer(_path, _dir);
+            await retinaResizer(_path, _dir, spriteConf.tempPath);
 
             _spritesmithConfig = {
                 ..._spritesmithConfig,
@@ -256,22 +298,39 @@ module.exports = async function stylesCompiler(options) {
 
     async function buildSprite(_spritePath) {
 
-        const tempSpriteDir = path.join('/Users/daipeng/Workspace/baike-projects/new-baike/static/src/ued/new_baike/pc', '/.tempsprite/resizer/*')
-        del.sync([tempSpriteDir])
-
         let _spriteDirs = fs.readdirSync(_spritePath);
+        // console.log(_spriteDirs)
         // 遍历 assert/sprite 文件夹
 
         for (let i = 0; i < _spriteDirs.length; i++) {
             const childPath = _spriteDirs[i];
+
             let _path = path.join(_spritePath, childPath);
+
             if (fs.statSync(_path).isDirectory()) {
                 await spritesBuilder(_path, childPath)
-            } else {
-                // TODO  暂不支持sprite下直接打包
+            } else if (/\.(jpg|jpg|gif|jpeg)/.test(path.extname(childPath))) {
+                throw new Error(`img direct in spritePath has not been support yet, please check spritePath:${_spritePath}`)
             }
         }
     }
+
+    function stylesCleaner() {
+        console.log('start clean dist directory')
+        console.log('these folders are cleaning:')
+
+        const delPaths = [
+            path.join(spriteConf.distPath, '**'),
+            path.join(spriteConf.scssPath, '**'),
+            path.join(spriteConf.tempPath, '**'),
+            path.join(cssDistLocation, '**'),
+            path.join(imgDistLocation, '**'),
+            // font file TODO
+        ];
+        console.log(delPaths)
+        del.sync(delPaths);
+        console.log('clean dist directory sucesss')
+    };
 };
 
 function getSassCompileList(csslist) {
@@ -287,11 +346,11 @@ function getSassCompileList(csslist) {
     });
 }
 
-function stylesCleaner(dir) {
+function stylesCleaner() {
     console.log('start clean sprite dist directory')
-    const _spriteDistPath = path.join(dir, spritePath.dist, '**');
-    const _spriteTemp = path.join(dir, '/static/src/ued/new_baike/pc/', '.tempsprite/resizer/', '**');
-    const _scssDistPath = path.join(dir, spritePath.scss, '**');
+    const _spriteDistPath = path.join(spriteConf.distPath, '**');
+    const _spriteTemp = path.join(spriteConf.tempPath, '**');
+    const _scssDistPath = path.join(spriteConf.scssPath, '**');
 
     del.sync([_spriteDistPath, _scssDistPath, _spriteTemp]);
     console.log('clean sprite dist directory sucesss')

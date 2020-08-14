@@ -26,14 +26,15 @@ path.join(webappDir,  `/static/src/ued/${app_name}/${pc_or_wap}/dist/css`)
 - []兼容两种情况：1雪碧图文件平铺在 sprite 文件夹  2 嵌套子目录打包
 - [] 定义路径变量、路径自动化
 - [x] resolve url
-- [ ] dev兼容
-- [ ] images 文件平移
-- [ ] 优化重复reload
+- [x] dev兼容
+- [x] 添加 images 文件逻辑
+- [ ] 自动 reload 配置 优化
 - [ ] 测试 unlink  是否直接添加删除dist对应文件逻辑即可
 - [] 解决 outdated 问题
 - [] 参照gulp-uedtask优化日志
 - [] 参照 gulp-uedtask优化doc
-- [] svg 字体打包？？
+- [] svg 字体打包  todo
+- [] 报错机制
 
 # note
 
