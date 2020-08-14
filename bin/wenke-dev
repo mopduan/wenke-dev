@@ -14,6 +14,7 @@ program.usage('[dir] [optionfdsd]')
     .option('--np [node project]', 'node project')
     .option('--preact [use preact]', 'use preact')
     .option('--ie8tips <ie8tips directory>', 'uglify ie8tips')
+    .option('--style', 'build style')
     .parse(process.argv);
 
 utils.verifyVersion()

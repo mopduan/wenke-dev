@@ -14,9 +14,6 @@ const chalk = require('chalk');
 const file = require('./lib/customized/file');
 const webfontsGenerator = require('webfonts-generator');
 // const customizeUtils = require('./lib/customized/utils');
-// const { env } = require('process');
-// const { anySeries } = require('async');
-// const { retry } = require('async');
 
 /**
  * 打包雪碧图，并生成scss文件。
@@ -29,13 +26,11 @@ const webfontsGenerator = require('webfonts-generator');
 module.exports = async function () {
     global.sassCompileList = getSassCompileList(global.cssCompileList)
 
-    // await Compiler('pc');
-    await Compiler('wap');
+    await Compiler('pc');
+    // await Compiler('wap');
 }
 
 async function Compiler(compileDir) {
-
-
     const webappDirectory = process.cwd();
     let projectName = '';
 
@@ -61,13 +56,14 @@ async function Compiler(compileDir) {
     const imgDistLocation = imgSrcLocation.replace('/src/images', '/dist/images')
 
     // TODO 存储 css build配置文件
-    const styleConfigLocation = path.join(uedTaskDir, `style.config.js`)
+    const styleConfigLocation = path.join(uedTaskDir, `styleBuild.config.js`)
     const sprite2scssDir = path.join(uedTaskDir, `src/css/sprite`)
 
     let stylesOption = {
         useRetina: true,
-        // noHash: true,
+        noHash: true,
     }
+
     if (fs.existsSync(styleConfigLocation)) {
         stylesOption = require(styleConfigLocation);
     }
@@ -91,14 +87,14 @@ async function Compiler(compileDir) {
     await buildScss();
     console.log('end bundle css, take', Date.now() - startBundleCSSTime + 'ms')
 
-
     const startBundleImgTime = Date.now();
     console.log('start bundle the image...')
     await buildImage();
     console.log('end bundle image, take', Date.now() - startBundleImgTime + 'ms');
 
     async function buildImage() {
-        const file = await imagemin([imgSrcLocation + '**/*.{jpg,png}'], {
+        console.log(imgSrcLocation + '**/*.{jpg,png}')
+        const file = await imagemin([path.join(imgSrcLocation, '**/*.{jpg,png}')], {
             destination: imgDistLocation,
             plugins: [
                 mozjpeg({ quality: 80 }),
@@ -106,11 +102,11 @@ async function Compiler(compileDir) {
             ]
         });
 
-        // file.forEach(item => {
-        //     console.log(item.sourcePath)
-        // })
+        file.forEach(item => {
+            console.log(item.sourcePath)
+        })
 
-        // console.log('build img length:', file.length)
+        console.log('build img length:', file.length)
     }
     console.log('finish init bundle ')
 
@@ -211,7 +207,6 @@ async function Compiler(compileDir) {
             })
     }
 
-
     // TODO
     async function buildIconFont(sourceFile) {
 
@@ -249,7 +244,6 @@ async function Compiler(compileDir) {
      */
     async function spritesBuilder(_path, _dir) {
 
-
         const isRetina = stylesOption && stylesOption.useRetina;
         const divideBy2 = stylesOption && stylesOption.divideBy2;
         const isRem = stylesOption && stylesOption.rem;
@@ -260,7 +254,6 @@ async function Compiler(compileDir) {
             divideBy2,
             dirPrefix: sprite2scssDir
         });
-
 
         const spriteSmithDest = path.join(webappDirectory, `/static/src/ued/${uedDirName}/${compileDir}`)
 
@@ -327,6 +320,7 @@ async function Compiler(compileDir) {
             path.join(imgDistLocation, '**'),
             // font file TODO
         ];
+
         console.log(delPaths)
         del.sync(delPaths);
         console.log('clean dist directory sucesss')
@@ -345,14 +339,3 @@ function getSassCompileList(csslist) {
         return scssFileName
     });
 }
-
-function stylesCleaner() {
-    console.log('start clean sprite dist directory')
-    const _spriteDistPath = path.join(spriteConf.distPath, '**');
-    const _spriteTemp = path.join(spriteConf.tempPath, '**');
-    const _scssDistPath = path.join(spriteConf.scssPath, '**');
-
-    del.sync([_spriteDistPath, _scssDistPath, _spriteTemp]);
-    console.log('clean sprite dist directory sucesss')
-};
-

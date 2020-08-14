@@ -39,7 +39,9 @@ module.exports = async function (options) {
 
     const { jsCompileList } = validate(options);
 
-    await stylesCompiler(options);
+    if (options.style) {
+        await stylesCompiler();
+    }
 
     return;// TEST
 
@@ -63,7 +65,7 @@ module.exports = async function (options) {
         devtool: "inline-source-map",
         mode: "development"
     };
-    
+
     if (options.np) {//公用的客户端私有npm包需要从项目目录下查找依赖包
         commonConfig.resolve.modules.push(path.join(options.staticFilesDirectory, '../node_modules'));
     }
