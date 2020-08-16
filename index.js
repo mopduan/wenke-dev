@@ -5,7 +5,7 @@ const workerFarm = require("worker-farm");
 const os = require('os');
 const chokidar = require("chokidar");
 const uglifyIe8tips = require('./ie8.uglify');
-const stylesCompiler = require('./style.compiler');
+const stylesCompiler = require('./style-compiler/index');
 const { option } = require('commander');
 
 global.srcPrefix = '/src/';

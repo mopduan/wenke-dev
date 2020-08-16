@@ -60,15 +60,6 @@ path.join(webappDir,  `/static/src/ued/${app_name}/${pc_or_wap}/dist/css`)
 
 1. 添加子
 
-## 测试项目
-
-1. baike-wap-lemma-njk
-2. baike-pc-lemma-njk
-3. new-baike
-4. question-njk
-5. questionlib-njk
-6. zhinan-njk
-
 
 # 性能对比
 
