@@ -12,8 +12,8 @@ var Spritesmith = require('spritesmith');
 var url = require('url2');
 const glob = require('glob');
 const chalk = require('chalk');
-const chokidar = require('chokidar');
-const customizeFile = require('../customized/file')
+// const chokidar = require('chokidar');
+const customizeFile = require('./file')
 function ExtFormat() {
     this.formatObj = {};
 }

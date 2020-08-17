@@ -4,9 +4,8 @@ const gm = require("gm").subClass({
     imageMagick: true
 });
 //const sharp = require("sharp");
-const { dirname, basename, join } = require('path');
 const glob = require('glob');
-const file = require('../customized/file');
+const file = require('./file');
 const del = require('del');
 
 function getMetadata(imagePath) {
@@ -64,7 +63,7 @@ module.exports = async function (spritePath, spriteSubDir, tempSpriteDir, ratio 
             const borderWidth = Math.ceil(convertedWidth / to) * to - convertedWidth;
             const borderHeight = Math.ceil(convertedHeight / to) * to - convertedHeight;
 
-            file.mkdirRecursive(dirname(_outputPath));
+            file.mkdirRecursive(path.dirname(_outputPath));
             // console.log('resize开始处理了：',_path)
             await outputImage();
             // console.log('resize 处理完毕')

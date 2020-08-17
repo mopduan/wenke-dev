@@ -1,3 +1,5 @@
+const path = require('path');
+const fs = require('fs');
 const chokidar = require('chokidar');
 const chalk = require('chalk');
 const scssCompile = require('../lib/sass-compile');
@@ -15,9 +17,10 @@ function getSassCompileList(csslist) {
 }
 
 async function build(constPaths) {
-    if (global.hasBuildScss) return;
-    const sassCompileList = getSassCompileList(global.cssCompileList)
-    const { config, dev } = constPaths;
+    // if (global.hasBuildScss) return;
+    const { config, dev, uedTaskDir } = constPaths;
+    const sassCompileList = getSassCompileList(global.cssCompileList).filter(filePath => filePath.includes(uedTaskDir))
+
 
     const compilePath = sassCompileList;
     if (!compilePath || !compilePath.length) return
@@ -27,7 +30,7 @@ async function build(constPaths) {
         await scssCompile(sourceFile, config, dev);
     }
 
-    global.hasBuildScss = true;
+    // global.hasBuildScss = true;
 }
 
 

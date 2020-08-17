@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const sass = require('node-sass');
-const file = require('../customized/file');
+const file = require('./file');
 const postcss = require('./postcss');
 
 /**

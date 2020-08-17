@@ -1,3 +1,5 @@
+const path = require('path');
+const fs = require('fs');
 const imagemin = require('imagemin');
 const mozjpeg = require('imagemin-mozjpeg');
 const pngquant = require('imagemin-pngquant');

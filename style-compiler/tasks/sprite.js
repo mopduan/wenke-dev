@@ -1,3 +1,6 @@
+const path = require('path');
+const fs = require('fs');
+const file = require('../lib/file');
 const retinaResizer = require('../lib/retina-resizer');
 const spriteBundler = require('../lib/sprite-bundler');
 const sprite2scss = require('../lib/sprites2scss');
@@ -59,7 +62,7 @@ module.exports = async function buildSprite(constPaths) {
 
 async function spritesBuilder(_spritePath, childPath, constPaths) {
     const {
-        options: { stylesOption = {} },
+        config: { stylesOption = {} },
         spriteTempPath,
         spriteDistPath,
         spriteScssPath,
