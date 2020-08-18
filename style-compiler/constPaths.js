@@ -10,12 +10,13 @@ module.exports = uedTaskDir => {
 
     const scssLocation = path.join(uedTaskDir, `src/css`)
     const cssDistLocation = path.join(uedTaskDir, `dist/css`)
-    const imgSrcLocation = path.join(uedTaskDir, `src/images`)
+    const imgSrcLocation = path.join(uedTaskDir, `src/{images,img}`)
     const imgDistLocation = path.join(uedTaskDir, `dist/images`)
     const iconPath = path.join(uedTaskDir, 'src/asset/iconfont')
     const iconfontDistPath = path.join(uedTaskDir, 'dist/font')
 
-    // TODO 存储 css build配置文件
+    const webfontPath = path.join(uedTaskDir, 'src/asset/webfont')
+    const webfontDistPath = path.join(uedTaskDir, 'dist/font')
 
     const styleConfigLocation = path.join(uedTaskDir, `styleBuild.config.js`)
     let stylesOption = {
@@ -47,5 +48,7 @@ module.exports = uedTaskDir => {
         config,
         dev,
         uedTaskDir,
+        webfontPath,
+        webfontDistPath
     }
 }

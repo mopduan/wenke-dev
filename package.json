@@ -75,9 +75,9 @@
     "htmlescape": "1.1.1",
     "http-status": "1.0.1",
     "imagemin": "7.0.1",
-    "imagemin-jpegtran": "^7.0.0",
-    "imagemin-mozjpeg": "^9.0.0",
-    "imagemin-pngquant": "^9.0.0",
+    "imagemin-jpegtran": "7.0.0",
+    "imagemin-mozjpeg": "9.0.0",
+    "imagemin-pngquant": "9.0.0",
     "ip": "1.1.5",
     "koa": "2.6.2",
     "koa-webpack-dev-middleware": "2.0.2",
@@ -123,7 +123,7 @@
     "unfetch": "3.0.0",
     "url": "0.11.0",
     "url2": "1.0.4",
-    "webfonts-generator": "^0.4.0",
+    "webfonts-generator": "0.4.0",
     "webpack": "4.41.2",
     "webpack-dev-middleware": "3.4.0",
     "webpack-dev-server": "3.11.0",
@@ -131,6 +131,7 @@
     "webpack-sources": "1.2.0",
     "webpackbar": "2.6.3",
     "worker-farm": "1.7.0",
-    "write-file-webpack-plugin": "4.3.2"
+    "write-file-webpack-plugin": "4.3.2",
+    "fonteditor-core": "0.0.36"
   }
 }

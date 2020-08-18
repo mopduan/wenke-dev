@@ -3,6 +3,9 @@ const fs = require('fs');
 const chokidar = require('chokidar');
 const chalk = require('chalk');
 const scssCompile = require('../lib/sass-compile');
+const { glob } = require('glob');
+const outputLog = require('../lib/logger')
+
 
 function getSassCompileList(csslist) {
     if (!Array.isArray(csslist)) {
@@ -17,10 +20,11 @@ function getSassCompileList(csslist) {
 }
 
 async function build(constPaths) {
-    // if (global.hasBuildScss) return;
-    const { config, dev, uedTaskDir } = constPaths;
-    const sassCompileList = getSassCompileList(global.cssCompileList).filter(filePath => filePath.includes(uedTaskDir))
+    const { config, dev, scssLocation } = constPaths;
 
+    const sassCompileList = glob.sync(path.join(scssLocation, '**/*.scss'), {
+        ignore: path.join(scssLocation, '**/_*.scss')
+    })
 
     const compilePath = sassCompileList;
     if (!compilePath || !compilePath.length) return
@@ -31,7 +35,6 @@ async function build(constPaths) {
         await scssCompile(sourceFile, config, dev);
     }
 
-    // global.hasBuildScss = true;
 }
 
 
@@ -39,7 +42,6 @@ module.exports = async function buildScss(constPaths) {
     await build(constPaths);
 
     const { config, scssLocation, dev } = constPaths;
-
 
     let initWatchScss = true;
     let timerCssBuild = null;
@@ -63,7 +65,7 @@ module.exports = async function buildScss(constPaths) {
                     console.log(`preparing rebuild css:${event} ${changePath}`)
                     const startTime = Date.now();
                     await scssCompile(changePath, config, dev);
-                    console.log(`rebuild take ${Date.now() - startTime}ms `)
+                    outputLog(`rebuild success,take ${Date.now() - startTime}ms `)
                 } catch (error) {
                     console.log(chalk.bold.red(error));
                     throw error;

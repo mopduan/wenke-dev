@@ -21,20 +21,21 @@ path.join(webappDir,  `/static/src/ued/${app_name}/${pc_or_wap}/dist/css`)
 
 # todo
 
-- [] 测试阶段 添加打包配置参数 开启css打包 不影响之前的逻辑、如果发现问题能够尽快使用之前的方式打包发布
+- [x] 测试阶段 添加打包配置参数 开启css打包 不影响之前的逻辑、如果发现问题能够尽快使用之前的方式打包发布
 - [] 测试成功后  wenke 添加相应逻辑  从此不再需要提交dist 的代码
-- []兼容两种情况：1雪碧图文件平铺在 sprite 文件夹  2 嵌套子目录打包
-- [] 定义路径变量、路径自动化
+- [x] 定义路径变量、路径自动化
 - [x] resolve url
 - [x] dev兼容
 - [x] 添加 images 文件逻辑
-- [ ] 自动 reload 配置 优化
-- [ ] 测试 unlink  是否直接添加删除dist对应文件逻辑即可
+- [x] 自动 reload 配置 优化
+- [x] 测试 unlink  是否直接添加删除dist对应文件逻辑即可
 - [] 解决 outdated 问题
-- [] 参照gulp-uedtask优化日志
-- [] 参照 gulp-uedtask优化doc
-- [] svg 字体打包  todo
-- [] 报错机制
+- [x] 参照gulp-uedtask优化日志
+- [x] 参照 gulp-uedtask优化doc
+- [x] svg 字体打包  todo
+- [] 报错测试
+- [x] 兼容img/images 两种路径
+- [x] webfont
 
 # note
 
@@ -56,13 +57,5 @@ path.join(webappDir,  `/static/src/ued/${app_name}/${pc_or_wap}/dist/css`)
 1. njk 中引入的css 会存入  global.cssCompileList, 进而找到对应的src目录的 scss 文件， 对这些 scss 文件进行监听，修改则重新编译
 2. 雪碧图 监听 src/asset/sprite/ 目录，  有添加或删除则重新打包对应的子雪碧图
 
-## 测试用例覆盖
-
-1. 添加子
 
 
-# 性能对比
-
-| compare     | gulp-uedtask | wenke-dev |
-|-------------|--------------|-----------|
-| rebuild css | 1.34s        | 70ms      |

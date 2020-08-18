@@ -7,6 +7,7 @@ const sprite2scss = require('../lib/sprites2scss');
 const chokidar = require('chokidar');
 const chalk = require('chalk');
 const del = require('del');
+const outputLog = require('../lib/logger')
 
 /**
  * 打包雪碧图
@@ -14,7 +15,13 @@ const del = require('del');
  * @returns {Promise<void>}
  */
 module.exports = async function buildSprite(constPaths) {
+
     const { spriteSrcPath } = constPaths;
+    try {
+        fs.accessSync(spriteSrcPath, fs.hasOwnProperty('R_OK') ? fs.R_OK : fs.constants.R_OK);
+    } catch (e) {
+        return Promise.resolve();
+    }
 
     const _spriteDirs = fs.readdirSync(spriteSrcPath);
     for (let i = 0; i < _spriteDirs.length; i++) {
@@ -36,7 +43,7 @@ module.exports = async function buildSprite(constPaths) {
         .watch(spriteSrcPath)
         .on('all', async function (event, changePath) {
             if (event === 'addDir') return;
-            // console.log('雪碧图 watch',event, changePath)
+
             if (timerSpriteBuild) clearTimeout(timerSpriteBuild);// 避免首次watch 重复调用
             timerSpriteBuild = setTimeout(rebuildSprite, 500)
 
@@ -46,11 +53,14 @@ module.exports = async function buildSprite(constPaths) {
                     return
                 }
                 try {
+                    console.log('preparing rebuild sprite:', event, changePath)
                     // 只需要对该文件所属的sprite图进行处理
-                    console.log('rebuild sprite:' + path.dirname(changePath))
+                    const start = Date.now();
                     const spritePath = path.dirname(changePath)
                     const spriteSubDir = spritePath.substring(spritePath.lastIndexOf('/')).replace('/', '');
                     await spritesBuilder(spritePath, spriteSubDir, constPaths);
+                    outputLog(`rebuild success,take ${Date.now() - start}ms`)
+
                 } catch (error) {
                     console.log(chalk.bold.red(error.message));
                     throw error

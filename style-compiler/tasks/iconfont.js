@@ -4,6 +4,7 @@ const webfontsGenerator = require('webfonts-generator');
 const chalk = require('chalk');
 const chokidar = require('chokidar');
 const unicodeRE = /^u([A-Z0-9]{4})-/;
+const outputLog = require('../lib/logger')
 
 function getSvgs(iconPath) {
     return fs.readdirSync(iconPath).filter(file => /\.svg$/i.test(file));
@@ -41,11 +42,6 @@ async function bundleIconFont(constPaths) {
         iconPath,
         iconfontDistPath
     } = constPaths;
-    try {
-        fs.accessSync(iconPath, fs.hasOwnProperty('R_OK') ? fs.R_OK : fs.constants.R_OK);
-    } catch (e) {
-        return Promise.resolve();
-    }
 
     renameSvgs(iconPath)
 
@@ -80,12 +76,6 @@ async function bundleIconFont(constPaths) {
 async function generateIconScss(constPaths) {
     const { iconPath, scssLocation } = constPaths;
 
-    try {
-        fs.accessSync(iconPath, fs.hasOwnProperty('R_OK') ? fs.R_OK : fs.constants.R_OK);
-    } catch (e) {
-        return Promise.resolve();
-    }
-
     const pathname = path.resolve(__dirname, '../lib/common-scss/_iconfont.scss');
 
     const icons = getSvgs(iconPath).reduce(function (iconfont, svg) {
@@ -106,6 +96,11 @@ async function generateIconScss(constPaths) {
 
 module.exports = async (constPaths) => {
     const { iconPath } = constPaths;
+    try {
+        fs.accessSync(iconPath, fs.hasOwnProperty('R_OK') ? fs.R_OK : fs.constants.R_OK);
+    } catch (e) {
+        return Promise.resolve();
+    }
     await bundleIconFont(constPaths);
     await generateIconScss(constPaths);
 
@@ -123,9 +118,10 @@ module.exports = async (constPaths) => {
                     initWatch = false;
                     return;
                 }
-
-                console.log(`${event}  ${changePath},rebuild iconfont`)
+                console.log(`preparing rebuild iconfont:${event} ${changePath}`)
+                const start = Date.now();
                 await buildIconFont(constPaths);
+                outputLog(`rebuild success,take ${Date.now() - start}ms`)
             }
         })
 }

@@ -7,20 +7,31 @@ const buildIconFont = require('./tasks/iconfont');
 const buildImage = require('./tasks/image')
 const buildScss = require('./tasks/css')
 const buildSprite = require('./tasks/sprite')
-// const buildWebfont = require('./tasks/webfont')
+const buildWebfont = require('./tasks/webfont')
 const outputLog = require('./lib/logger');
-
 
 module.exports = async function () {
     const webappDirectory = process.cwd();
     const uedDir = path.join(webappDirectory, `static/src/ued`)
     const uedTaskDirs = recursiveFindDir(uedDir, 'src');
 
+    const watchedDir = []
     for (let i = 0; i < uedTaskDirs.length; i++) {
         const constPaths = getConstPaths(uedTaskDirs[i])
 
+        watchedDir.push(
+            constPaths.uedTaskDir,
+            constPaths.spriteSrcPath,
+            constPaths.imgSrcLocation,
+            constPaths.iconPath,
+            constPaths.scssLocation,
+        )
+
         await Compiler(constPaths);
     }
+
+    outputLog('finish init bundle! These dirs are watched for changing')
+    console.log(watchedDir)
 }
 
 async function Compiler(constPaths) {
@@ -28,17 +39,13 @@ async function Compiler(constPaths) {
 
     const {
         uedTaskDir,
-        spriteSrcPath,
-        imgSrcLocation,
-        iconPath,
-        scssLocation,
     } = constPaths;
 
     const tasks = {
         buildSprite,
         buildImage,
         buildIconFont,
-        // buildWebfont,
+        buildWebfont,
         buildScss
     }
 
@@ -50,15 +57,6 @@ async function Compiler(constPaths) {
         outputLog(`finish ${funcname}, take ${Date.now() - startBundleTime}ms`)
     }
 
-    const watchedDir = [
-        spriteSrcPath,
-        imgSrcLocation,
-        iconPath,
-        scssLocation
-    ]
-
-    outputLog('finish init bundle! These dirs are watched for changing')
-    console.log(watchedDir)
 };
 
 /**
@@ -80,7 +78,6 @@ function recursiveFindDir(dir, target, res = []) {
             return recursiveFindDir(parentDir, target, res)
         }
     })
-
     return res
 }
 
@@ -100,8 +97,8 @@ function stylesCleaner(constPaths) {
         path.join(spriteScssPath, '**'),
         path.join(spriteTempPath, '**'),
         path.join(cssDistLocation, '**'),
-        // path.join(imgDistLocation, '**'),
-        path.join(iconfontDistPath,'**')
+        // path.join(imgDistLocation, '**'),// img dist目录可能存在 src 目录中不存在的文件
+        path.join(iconfontDistPath, '**')
         // font file TODO
     ];
 

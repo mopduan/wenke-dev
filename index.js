@@ -43,8 +43,6 @@ module.exports = async function (options) {
         await stylesCompiler();
     }
 
-    return;// TEST
-
     const commonConfig = {
         cache: true,
         resolve: {
