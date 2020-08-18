@@ -25,7 +25,7 @@
 
 推荐在项目 `package.json` 添加 scripts 使用，以科学项目为例：
 
-```json
+```js
 {
     "name": "new-baike",
     //...
@@ -71,9 +71,9 @@ path.join(webappDirectory, `/static/src/ued/${app_name}/${pc_or_wap}/dist/font`)
 对齐 `gulpfile.js` 中的参数配置，默认为
 
 ```js
-const defaultConfig =   {
-	useRetina: true,
-	noHash: true
+const defaultConfig =  {
+    useRetina: true,
+    noHash: true
 }
 ```
 
@@ -83,8 +83,8 @@ const defaultConfig =   {
 // styleBuild.config.js
 module.exports = {
     useRetina: true,
-	divideBy2: true,
-	noHash: true
+    divideBy2: true,
+    noHash: true
 }
 ```
 
