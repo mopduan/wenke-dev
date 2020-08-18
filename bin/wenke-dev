@@ -14,13 +14,18 @@ program.usage('[dir] [optionfdsd]')
     .option('--np [node project]', 'node project')
     .option('--preact [use preact]', 'use preact')
     .option('--ie8tips <ie8tips directory>', 'uglify ie8tips')
+    .option('--style', 'build style')
     .parse(process.argv);
 
-utils.verifyVersion(function () {
-    utils.preCheck();
+utils.verifyVersion()
+    .then((checkRes) => {
+        if (!checkRes) return;
 
-    global.startCompile = new Date();
-    wenkeDev(program);
-}, function () {
-    process.exit(-1);
-});
+        global.startCompile = Date.now();
+        wenkeDev(program);
+    })
+    .catch((err) => {
+        console.log(err)
+    })
+
+
