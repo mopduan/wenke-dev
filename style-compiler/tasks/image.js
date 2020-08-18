@@ -4,23 +4,24 @@ const imagemin = require('imagemin');
 const mozjpeg = require('imagemin-mozjpeg');
 const pngquant = require('imagemin-pngquant');
 const chokidar = require('chokidar');
+const glob = require('glob')
 
 module.exports = async function buildImage(constPaths) {
     const { imgSrcLocation, imgDistLocation } = constPaths;
-    console.log(imgSrcLocation + '**/*.{jpg,png}')
-    const file = await imagemin([path.join(imgSrcLocation, '**/*.{jpg,png}')], {
-        destination: imgDistLocation,
-        plugins: [
-            mozjpeg({ quality: 80 }),
-            pngquant()
-        ]
-    });
+    const imgFiles = glob.sync(path.join(imgSrcLocation, '/**/*.{jpg,png}'));
 
-    file.forEach(item => {
-        console.log(item.sourcePath)
-    })
-    console.log('build img length:', file.length)
+    for (let i = 0; i < imgFiles.length; i++) {
+        const imgFile = imgFiles[i];
+        console.log(imgFile)
 
+        await imagemin([imgFile], {
+            destination: path.dirname(imgFile).replace('src/images', 'dist/images'),
+            plugins: [
+                mozjpeg({ quality: 80 }),
+                pngquant()
+            ]
+        });
+    }
 
     let timerImgBuild = null;
     let initWatchImg = true;
@@ -40,7 +41,7 @@ module.exports = async function buildImage(constPaths) {
                 console.log(`rebuild:${event} ${changePath}`)
 
                 await imagemin([changePath], {
-                    destination: imgDistLocation,
+                    destination: path.dirname(changePath).replace('src/images', 'dist/images'),
                     plugins: [
                         mozjpeg({ quality: 80 }),
                         pngquant()

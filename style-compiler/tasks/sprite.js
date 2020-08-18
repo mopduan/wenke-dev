@@ -6,6 +6,7 @@ const spriteBundler = require('../lib/sprite-bundler');
 const sprite2scss = require('../lib/sprites2scss');
 const chokidar = require('chokidar');
 const chalk = require('chalk');
+const del = require('del');
 
 /**
  * 打包雪碧图
@@ -22,6 +23,7 @@ module.exports = async function buildSprite(constPaths) {
         const _path = path.join(spriteSrcPath, childPath);
 
         if (fs.statSync(_path).isDirectory()) {
+            console.log(_path)
             await spritesBuilder(_path, childPath, constPaths)
         } else if (/\.(jpg|jpg|gif|jpeg)$/.test(path.extname(childPath))) {
             throw new Error(`img direct in spritePath has not been support yet, please check spritePath:${_spritePath}`)
@@ -110,4 +112,6 @@ async function spritesBuilder(_spritePath, childPath, constPaths) {
     }
 
     await spriteBundler(spritesmithConfig);
+    del.sync([path.join(spriteTempPath, '**')])
+
 }

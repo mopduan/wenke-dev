@@ -3,8 +3,8 @@ const fs = require('fs');
 const del = require('del');
 const chalk = require('chalk');
 const getConstPaths = require('./constPaths');
-// const buildIconFont = require('./tasks/iconfont');
-// const buildImage = require('./tasks/image')
+const buildIconFont = require('./tasks/iconfont');
+const buildImage = require('./tasks/image')
 const buildScss = require('./tasks/css')
 const buildSprite = require('./tasks/sprite')
 // const buildWebfont = require('./tasks/webfont')
@@ -23,60 +23,42 @@ module.exports = async function () {
     }
 }
 
-
-
 async function Compiler(constPaths) {
+    stylesCleaner(constPaths);
 
-    // stylesCleaner();
+    const {
+        uedTaskDir,
+        spriteSrcPath,
+        imgSrcLocation,
+        iconPath,
+        scssLocation,
+    } = constPaths;
 
-    const { uedTaskDir } = constPaths;
+    const tasks = {
+        buildSprite,
+        buildImage,
+        buildIconFont,
+        // buildWebfont,
+        buildScss
+    }
 
-    const startBundleSpriteTime = Date.now();
-    outputLog('blue', `${uedTaskDir}: start bundle the sprites...`)
-    await buildSprite(constPaths);
-    outputLog('blue', 'end bundle sprite, take', Date.now() - startBundleSpriteTime + 'ms')
+    for (const funcname in tasks) {
+        const func = tasks[funcname];
+        const startBundleTime = Date.now();
+        outputLog(`${uedTaskDir}: start ${funcname}...`)
+        await func(constPaths);
+        outputLog(`finish ${funcname}, take ${Date.now() - startBundleTime}ms`)
+    }
 
-    const startBundleCSSTime = Date.now();
-    outputLog('blue', `${uedTaskDir}: start bundle the css...`)
-    await buildScss(constPaths);
-    outputLog('blue', 'end bundle css, take', Date.now() - startBundleCSSTime + 'ms')
+    const watchedDir = [
+        spriteSrcPath,
+        imgSrcLocation,
+        iconPath,
+        scssLocation
+    ]
 
-    // const startBundleImgTime = Date.now();
-    // console.log('start bundle the image...')
-    // await buildImage(constPaths);
-    // console.log('end bundle image, take', Date.now() - startBundleImgTime + 'ms');
-
-    // await buildIconFont(constPaths);
-    // console.log('finish init bundle ')
-
-    // await buildWebfont(constPaths) // TODO
-
-
-    function stylesCleaner() {
-        const {
-            spriteDistPath,
-            spriteScssPath,
-            spriteTempPath,
-            cssDistLocation,
-            imgDistLocation,
-            iconfontDistPath,
-        } = constPaths;
-        console.log('these folders are cleaning:')
-
-        const delPaths = [
-            path.join(spriteDistPath, '**'),
-            path.join(spriteScssPath, '**'),
-            path.join(spriteTempPath, '**'),
-            path.join(cssDistLocation, '**'),
-            path.join(imgDistLocation, '**'),
-            // path.join(iconfontDistPath,'**')
-            // font file TODO
-        ];
-
-        console.log(delPaths)
-        del.sync(delPaths);
-        console.log('clean dist directory sucesss')
-    };
+    outputLog('finish init bundle! These dirs are watched for changing')
+    console.log(watchedDir)
 };
 
 /**
@@ -101,4 +83,30 @@ function recursiveFindDir(dir, target, res = []) {
 
     return res
 }
+
+function stylesCleaner(constPaths) {
+    const {
+        spriteDistPath,
+        spriteScssPath,
+        spriteTempPath,
+        cssDistLocation,
+        imgDistLocation,
+        iconfontDistPath,
+    } = constPaths;
+    console.log('these folders are cleaning:')
+
+    const delPaths = [
+        path.join(spriteDistPath, '**'),
+        path.join(spriteScssPath, '**'),
+        path.join(spriteTempPath, '**'),
+        path.join(cssDistLocation, '**'),
+        // path.join(imgDistLocation, '**'),
+        path.join(iconfontDistPath,'**')
+        // font file TODO
+    ];
+
+    console.log(delPaths)
+    del.sync(delPaths);
+    console.log('clean dist directory sucesss')
+};
 

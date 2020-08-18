@@ -1,9 +1,6 @@
 const chalk = require('chalk')
 
-module.exports = function outputLog(color, msg) {
-    return {
-        red: console.log(chalk.bold.red(msg)),
-        blue: console.log(chalk.bold.blue(msg))
-    }[color]
+module.exports = function outputLog(msg, color = 'blue') {
 
+    return console.log(chalk.bold[color](msg));
 }

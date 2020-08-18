@@ -24,7 +24,7 @@ function getMaxUnicode(iconPath) {
 }
 
 function renameSvgs(iconPath) {
-    let begin = getMaxUnicode() + 1;
+    let begin = getMaxUnicode(iconPath) + 1;
     getSvgs(iconPath).forEach(function (svg) {
         if (unicodeRE.test(svg)) {
             return;
@@ -36,36 +36,78 @@ function renameSvgs(iconPath) {
     return true;
 }
 
-
-async function buildIconFont(constPaths) {
+async function bundleIconFont(constPaths) {
     const {
         iconPath,
         iconfontDistPath
     } = constPaths;
+    try {
+        fs.accessSync(iconPath, fs.hasOwnProperty('R_OK') ? fs.R_OK : fs.constants.R_OK);
+    } catch (e) {
+        return Promise.resolve();
+    }
 
     renameSvgs(iconPath)
 
+    console.log('iconPath', iconPath)
     return new Promise((resolve, reject) => {
         webfontsGenerator({
-            files: svgfileName.map(fileName => path.join(iconPath, fileName)),
+            files: getSvgs(iconPath).map(fileName => path.join(iconPath, fileName)),
             fontName: 'iconfont',
             types: ['svg', 'ttf', 'eot', 'woff'],
             dest: iconfontDistPath,
-
+            css: false,//Whether to generate CSS file.
+            normalize: true,
+            fontHeight: 1001,
+            startCodepoint: 0xEA01,
+            rename: (filePath) => {
+                const name = path.basename(filePath, path.extname(filePath))
+                const resName = name.split('-')[1];
+                return resName
+            }
         }, function (error) {
             if (error) {
                 console.log('Fail!', error);
                 reject(error)
             } else {
                 resolve()
-                console.log('Done!');
+                // console.log('Done!');
             }
         })
     })
 }
 
-module.exports = (constPaths) => {
-    await buildIconFont(constPaths);
+async function generateIconScss(constPaths) {
+    const { iconPath, scssLocation } = constPaths;
+
+    try {
+        fs.accessSync(iconPath, fs.hasOwnProperty('R_OK') ? fs.R_OK : fs.constants.R_OK);
+    } catch (e) {
+        return Promise.resolve();
+    }
+
+    const pathname = path.resolve(__dirname, '../lib/common-scss/_iconfont.scss');
+
+    const icons = getSvgs(iconPath).reduce(function (iconfont, svg) {
+        const svgFileNameArr = path.basename(svg, path.extname(svg)).split('-')
+
+        return Object.defineProperty(iconfont, svgFileNameArr[1], {
+            value: svgFileNameArr[0].toLowerCase().replace('u', '\\'),
+            enumerable: true
+        })
+    }, {})
+
+    const content = [
+        '$__iconfont__data: ' + JSON.stringify(icons, null, '\t').replace(/\{/g, '(').replace(/\}/g, ')').replace(/\\\\/g, '\\') + ';',
+        fs.readFileSync(pathname).toString()
+    ].join('\n\n');
+    fs.writeFileSync(path.join(scssLocation, '/_iconfont.scss'), content);
+}
+
+module.exports = async (constPaths) => {
+    const { iconPath } = constPaths;
+    await bundleIconFont(constPaths);
+    await generateIconScss(constPaths);
 
     let timer = null;
     let initWatch = true;
@@ -86,6 +128,4 @@ module.exports = (constPaths) => {
                 await buildIconFont(constPaths);
             }
         })
-
-
 }

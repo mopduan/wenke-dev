@@ -27,6 +27,7 @@ async function build(constPaths) {
 
     for (let i = 0; i < compilePath.length; i++) {
         const sourceFile = compilePath[i]
+        console.log(sourceFile)
         await scssCompile(sourceFile, config, dev);
     }
 
