@@ -1,6 +1,6 @@
 # 使用 wenke-dev 编译样式
 
-在原有命令行下添加 `--style` 参数即可编辑样式文件，包含对 `scss`、`sprite`、`image`、`iconfont`、`webfont` 编译处理
+在原有命令行下添加 `--style` 参数即可编译样式文件，包含对 `scss`、`sprite`、`image`、`iconfont`、`webfont` 的编译处理
 不包含 `--style` 参数时，`wenke-dev` 保持原有逻辑不变
 
 
