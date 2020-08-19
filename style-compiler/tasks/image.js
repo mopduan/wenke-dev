@@ -21,8 +21,8 @@ module.exports = async function buildImage(constPaths) {
         console.log(imgFile)
 
         await imagemin([imgFile], {
-            destination: path.dirname(imgFile).replace(/src\/|(images|img)/, function ($0, $1) {
-                return `src/${$1}`
+            destination: path.dirname(imgFile).replace(/src\/(images|img)/, function ($0, $1) {
+                return `dist/${$1}`
             }),
             plugins: [
                 mozjpeg({ quality: 80 }),
