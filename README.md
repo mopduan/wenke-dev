@@ -1,5 +1,4 @@
-# wenke-dev
-wenwen实时开发辅助工具
+# wenke-dev [![npm version](https://badge.fury.io/js/wenke-dev.svg)](https://badge.fury.io/js/wenke-dev) 
 
 [![NPM](https://nodei.co/npm/wenke-dev.svg?downloads=true)](https://nodei.co/npm/wenke-dev/)
 
