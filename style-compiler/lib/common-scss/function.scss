@@ -99,10 +99,8 @@ $__sprite-group__: map-merge(if(global_variable_exists('__sprite-group__'), $__s
 		%__sprite-group-#{$dir}__ {
 			$fileName: sprite-info($dir, 'sprite_name', false);
 			background-image: resolve($fileName);
-			//background-image: url($fileName);
 			@if (global_variable_exists('__sprite-group-2x__')) {
 				$fileName2x: sprite-info($dir, 'sprite_name', true);
-				// $fileName2x: sprite-info($dir, 'url', true);
 				$total_width: sprite-info($dir, 'width', true) + px;
 				$total_height: sprite-info($dir, 'height', true) + px;
 				@if ($__sprite-only-retina__) {
@@ -110,7 +108,6 @@ $__sprite-group__: map-merge(if(global_variable_exists('__sprite-group__'), $__s
 					$total_height: sprite-info($dir, 'height', false) + px;
 				}
 				background-image: -webkit-image-set(resolve($fileName) 1x, resolve($fileName2x) 2x);
-				//background-image: -webkit-image-set(url($fileName) 1x, url($fileName2x) 2x);
 				background-size: $total_width $total_height;
 			}
 		}
