@@ -3,8 +3,6 @@ wenwen实时开发辅助工具
 
 [![NPM](https://nodei.co/npm/wenke-dev.svg?downloads=true)](https://nodei.co/npm/wenke-dev/)
 
-[![npm version](https://badge.fury.io/js/wenke-dev.svg)](https://badge.fury.io/js/wenke-dev) [![Known Vulnerabilities](https://snyk.io/test/npm/wenke-dev/badge.svg)](https://snyk.io/test/npm/wenke-dev)
-
 > wenke-dev是腾讯/搜狗社区搜索部实时开发辅助工具, 主要用于将ES6/7/8、React、Preact、前端模板、CSS、图片等静态资源实时编译为浏览器中可以正常运行的代码
 
 ## 安装
@@ -105,13 +103,6 @@ livereload服务端口, 默认为: 8999
 
 ## Pull Requests
 >如果您发现了代码中的问题，可以 <a href="https://github.com/mopduan/wenke-dev/compare/" target="_blank">New pull request</a>
-
-
----
-
-如果wenke-dev对您有帮助，欢迎打赏：）
-
-![欢迎打赏](https://cloud.githubusercontent.com/assets/675025/20477523/f4bc4a56-b010-11e6-9b55-13138ffcf0bb.png)
 
 
 ## License
