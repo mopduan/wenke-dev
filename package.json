@@ -42,7 +42,6 @@
     "@babel/preset-env": "7.7.6",
     "@babel/preset-react": "7.7.4",
     "ansi-html": "0.0.7",
-    "async": "2.6.1",
     "autodll-webpack-plugin": "0.4.2",
     "autoprefixer": "9.3.1",
     "babel-core": "7.0.0-bridge.0",
