@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const webfontsGenerator = require('webfonts-generator');
+const webfontsGenerator = require('shequfe-webfonts-generator');
 const chalk = require('chalk');
 const chokidar = require('chokidar');
 const unicodeRE = /^u([A-Z0-9]{4})-/;
