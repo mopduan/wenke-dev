@@ -75,7 +75,8 @@ module.exports = function (filePath, config) {
         divideBy2 = false,
         rem = false,
         noHash = true,
-        spriteDistLocation
+        spriteDistLocation,
+        imgDistLocation
     } = config;
 
     const postcssSettings = [];
@@ -97,7 +98,11 @@ module.exports = function (filePath, config) {
         autoprefixer(['iOS >= 8', 'last 2 versions', 'Android >= 4', 'ie >= 9']),
         assets({
             relative: true,
-            loadPaths: [spriteDistLocation]
+            loadPaths: [
+                spriteDistLocation,
+                spriteDistLocation.replace('/images/sprite', '/img/sprite'),
+                imgDistLocation
+            ]
         })
     );
 

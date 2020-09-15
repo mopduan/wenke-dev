@@ -32,6 +32,7 @@ module.exports = uedTaskDir => {
         stylesOption,
         spriteCssLocation: spriteScssPath,
         spriteDistLocation: spriteDistPath,
+        imgDistLocation,
     }
 
     return {

@@ -349,33 +349,33 @@ function mkdirRecursive(dir) {
 exports.mkdirRecursive = mkdirRecursive;
 
 
-function uploadSourceMapFile(sourcemapFilePath, cdnPath, cdnConfig, completeCallback) {
-    let request = require('request');
+// function uploadSourceMapFile(sourcemapFilePath, cdnPath, cdnConfig, completeCallback) {
+//     let request = require('request');
 
-    var formData = {
-        // Pass a simple key-value pair
-        path: cdnPath,
-        file: fs.createReadStream(sourcemapFilePath),
-        token: "9347089e-f30e-4fbc-a1f0-c45f83430f29"
-    };
+//     var formData = {
+//         // Pass a simple key-value pair
+//         path: cdnPath,
+//         file: fs.createReadStream(sourcemapFilePath),
+//         token: "9347089e-f30e-4fbc-a1f0-c45f83430f29"
+//     };
 
-    request.post({
-        url: cdnConfig.sourceMapPost.url,
-        formData: formData
-    }, function optionalCallback(err, httpResponse, body) {
-        if (err) {
-            console.error('just warning info: upload sourcemap file failed.');
-        } else {
-            console.log('upload sourcemap file successful!');
-        }
+//     request.post({
+//         url: cdnConfig.sourceMapPost.url,
+//         formData: formData
+//     }, function optionalCallback(err, httpResponse, body) {
+//         if (err) {
+//             console.error('just warning info: upload sourcemap file failed.');
+//         } else {
+//             console.log('upload sourcemap file successful!');
+//         }
 
-        if (typeof completeCallback === 'function') {
-            completeCallback();
-        }
-    });
-}
+//         if (typeof completeCallback === 'function') {
+//             completeCallback();
+//         }
+//     });
+// }
 
-exports.uploadSourceMapFile = uploadSourceMapFile;
+// exports.uploadSourceMapFile = uploadSourceMapFile;
 
 // 遍历script中的属性节点，查找需要替换或者移除的属性
 // 需要移除的属性：md5,compile,testonly

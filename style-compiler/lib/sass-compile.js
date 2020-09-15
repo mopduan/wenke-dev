@@ -23,7 +23,8 @@ module.exports = function (_sourceFile, config, dev = false) {
 
     const {
         spriteCssLocation,
-        spriteDistLocation
+        spriteDistLocation,
+        imgDistLocation
     } = config;
 
     if (!spriteCssLocation) {
@@ -57,7 +58,8 @@ module.exports = function (_sourceFile, config, dev = false) {
                     divideBy2,
                     rem,
                     noHash,
-                    spriteDistLocation
+                    spriteDistLocation,
+                    imgDistLocation
                 });
 
                 resolve();
