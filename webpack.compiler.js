@@ -9,11 +9,6 @@ module.exports = function ({ jsCompileItem, externals, commonConfig, babelSettin
     const config = {
         context: contextPath,
         entry: entryPath,
-        plugins: [
-            new webpack.DefinePlugin({
-                __DEVTOOLS__: preact ? true : false
-            })
-        ],
         output: {
             jsonpFunction: utils.uniqueVal(),
             path: path.join(staticDirectory, deployPrefix, 'js', utils.normalizePath(path.dirname(jsCompileItem.path)).replace(utils.normalizePath(contextPath), '')),
@@ -24,7 +19,7 @@ module.exports = function ({ jsCompileItem, externals, commonConfig, babelSettin
     };
 
     config.externals = externals;
-    config.module = { rules: utils.getRules()};
+    config.module = { rules: utils.getRules() };
     utils.extendConfig(config, commonConfig);
     const jsRules = {
         test: /\.(js|jsx)$/,
