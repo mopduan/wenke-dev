@@ -63,6 +63,7 @@
     "falafel": "2.1.0",
     "file-loader": "5.0.2",
     "find-up": "2.1.0",
+    "fonteditor-core": "0.0.36",
     "fresh": "0.5.2",
     "friendly-errors-webpack-plugin": "1.7.0",
     "ftp": "0.3.10",
@@ -84,8 +85,10 @@
     "postcss-px-editor": "0.1.0",
     "postcss-pxtorem": "3.3.1",
     "postcss-url-editor": "0.3.3",
+    "preact": "10.3.4",
     "raw-loader": "4.0.0",
     "semver": "7.3.2",
+    "shequfe-webfonts-generator": "0.5.0",
     "socket.io": "2.3.0",
     "spritesheet-templates": "10.2.4",
     "spritesmith": "3.3.1",
@@ -93,10 +96,8 @@
     "uglify-js": "3.7.2",
     "underscore": "1.9.1",
     "url2": "1.0.4",
-    "shequfe-webfonts-generator": "0.5.0",
     "webpack": "4.41.2",
     "webpackbar": "2.6.3",
-    "worker-farm": "1.7.0",
-    "fonteditor-core": "0.0.36"
+    "worker-farm": "1.7.0"
   }
 }
