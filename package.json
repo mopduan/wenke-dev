@@ -48,7 +48,7 @@
     "babel-loader": "8.0.6",
     "babel-plugin-react-require": "3.0.0",
     "babel-plugin-transform-react-remove-prop-types": "0.4.15",
-    "braces": "2.3.2",
+    "braces": "3.0.0",
     "case-sensitive-paths-webpack-plugin": "2.1.2",
     "chalk": "4.1.0",
     "chokidar": "3.3.0",
@@ -96,7 +96,7 @@
     "uglify-js": "3.7.2",
     "underscore": "1.9.1",
     "url2": "1.0.4",
-    "webpack": "4.41.2",
+    "webpack": "5.0.0",
     "webpackbar": "2.6.3",
     "worker-farm": "1.7.0"
   }
