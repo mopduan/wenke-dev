@@ -1,7 +1,20 @@
 const webpack = require("webpack");
 const path = require("path");
 const utils = require('./lib/utils');
-module.exports = function ({ jsCompileItem, externals, commonConfig, babelSettings, preact, np, staticDirectory, srcPrefix, sfPrefix, deployPrefix }, callback) {
+module.exports = function (
+    {
+        jsCompileItem,
+        externals,
+        commonConfig,
+        babelSettings,
+        preact,
+        np,
+        staticDirectory,
+        srcPrefix,
+        sfPrefix,
+        deployPrefix
+    },
+    callback) {
     const contextPath = path.join(staticDirectory, srcPrefix, 'js');
     const staticFilesSourceDir = path.join(staticDirectory, srcPrefix);
     const entryItem = jsCompileItem.path.replace(utils.normalizePath(contextPath) + "/", '');
