@@ -48,7 +48,7 @@ module.exports = async function (options) {
             modules: [
                 path.join(__dirname, "node_modules")
             ],
-            extensions: ['.js', '.jsx'],
+            extensions: ['.js', '.jsx', '.ts', '.tsx'],
             alias: options.preact ? {
                 'react': 'preact-compat',
                 'react-dom': 'preact-compat'

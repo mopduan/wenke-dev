@@ -1,6 +1,8 @@
 const webpack = require("webpack");
 const path = require("path");
 const utils = require('./lib/utils');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+
 module.exports = function (
     {
         jsCompileItem,
@@ -34,6 +36,7 @@ module.exports = function (
     config.externals = externals;
     config.module = { rules: utils.getRules() };
     utils.extendConfig(config, commonConfig);
+
     const jsRules = {
         test: /\.(js|jsx)$/,
         use: [{ loader: 'babel-loader', options: JSON.stringify(babelSettings) }],
@@ -44,7 +47,25 @@ module.exports = function (
         jsRules.exclude = [path.join(__dirname, 'node_modules'), /bower_components/];
         jsRules.include = [path.join(staticDirectory, '../node_modules/@ares'), staticDirectory, /clientLib/];
     }
+
+    const tsRules = {
+        test: /\.tsx?$/,
+        use: [
+            // tsc编译后，再用babel处理
+            { loader: 'babel-loader', options: JSON.stringify(babelSettings) },
+            {
+                loader: 'ts-loader',
+                options: {
+                    transpileOnly: true, // discard semantic checker & faster builds
+                    configFile: path.resolve(staticDirectory, '../tsconfig.json') // 各个项目独立配置   用于 ts server 代码检查
+                }
+            }
+        ],
+        exclude: /node_modules/,
+    }
+
     config.module.rules.push(jsRules);
+    config.module.rules.push(tsRules);
 
     let rebuildCompile = false;
     const compiler = webpack(config);
