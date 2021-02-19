@@ -33,96 +33,155 @@ const urlEditor = require('postcss-url-editor');
  * @returns {string[]}
  */
 function px2remProp() {
-    var list = Array.from(arguments);
-    var black = [];
-    var white = [
-        'top', 'right', 'bottom', 'left', 'clip', 'clip-path',
-        'width', 'min-width', 'max-width', 'height', 'min-height', 'max-height',
-        'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
-        'border', 'border-top', 'border-right', 'border-bottom', 'border-left',
-        'border-width', 'border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width',
-        'border-radius', 'border-top-right-radius', 'border-top-left-radius', 'border-bottom-right-radius', 'border-bottom-left-radius',
-        'border-image', 'border-image-width', 'border-image-outset',
-        'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
-        'background', 'background-position', 'background-size', 'background-image',
-        'outline', 'outline-width', 'outline-offset',
-        'columns', 'column-width', 'column-rule', 'column-rule-width',
-        'flex', 'flex-basis',
-        'transform', 'transform-origin', 'perspective', 'perspective-origin',
-        'border-spacing', 'box-shadow', 'line-height', 'font-size'
-    ];
+	var list = Array.from(arguments);
+	var black = [];
+	var white = [
+		'top',
+		'right',
+		'bottom',
+		'left',
+		'clip',
+		'clip-path',
+		'width',
+		'min-width',
+		'max-width',
+		'height',
+		'min-height',
+		'max-height',
+		'padding',
+		'padding-top',
+		'padding-right',
+		'padding-bottom',
+		'padding-left',
+		'border',
+		'border-top',
+		'border-right',
+		'border-bottom',
+		'border-left',
+		'border-width',
+		'border-top-width',
+		'border-right-width',
+		'border-bottom-width',
+		'border-left-width',
+		'border-radius',
+		'border-top-right-radius',
+		'border-top-left-radius',
+		'border-bottom-right-radius',
+		'border-bottom-left-radius',
+		'border-image',
+		'border-image-width',
+		'border-image-outset',
+		'margin',
+		'margin-top',
+		'margin-right',
+		'margin-bottom',
+		'margin-left',
+		'background',
+		'background-position',
+		'background-size',
+		'background-image',
+		'outline',
+		'outline-width',
+		'outline-offset',
+		'columns',
+		'column-width',
+		'column-rule',
+		'column-rule-width',
+		'flex',
+		'flex-basis',
+		'transform',
+		'transform-origin',
+		'perspective',
+		'perspective-origin',
+		'border-spacing',
+		'box-shadow',
+		'line-height',
+		'font-size'
+	];
 
-    list.reduce(function (args, prop) {
-        if (0 === prop.indexOf('!')) {
-            args.black.push(prop.substring(1));
-        } else if (args.white.indexOf(prop) < 0) {
-            args.white.push(prop);
-        }
-        return args;
-    }, {
-        white: white,
-        black: black
-    });
+	list.reduce(
+		function (args, prop) {
+			if (0 === prop.indexOf('!')) {
+				args.black.push(prop.substring(1));
+			} else if (args.white.indexOf(prop) < 0) {
+				args.white.push(prop);
+			}
+			return args;
+		},
+		{
+			white: white,
+			black: black
+		}
+	);
 
-    return white.filter(function (prop) {
-        return this.indexOf(prop) < 0;
-    }, black);
+	return white.filter(function (prop) {
+		return this.indexOf(prop) < 0;
+	}, black);
 }
 
 module.exports = function (filePath, config) {
-    const {
-        rootValue = 40,
-        divideBy2 = false,
-        rem = false,
-        noHash = true,
-        spriteDistLocation,
-        imgDistLocation
-    } = config;
+	const {
+		rootValue = 40,
+		divideBy2 = false,
+		rem = false,
+		noHash = true,
+		spriteDistLocation,
+		imgDistLocation
+	} = config;
 
-    const postcssSettings = [];
+	const postcssSettings = [];
 
-    if (divideBy2) {
-        postcssSettings.push(pxEditor('divide-by-two?warn=true&min=3'));
-    } else if (rem) {
-        postcssSettings.push(px2rem({
-            rootValue,
-            minPixelValue: 3,
-            propWhiteList: px2remProp()
-        }));
-    }
-    if (!noHash) {
-        settings.push(urlEditor('add-version?cssSrc=src&cssDest=dist&md5=true'));
-    }
+	if (divideBy2) {
+		postcssSettings.push(pxEditor('divide-by-two?warn=true&min=3'));
+	} else if (rem) {
+		postcssSettings.push(
+			px2rem({
+				rootValue,
+				minPixelValue: 3,
+				propWhiteList: px2remProp()
+			})
+		);
+	}
+	if (!noHash) {
+		settings.push(
+			urlEditor('add-version?cssSrc=src&cssDest=dist&md5=true')
+		);
+	}
 
-    postcssSettings.push(
-        autoprefixer(['iOS >= 8', 'last 2 versions', 'Android >= 4', 'ie >= 9']),
-        assets({
-            relative: true,
-            loadPaths: [
-                spriteDistLocation,
-                spriteDistLocation.replace('/images/sprite', '/img/sprite'),
-                imgDistLocation
-            ]
-        })
-    );
+	postcssSettings.push(
+		autoprefixer([
+			'iOS >= 8',
+			'last 2 versions',
+			'Android >= 4',
+			'ie >= 9'
+		]),
+		assets({
+			relative: true,
+			loadPaths: [
+				spriteDistLocation,
+				spriteDistLocation.replace('/images/sprite', '/img/sprite'),
+				imgDistLocation
+			]
+		})
+	);
 
-    return new Promise((resolve, reject) => {
-        try {
-            const css = fs.readFileSync(filePath);
+	return new Promise((resolve, reject) => {
+		try {
+			const css = fs.readFileSync(filePath);
 
-            postcss(postcssSettings)
-                .process(css, { from: filePath, to: filePath })
-                .then(result => {
-                    try {
-                        fs.writeFileSync(filePath, result.css);
+			postcss(postcssSettings)
+				.process(css, { from: filePath, to: filePath })
+				.then(result => {
+					try {
+						fs.writeFileSync(filePath, result.css);
 
-                        resolve();
-                    } catch (writeError) {
-                        reject(writeError);
-                    }
-                });
-        } catch (error) {
-            reject(error);
-        }
-    });
+						resolve();
+					} catch (writeError) {
+						reject(writeError);
+					}
+				});
+		} catch (error) {
+			reject(error);
+		}
+	});
 };
