@@ -124,7 +124,6 @@ module.exports = async function (options) {
 		srcPrefix,
 		deployPrefix,
 		webappDirectoryList,
-		cssCompileList,
 		sfPrefix
 	} = global;
 	let _leftCompileLen = jsCompileList.length;
@@ -144,7 +143,6 @@ module.exports = async function (options) {
 				sfPrefix,
 				deployPrefix,
 				webappDirectoryList,
-				cssCompileList,
 				childId: i
 			},
 			() => {
@@ -177,9 +175,7 @@ module.exports = async function (options) {
 								path.join(webappViewSrcDir + '/**/*.njk')
 							);
 						});
-						templateWatchFiles = templateWatchFiles.concat(
-							cssCompileList
-						);
+
 						console.log('templateWatchFiles List: ');
 						console.log(templateWatchFiles);
 						utils.startWebSocketServer();
