@@ -5,7 +5,8 @@
     "main": "index.js",
     "scripts": {
         "format": "prettier --write \"**/*.{js,jsx,ts,tsx}\"",
-        "test": "jest"
+        "test": "jest --coverage --silent",
+        "postinstall": "npm run test"
     },
     "bin": {
         "wenke-dev": "bin/wenke-dev"
@@ -110,5 +111,16 @@
     },
     "devDependencies": {
         "jest": "^26.6.3"
+    },
+    "jest": {
+        "verbose": true,
+        "setupFilesAfterEnv": [
+            "<rootDir>/__test__/setupTestFramework.js"
+        ],
+        "testMatch": [
+            "<rootDir>/__test__/*.test.js",
+            "<rootDir>/__test__/*.spec.js"
+        ],
+        "testEnvironment": "node"
     }
 }

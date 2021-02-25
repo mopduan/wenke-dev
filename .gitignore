@@ -27,3 +27,6 @@ package-lock.json
 .DS_Store
 .vscode
 .history
+
+# jest coverage file
+coverage
