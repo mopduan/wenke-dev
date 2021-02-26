@@ -1,6 +1,11 @@
-const path = require('path')
+const path = require('path');
 
-const { isInt, isInArray, jsonArrayUnique, normalizePath, getAllFilesByDir
+const {
+	isInt,
+	isInArray,
+	jsonArrayUnique,
+	normalizePath,
+	getAllFilesByDir
 } = require('../lib/utils');
 
 describe('test utils functions', () => {
@@ -25,28 +30,26 @@ describe('test utils functions', () => {
 			{ path: '/views/src/js/test/0/main.js' },
 			{ path: '/views/src/js/test/0/main.js' },
 			{ path: '/views/src/js/test/1/main.js' }
-		]
+		];
 		const res = [
 			{ path: '/views/src/js/test/0/main.js' },
 			{ path: '/views/src/js/test/1/main.js' }
-		]
+		];
 		expect(jsonArrayUnique(duplicate)).toEqual(res);
 	});
 
 	test('normalizePath()', () => {
-		const url = `\\Workspace\\test\\dir`
+		const url = `\\Workspace\\test\\dir`;
 		expect(normalizePath(url)).toBe('/Workspace/test/dir');
-	})
+	});
 });
 
 describe('test extract files', () => {
 	test('get all njk files in provided directory', () => {
-		const providedDir = path.join(__dirname, 'mock/views/src')
-		const res = getAllFilesByDir(providedDir, ['.njk']).join()
+		const providedDir = path.join(__dirname, 'mock/views/src');
+		const res = getAllFilesByDir(providedDir, ['.njk']).join();
 
 		expect(res).toContain('/src/template2.njk');
 		expect(res).toContain('/src/template1.njk');
 	});
 });
-
-
