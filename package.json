@@ -67,7 +67,7 @@
     "falafel": "2.1.0",
     "file-loader": "5.0.2",
     "find-up": "2.1.0",
-    "fonteditor-core": "0.0.36",
+    "fonteditor-core": "2.1.6",
     "fork-ts-checker-webpack-plugin": "6.1.0",
     "fresh": "0.5.2",
     "friendly-errors-webpack-plugin": "1.7.0",
