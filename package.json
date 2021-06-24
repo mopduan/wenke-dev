@@ -84,7 +84,7 @@
     "minimatch": "3.0.4",
     "nanoid": "1.2.1",
     "node-fetch": "2.6.1",
-    "node-sass": "4.14.1",
+    "node-sass": "6.0.1",
     "path-to-regexp": "2.1.0",
     "postcss": "5.2.15",
     "postcss-assets": "4.2.0",
