@@ -12,11 +12,15 @@ const postcss = require('./postcss');
  */
 
 module.exports = function (_sourceFile, config, dev = false) {
-	if (!config) config = { stylesOption: {} };
+	const configCopy = config ? config : { stylesOption: {} };
 
-	const { divideBy2, rem, noHash } = config.stylesOption;
+	const { divideBy2, rem, noHash } = configCopy.stylesOption;
 
-	const { spriteCssLocation, spriteDistLocation, imgDistLocation } = config;
+	const {
+		spriteCssLocation,
+		spriteDistLocation,
+		imgDistLocation
+	} = configCopy;
 
 	if (!spriteCssLocation) {
 		throw new Error('sass-compile function need spriteCssLocation config');
@@ -43,7 +47,7 @@ module.exports = function (_sourceFile, config, dev = false) {
 
 					reject(err);
 				} else {
-					let _outputPath = _sourceFile
+					const _outputPath = _sourceFile
 						.replace('src/css', 'dist/css')
 						.replace(/\.scss$/, '.css');
 					file.mkdirRecursive(path.dirname(_outputPath));

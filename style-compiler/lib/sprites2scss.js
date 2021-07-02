@@ -7,7 +7,7 @@ function toSCSS(data) {
 		.replace(/\}/g, ')');
 }
 
-function parseSprites(sprites, dirPrefix) {
+function parseSprites(sprites) {
 	const data = sprites.reduce((result, sprite) => {
 		const {
 			name,
@@ -27,7 +27,7 @@ function parseSprites(sprites, dirPrefix) {
 
 		// 例如`common/task-expire.png`
 		// const nameWithDir = source_image.replace(dirPrefix, '').replace(dirPrefix.replace('sprite/src/', 'sprite/dist/.retina_tmp/'), '');
-		let tmp_dir = path.dirname(source_image);
+		const tmp_dir = path.dirname(source_image);
 		const _dir = tmp_dir.substring(tmp_dir.lastIndexOf('/') + 1);
 
 		const group = _dir ? _dir : 'default';
@@ -45,6 +45,7 @@ function parseSprites(sprites, dirPrefix) {
 					((offset_x / (width - total_width)) * 100).toFixed(3)
 			  ) + '%'
 			: 0;
+
 		const offset_y_pct = offset_y
 			? parseFloat(
 					((offset_y / (height - total_height)) * 100).toFixed(3)
@@ -72,10 +73,10 @@ function parseSprites(sprites, dirPrefix) {
 }
 
 module.exports = function (options) {
-	let rem = options.rem;
-	let divideBy2 = options.divideBy2;
-	let retina = options.retina;
-	let dirPrefix = options.dirPrefix || '/';
+	const rem = options.rem;
+	const divideBy2 = options.divideBy2;
+	const retina = options.retina;
+	const dirPrefix = options.dirPrefix || '/';
 
 	function handler(data) {
 		const scss = [];

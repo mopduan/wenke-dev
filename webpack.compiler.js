@@ -1,7 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
 const utils = require('./lib/utils');
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 module.exports = function (
 	{
@@ -9,7 +8,6 @@ module.exports = function (
 		externals,
 		commonConfig,
 		babelSettings,
-		preact,
 		np,
 		staticDirectory,
 		srcPrefix,
@@ -29,7 +27,7 @@ module.exports = function (
 		context: contextPath,
 		entry: entryPath,
 		output: {
-			jsonpFunction: utils.uniqueVal(),
+			chunkLoadingGlobal: utils.uniqueVal(),
 			path: path.join(
 				staticDirectory,
 				deployPrefix,
@@ -39,6 +37,7 @@ module.exports = function (
 					.replace(utils.normalizePath(contextPath), '')
 			),
 			filename: 'bundle.js',
+			assetModuleFilename: '[name][ext]',
 			chunkFilename: '[name].bundle.js',
 			publicPath: utils.normalizePath(
 				path.join(
@@ -55,6 +54,10 @@ module.exports = function (
 					'/'
 				)
 			)
+		},
+		optimization: {
+			chunkIds: 'named',
+			moduleIds: 'named'
 		}
 	};
 
@@ -64,9 +67,7 @@ module.exports = function (
 
 	const jsRules = {
 		test: /\.(js|jsx)$/,
-		use: [
-			{ loader: 'babel-loader', options: JSON.stringify(babelSettings) }
-		],
+		use: [{ loader: 'babel-loader', options: babelSettings }],
 		exclude: /(node_modules|bower_components)/,
 		include: [staticFilesSourceDir]
 	};
@@ -87,7 +88,7 @@ module.exports = function (
 		test: /\.tsx?$/,
 		use: [
 			// tsc编译后，再用babel处理
-			{ loader: 'babel-loader', options: JSON.stringify(babelSettings) },
+			{ loader: 'babel-loader', options: babelSettings },
 			{
 				loader: 'ts-loader',
 				options: {
@@ -107,6 +108,7 @@ module.exports = function (
 
 	let rebuildCompile = false;
 	const compiler = webpack(config);
+
 	compiler.watch(
 		{
 			aggregateTimeout: 300,
@@ -117,23 +119,34 @@ module.exports = function (
 				throw err;
 			}
 
-			if (stats.hasErrors()) {
-				console.log(
-					'ERROR start =============================================================='
-				);
-				console.log(stats.toString());
-				console.log(
-					'ERROR end   =============================================================='
-				);
-			} else {
-				console.log(stats.toString());
-			}
+			const hasWarnings = stats.hasWarnings();
+			const hasErrors = stats.hasErrors();
 
-			if (rebuildCompile) {
-				console.log(
-					'rebuild complete!',
-					stats.endTime - stats.startTime + 'ms'
-				);
+			if (!(hasWarnings || hasErrors)) {
+				if (rebuildCompile) {
+					console.log(
+						'=== rebuild complete start! ',
+						stats.endTime - stats.startTime + 'ms! stats info: ==='
+					);
+					console.log(stats.toString());
+					console.log('=== rebuild complete end! ===');
+				} else {
+					console.log('=== build success start! stats info: ===');
+					console.log(stats.toString());
+					console.log('=== build success end! ===');
+				}
+			} else {
+				if (hasWarnings) {
+					console.log('=== WARNINGS start! stats info: ===');
+					console.log(stats.toString());
+					console.log('=== WARNINGS end! ===');
+				}
+
+				if (hasErrors) {
+					console.log('=== ERRORS start ===');
+					console.log(stats.toString());
+					console.log('=== ERRORS end ===');
+				}
 			}
 
 			if (!rebuildCompile) {

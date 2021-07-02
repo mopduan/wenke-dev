@@ -1,7 +1,6 @@
 const path = require('path');
 const fs = require('fs');
 const webfontsGenerator = require('shequfe-webfonts-generator');
-const chalk = require('chalk');
 const chokidar = require('chokidar');
 const unicodeRE = /^u([A-Z0-9]{4})-/;
 const outputLog = require('../lib/logger');
@@ -105,7 +104,9 @@ module.exports = async constPaths => {
 	try {
 		fs.accessSync(
 			iconPath,
-			fs.hasOwnProperty('R_OK') ? fs.R_OK : fs.constants.R_OK
+			Object.prototype.hasOwnProperty.call(fs, 'R_OK')
+				? fs.R_OK
+				: fs.constants.R_OK
 		);
 	} catch (e) {
 		return Promise.resolve();
@@ -127,7 +128,7 @@ module.exports = async constPaths => {
 			}
 			console.log(`preparing rebuild iconfont:${event} ${changePath}`);
 			const start = Date.now();
-			await buildIconFont(constPaths);
+			await bundleIconFont(constPaths);
 			outputLog(`rebuild success,take ${Date.now() - start}ms`);
 		}
 	});

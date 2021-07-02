@@ -1,7 +1,6 @@
 const path = require('path');
 const fs = require('fs');
 const del = require('del');
-const chalk = require('chalk');
 const getConstPaths = require('./constPaths');
 const buildIconFont = require('./tasks/iconfont');
 const buildImage = require('./tasks/image');
@@ -10,8 +9,8 @@ const buildSprite = require('./tasks/sprite');
 const buildWebfont = require('./tasks/webfont');
 const outputLog = require('./lib/logger');
 
-module.exports = async function () {
-	const webappDirectory = process.cwd();
+module.exports = async function (programArguments) {
+	const webappDirectory = programArguments.webappDirectory;
 	const uedDir = path.join(webappDirectory, `static/src/ued`);
 	const uedTaskDirs = recursiveFindDir(uedDir, 'src');
 
@@ -84,7 +83,6 @@ function stylesCleaner(constPaths) {
 		spriteScssPath,
 		spriteTempPath,
 		cssDistLocation,
-		imgDistLocation,
 		iconfontDistPath
 	} = constPaths;
 	console.log('these folders are cleaning:');
@@ -99,7 +97,8 @@ function stylesCleaner(constPaths) {
 		// font file TODO
 	];
 
-	console.log(delPaths);
-	del.sync(delPaths);
+	del.sync(delPaths, {
+		force: true
+	});
 	console.log('clean dist directory sucesss');
 }

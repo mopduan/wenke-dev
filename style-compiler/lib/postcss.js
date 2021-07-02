@@ -33,9 +33,9 @@ const urlEditor = require('postcss-url-editor');
  * @returns {string[]}
  */
 function px2remProp() {
-	var list = Array.from(arguments);
-	var black = [];
-	var white = [
+	const list = Array.from(arguments);
+	const black = [];
+	const white = [
 		'top',
 		'right',
 		'bottom',
@@ -143,7 +143,7 @@ module.exports = function (filePath, config) {
 		);
 	}
 	if (!noHash) {
-		settings.push(
+		postcssSettings.push(
 			urlEditor('add-version?cssSrc=src&cssDest=dist&md5=true')
 		);
 	}

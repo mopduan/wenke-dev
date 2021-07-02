@@ -44,7 +44,9 @@ module.exports = async function (
 			: path.join(tempSpriteDir, spriteSubDir);
 
 	if (fs.existsSync(delPath)) {
-		del.sync([path.join(delPath, '*')]);
+		del.sync([path.join(delPath, '*')], {
+			force: true
+		});
 	}
 
 	const sprites = glob.sync(path.join(spritePath, '*.{png,jpg,gif}'));

@@ -1,10 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const { mkdirRecursive } = require('../lib/file');
-const del = require('del');
 const { Font } = require('fonteditor-core');
 const chokidar = require('chokidar');
-
+const outputLog = require('../lib/logger');
 const writableTypes = ['ttf', 'woff', 'eot', 'svg'];
 const readableTypes = writableTypes.slice().concat('otf');
 
@@ -91,7 +90,9 @@ function bundleWebfont(constPaths) {
 	try {
 		fs.accessSync(
 			baseDir,
-			fs.hasOwnProperty('R_OK') ? fs.R_OK : fs.constants.R_OK
+			Object.prototype.hasOwnProperty.call(fs, 'R_OK')
+				? fs.R_OK
+				: fs.constants.R_OK
 		);
 	} catch (e) {
 		return Promise.resolve();

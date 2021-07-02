@@ -4,7 +4,7 @@ const UglifyJS = require('uglify-js');
 
 module.exports = function (ie8tipsDir) {
 	if (!fs.existsSync(ie8tipsDir)) {
-		throw new Error('can not find this dir' + dir);
+		throw new Error('can not find this dir' + ie8tipsDir);
 	}
 
 	const filePath = path.join(ie8tipsDir, './ie8tips.js');

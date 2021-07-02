@@ -1,5 +1,4 @@
 const path = require('path');
-const fs = require('fs');
 const imagemin = require('imagemin');
 const mozjpeg = require('imagemin-mozjpeg');
 const pngquant = require('imagemin-pngquant');
@@ -9,7 +8,7 @@ const outputLog = require('../lib/logger');
 const del = require('del');
 
 module.exports = async function buildImage(constPaths) {
-	const { imgSrcLocation, imgDistLocation, uedTaskDir } = constPaths;
+	const { imgSrcLocation, uedTaskDir } = constPaths;
 	const imgFiles = glob.sync(path.join(imgSrcLocation, '/**/*.{jpg,png}'));
 
 	const matchPath = imgFiles[0].match(/\/(images|img)\//i)[1] || 'images';
@@ -41,7 +40,9 @@ module.exports = async function buildImage(constPaths) {
 				`src/${matchPath}`,
 				`dist/${matchPath}`
 			);
-			del.sync([delFile]);
+			del.sync([delFile], {
+				force: true
+			});
 			outputLog('delete ' + delFile);
 			return;
 		} else if (event === 'unlinkDir') {
@@ -49,7 +50,9 @@ module.exports = async function buildImage(constPaths) {
 			const delFile =
 				changePath.replace(`src/${matchPath}`, `dist/${matchPath}`) +
 				'/**';
-			del.sync([delFile]);
+			del.sync([delFile], {
+				force: true
+			});
 			outputLog('delete ' + delFile);
 			return;
 		}

@@ -1,23 +1,9 @@
 const path = require('path');
-const fs = require('fs');
 const chokidar = require('chokidar');
 const chalk = require('chalk');
 const scssCompile = require('../lib/sass-compile');
 const { glob } = require('glob');
 const outputLog = require('../lib/logger');
-
-function getSassCompileList(csslist) {
-	if (!Array.isArray(csslist)) {
-		console.log(chalk.blue('expect params to be a array,please check'));
-		throw new Error('typeError');
-	}
-	return csslist.map(fileName => {
-		let scssFileName = fileName
-			.replace('/dist/css', '/src/css')
-			.replace('.css', '.scss');
-		return scssFileName;
-	});
-}
 
 async function build(constPaths) {
 	const { config, dev, scssLocation } = constPaths;

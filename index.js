@@ -23,28 +23,29 @@ if (maxConcurrentWorkers <= 2) {
 	maxConcurrentWorkers = 4;
 }
 
-const workerOptions =
-	process.platform === 'win32'
-		? {
-				maxConcurrentWorkers: maxConcurrentWorkers,
-				maxConcurrentCallsPerWorker: 1
-		  }
-		: { maxConcurrentWorkers: maxConcurrentWorkers };
+const workerOptions = { maxConcurrentWorkers: maxConcurrentWorkers };
+
+if (process.platform === 'win32') {
+	workerOptions.maxConcurrentCallsPerWorker = 1;
+}
+
 const workers = workerFarm(
 	workerOptions,
 	require.resolve('./webpack.compiler.js')
 );
 
-module.exports = async function (options) {
-	if (options.ie8tips) {
-		uglifyIe8tips(options.ie8tips);
+module.exports = async function (program) {
+	const programArguments = program._optionValues;
+
+	if (programArguments.ie8tips) {
+		uglifyIe8tips(programArguments.ie8tips);
 		return;
 	}
 
-	const { jsCompileList } = validate(options);
+	const { jsCompileList } = validate(programArguments);
 
-	if (options.style) {
-		await stylesCompiler();
+	if (programArguments.style) {
+		await stylesCompiler(programArguments);
 	}
 
 	const commonConfig = {
@@ -52,12 +53,7 @@ module.exports = async function (options) {
 		resolve: {
 			modules: [path.join(__dirname, 'node_modules')],
 			extensions: ['.js', '.jsx', '.ts', '.tsx'],
-			alias: options.preact
-				? {
-						react: 'preact-compat',
-						'react-dom': 'preact-compat'
-				  }
-				: {}
+			alias: {}
 		},
 		resolveLoader: {
 			modules: [path.join(__dirname, 'node_modules')]
@@ -66,16 +62,23 @@ module.exports = async function (options) {
 		mode: 'development'
 	};
 
-	if (options.np) {
+	if (programArguments.preact) {
+		commonConfig.resolve.alias = {
+			react: 'preact-compat',
+			'react-dom': 'preact-compat'
+		};
+	}
+
+	if (programArguments.np) {
 		//公用的客户端私有npm包需要从项目目录下查找依赖包
 		commonConfig.resolve.modules.push(
-			path.join(options.staticFilesDirectory, '../node_modules')
+			path.join(programArguments.staticFilesDirectory, '../node_modules')
 		);
 	}
 
 	const _presets = [__dirname + '/node_modules/@babel/preset-env'];
 
-	if (options.preact) {
+	if (programArguments.preact) {
 		_presets.push([
 			__dirname + '/node_modules/@babel/preset-react',
 			{ pragma: 'h' }
@@ -117,8 +120,7 @@ module.exports = async function (options) {
 		antd: 'antd'
 	};
 
-	const preact = !!options.preact;
-	const np = !!options.np;
+	const np = !!programArguments.np;
 	const {
 		staticDirectory,
 		srcPrefix,
@@ -136,7 +138,6 @@ module.exports = async function (options) {
 				externals,
 				commonConfig,
 				babelSettings,
-				preact,
 				np,
 				staticDirectory,
 				srcPrefix,
@@ -155,10 +156,10 @@ module.exports = async function (options) {
 					);
 
 					if (!utils.hasArgument(process.argv, '--norefresh')) {
-						let templateWatchFiles = [];
+						const templateWatchFiles = [];
 
 						webappDirectoryList.forEach(function (item) {
-							const webappViewSrcDir = options.np
+							const webappViewSrcDir = programArguments.np
 								? item
 								: item + '/src/main/webapp/WEB-INF/view/src/';
 
@@ -206,7 +207,8 @@ module.exports = async function (options) {
 							path.join(
 								global.staticDirectory,
 								global.deployPrefix
-							)
+							),
+							{ awaitWriteFinish: true }
 						);
 
 						watcher

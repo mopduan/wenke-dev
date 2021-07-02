@@ -1,8 +1,8 @@
 //'use strict';
 
-var fs = require('fs');
-var path = require('path');
-var utils = require('./utils');
+const fs = require('fs');
+const path = require('path');
+const utils = require('./utils');
 
 /**
  *
@@ -11,18 +11,14 @@ var utils = require('./utils');
  * @param extension
  * @returns {*}
  */
-function getAllFilesByDir(dir, list, extension) {
-	if (!(list instanceof Array)) {
-		list = [];
-	}
-
+function getAllFilesByDir(dir, list = [], extension) {
 	if (fs.existsSync(dir)) {
-		var fileList = fs.readdirSync(dir);
+		const fileList = fs.readdirSync(dir);
 
-		for (var i = fileList.length - 1; i >= 0; i--) {
-			var filePath = path.join(dir, fileList[i]);
+		for (let i = fileList.length - 1; i >= 0; i--) {
+			const filePath = path.join(dir, fileList[i]);
 
-			var stat = fs.statSync(filePath);
+			const stat = fs.statSync(filePath);
 
 			if (stat.isDirectory()) {
 				getAllFilesByDir(filePath, list, extension);
@@ -37,9 +33,7 @@ function getAllFilesByDir(dir, list, extension) {
 	return list;
 }
 
-function getAllFilesByDirs(dirs, list, extension) {
-	if (!(list instanceof Array)) list = [];
-
+function getAllFilesByDirs(dirs, list = [], extension) {
 	for (let i = 0; i < dirs.length; i++) {
 		getAllFilesByDir(dirs[i], list, extension);
 	}
@@ -57,21 +51,21 @@ function copyDir(source, target) {
 		fs.mkdirSync(target);
 	}
 
-	var fileList = fs.readdirSync(source);
+	const fileList = fs.readdirSync(source);
 
-	for (var i = fileList.length - 1; i >= 0; i--) {
-		var fileName = path.basename(fileList[i]);
-		var targetPath = path.join(target, fileName);
+	for (let i = fileList.length - 1; i >= 0; i--) {
+		const fileName = path.basename(fileList[i]);
+		const targetPath = path.join(target, fileName);
 
-		var stat = fs.statSync(path.join(source, fileName));
+		const stat = fs.statSync(path.join(source, fileName));
 
 		if (stat.isDirectory()) {
 			copyDir(path.join(source, fileName), targetPath);
 		} else {
-			var readable = fs.createReadStream(path.join(source, fileName));
+			const readable = fs.createReadStream(path.join(source, fileName));
 
 			// 创建写入流
-			var writable = fs.createWriteStream(targetPath);
+			const writable = fs.createWriteStream(targetPath);
 
 			// 通过管道来传输流
 			readable.pipe(writable);

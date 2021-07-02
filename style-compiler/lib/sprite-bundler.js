@@ -2,14 +2,14 @@
  * Created by yangguang on 2018/8/24
  */
 // Load our dependencies
-var assert = require('assert');
-var fs = require('fs');
-var path = require('path');
-var _ = require('underscore');
-var Minimatch = require('minimatch').Minimatch;
-var templater = require('spritesheet-templates');
-var Spritesmith = require('spritesmith');
-var url = require('url2');
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+const _ = require('underscore');
+const Minimatch = require('minimatch').Minimatch;
+const templater = require('spritesheet-templates');
+const Spritesmith = require('spritesmith');
+const url = require('url2');
 const glob = require('glob');
 const chalk = require('chalk');
 // const chokidar = require('chokidar');
@@ -23,19 +23,19 @@ ExtFormat.prototype = {
 	},
 	get: function (filepath) {
 		// Grab the extension from the filepath
-		var ext = path.extname(filepath);
-		var lowerExt = ext.toLowerCase();
+		const ext = path.extname(filepath);
+		const lowerExt = ext.toLowerCase();
 
 		// Look up the file extenion from our format object
-		var formatObj = this.formatObj;
-		var format = formatObj[lowerExt];
+		const formatObj = this.formatObj;
+		const format = formatObj[lowerExt];
 		return format;
 	}
 };
 
 // Create img and css formats
-var imgFormats = new ExtFormat();
-var cssFormats = new ExtFormat();
+const imgFormats = new ExtFormat();
+const cssFormats = new ExtFormat();
 
 // Add our img formats
 imgFormats.add('.png', 'png');
@@ -54,19 +54,20 @@ cssFormats.add('.css', 'css');
 // Copy/paste helper from gulp
 // https://github.com/wearefractal/glob-stream/blob/v5.0.0/index.js#L131-L138
 function unrelative(cwd, glob) {
-	var mod = '';
+	let mod = '';
+	let pathResolve = path.resolve(cwd, glob);
 	if (glob[0] === '!') {
 		mod = glob[0];
-		glob = glob.slice(1);
+		pathResolve = path.resolve(cwd, glob.slice(1));
 	}
-	return mod + path.resolve(cwd, glob);
+	return mod + pathResolve;
 }
 
 // Define helper for coordinate naming
 function getCoordinateName(filepath) {
 	// Extract the image name (exlcuding extension)
-	var fullname = path.basename(filepath);
-	var nameParts = fullname.split('.');
+	const fullname = path.basename(filepath);
+	const nameParts = fullname.split('.');
 
 	// If there is are more than 2 parts, pop the last one
 	if (nameParts.length >= 2) {
@@ -80,10 +81,9 @@ function getCoordinateName(filepath) {
 // Create a gulp-spritesmith function
 async function spriteBundler(params) {
 	const imgSrc = params.imgSrc; // 图片来源路径，glob格式
-	var imgName = params.imgName;
-	var cssName = params.cssName;
-	var dest = params.dest || '.';
-	const dev = params.dev;
+	const imgName = params.imgName;
+	const cssName = params.cssName;
+	const dest = params.dest || '.';
 	assert(imgSrc, `No 'imgSrc' found!`);
 	assert(
 		imgName,
@@ -95,8 +95,8 @@ async function spriteBundler(params) {
 	);
 
 	// If there are settings for retina, verify our all of them are present
-	var retinaSrcFilter = params.retinaSrcFilter;
-	var retinaImgName = params.retinaImgName;
+	const retinaSrcFilter = params.retinaSrcFilter;
+	const retinaImgName = params.retinaImgName;
 	if (retinaSrcFilter || retinaImgName) {
 		assert(
 			retinaSrcFilter && retinaImgName,
@@ -110,32 +110,32 @@ async function spriteBundler(params) {
 
 	if (Array.isArray(images) && images.length) {
 		// Determine the format of the image
-		var imgOpts = params.imgOpts || {};
-		var imgFormat = imgOpts.format || imgFormats.get(imgName) || 'png';
+		let imgOpts = params.imgOpts || {};
+		const imgFormat = imgOpts.format || imgFormats.get(imgName) || 'png';
 
 		// Set up the defautls for imgOpts
 		imgOpts = _.defaults({}, imgOpts, { format: imgFormat });
 
 		// If we have retina settings, filter out the retina images
-		var retinaImages;
+		let retinaImages;
 
 		if (retinaSrcFilter) {
 			// Filter out our retina files
 			// https://github.com/wearefractal/glob-stream/blob/v5.0.0/index.js#L84-L87
 			retinaImages = [];
-			var retinaSrcPatterns = Array.isArray(retinaSrcFilter)
+			const retinaSrcPatterns = Array.isArray(retinaSrcFilter)
 				? retinaSrcFilter
 				: [retinaSrcFilter];
 			images = images.filter(function filterSrcFile(file) {
 				// If we have a retina file, filter it out
-				var matched = retinaSrcPatterns.some(function matchMinimatches(
-					retinaSrcPattern
-				) {
-					var minimatch = new Minimatch(
-						unrelative(file.cwd, retinaSrcPattern)
-					);
-					return minimatch.match(file);
-				});
+				const matched = retinaSrcPatterns.some(
+					function matchMinimatches(retinaSrcPattern) {
+						const minimatch = new Minimatch(
+							unrelative(file.cwd, retinaSrcPattern)
+						);
+						return minimatch.match(file);
+					}
+				);
 				if (matched) {
 					retinaImages.push(file);
 					return false;
@@ -147,7 +147,7 @@ async function spriteBundler(params) {
 
 			// 2倍图与1倍图数量不对应一致，抛出异常
 			if (images.length !== retinaImages.length) {
-				var err = new Error(
+				const err = new Error(
 					'Retina settings detected but ' +
 						retinaImages.length +
 						' retina images were found. ' +
@@ -164,7 +164,7 @@ async function spriteBundler(params) {
 		}
 
 		// Prepare spritesmith parameters
-		var spritesmithParams = {
+		const spritesmithParams = {
 			engine: params.engine,
 			algorithm: params.algorithm,
 			padding: params.padding || 0,
@@ -175,7 +175,7 @@ async function spriteBundler(params) {
 
 		const bundler = async function () {
 			// Construct our spritesmiths
-			var spritesmith = new Spritesmith(spritesmithParams);
+			const spritesmith = new Spritesmith(spritesmithParams);
 			var retinaSpritesmithParams; // eslint-disable-line
 			var retinaSpritesmith; // eslint-disable-line
 			if (retinaImages) {
@@ -227,7 +227,6 @@ async function spriteBundler(params) {
 
 			if (retinaSprites) {
 				// 2倍图与1倍图校验
-				let errorEncountered = false;
 				normalSprites.forEach(function validateImageSizes(
 					normalSprite,
 					i
@@ -238,7 +237,6 @@ async function spriteBundler(params) {
 						retinaSprite.width !== normalSprite.width * 2 ||
 						retinaSprite.height !== normalSprite.height * 2
 					) {
-						errorEncountered = true;
 						const err = new Error(
 							'Normal sprite has inconsistent size with retina sprite. ' +
 								'"' +
@@ -265,11 +263,11 @@ async function spriteBundler(params) {
 			}
 
 			// Process our images now
-			var result = spritesmith.processImages(
+			const result = spritesmith.processImages(
 				normalSprites,
 				spritesmithParams
 			);
-			var retinaResult;
+			let retinaResult;
 			if (retinaSprites) {
 				retinaResult = retinaSpritesmith.processImages(
 					retinaSprites,
@@ -295,8 +293,8 @@ async function spriteBundler(params) {
 				.sort()
 				.forEach(function (file) {
 					// Extract out our name
-					var name = getCoordinateName(file);
-					var coords = coordinates[file];
+					const name = getCoordinateName(file);
+					let coords = coordinates[file];
 
 					// Specify the image for the sprite
 					coords.name = name;
@@ -319,9 +317,9 @@ async function spriteBundler(params) {
 			var retinaSpritesheetInfo; // eslint-disable-line
 			if (retinaResult) {
 				// Generate a listing of CSS variables
-				var retinaCoordinates = retinaResult.coordinates;
-				var retinaProperties = retinaResult.properties;
-				var retinaSpritePath =
+				const retinaCoordinates = retinaResult.coordinates;
+				const retinaProperties = retinaResult.properties;
+				const retinaSpritePath =
 					params.retinaImgPath ||
 					url.relative(cssName, retinaImgName);
 				retinaSpritesheetInfo = {
@@ -336,8 +334,8 @@ async function spriteBundler(params) {
 				Object.getOwnPropertyNames(retinaCoordinates)
 					.sort()
 					.forEach(function prepareRetinaTemplateData(file) {
-						var name = getCoordinateName(file);
-						var coords = retinaCoordinates[file];
+						const name = getCoordinateName(file);
+						let coords = retinaCoordinates[file];
 						coords.name = name;
 						coords.source_image = file;
 						coords.image = retinaSpritePath;
@@ -349,9 +347,12 @@ async function spriteBundler(params) {
 
 				// Verify we have no conflicting file names (e.g. `1x/home.png` and `2x/home.png`)
 				//   https://github.com/twolfson/gulp.spritesmith/issues/124
-				var cleanCoordNames = _.pluck(cleanCoords, 'name');
-				var retinaCleanCoordNames = _.pluck(retinaCleanCoords, 'name');
-				var intersectingNames = _.intersection(
+				const cleanCoordNames = _.pluck(cleanCoords, 'name');
+				const retinaCleanCoordNames = _.pluck(
+					retinaCleanCoords,
+					'name'
+				);
+				const intersectingNames = _.intersection(
 					cleanCoordNames,
 					retinaCleanCoordNames
 				);
@@ -380,7 +381,7 @@ async function spriteBundler(params) {
 			}
 
 			// If we have handlebars helpers, register them
-			var handlebarsHelpers = params.cssHandlebarsHelpers;
+			const handlebarsHelpers = params.cssHandlebarsHelpers;
 			if (handlebarsHelpers) {
 				Object.keys(handlebarsHelpers).forEach(function registerHelper(
 					helperKey
@@ -393,8 +394,8 @@ async function spriteBundler(params) {
 			}
 
 			// If there is a custom template, use it
-			var cssFormat = 'spritesmith-custom';
-			var cssTemplate = params.cssTemplate;
+			let cssFormat = 'spritesmith-custom';
+			const cssTemplate = params.cssTemplate;
 			if (cssTemplate) {
 				if (typeof cssTemplate === 'function') {
 					templater.addTemplate(cssFormat, cssTemplate);
@@ -418,7 +419,7 @@ async function spriteBundler(params) {
 			}
 
 			// Render the variables via `spritesheet-templates`
-			var cssStr = templater(
+			const cssStr = templater(
 				{
 					sprites: cleanCoords,
 					spritesheet: spritesheetData,

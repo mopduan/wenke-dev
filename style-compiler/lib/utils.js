@@ -1,8 +1,8 @@
 'use strict';
 
-var path = require('path');
-var http = require('http');
-var fs = require('fs');
+const path = require('path');
+const http = require('http');
+const fs = require('fs');
 const falafel = require('falafel');
 
 /**
@@ -10,7 +10,7 @@ const falafel = require('falafel');
  * @returns {string}
  */
 function getDate() {
-	var date = new Date();
+	const date = new Date();
 
 	return (
 		date.getFullYear().toString() +
@@ -36,9 +36,9 @@ exports.getDate = getDate;
  * @returns {boolean}
  */
 function isInArray(arr, search) {
-	if (typeof arr == 'object' && typeof arr.length == 'number') {
-		for (var i = 0; i < arr.length; i++) {
-			if (arr[i] == search) {
+	if (typeof arr === 'object' && typeof arr.length === 'number') {
+		for (let i = 0; i < arr.length; i++) {
+			if (arr[i] === search) {
 				return true;
 			}
 		}
@@ -55,7 +55,7 @@ exports.isInArray = isInArray;
  * @returns {*}
  */
 function md5(content) {
-	var crypto = require('crypto');
+	const crypto = require('crypto');
 
 	//return crypto.createHash('md5').update(content, 'utf8').digest('hex');
 
@@ -70,13 +70,14 @@ exports.md5 = md5;
  * @returns {*}
  */
 function escapeRegexp(reg) {
-	if (typeof reg == 'string') {
-		reg = reg.replace(/[\$|\{|\}|\(|\)|\\.]/gi, function ($0) {
+	let regCopy = reg;
+	if (typeof regCopy === 'string') {
+		regCopy = regCopy.replace(/[$|{|}|(|)|\\.]/gi, function ($0) {
 			return '\\' + $0;
 		});
 	}
 
-	return reg;
+	return regCopy;
 }
 
 exports.escapeRegexp = escapeRegexp;
@@ -87,7 +88,7 @@ exports.escapeRegexp = escapeRegexp;
  * @returns {string}
  */
 function normalizePath(path) {
-	if (typeof path == 'string') {
+	if (typeof path === 'string') {
 		return path.replace(/[\\|\\\\|//|////]/gi, '/');
 	}
 
@@ -102,9 +103,9 @@ exports.normalizePath = normalizePath;
  * @returns {Array}
  */
 function arrUnique(arr) {
-	var n = {},
+	const n = {},
 		r = [];
-	for (var i = 0; i < arr.length; i++) {
+	for (let i = 0; i < arr.length; i++) {
 		if (!n[arr[i]]) {
 			n[arr[i]] = true;
 			r.push(arr[i]);
@@ -121,9 +122,9 @@ exports.arrUnique = arrUnique;
  * @returns {Array}
  */
 function jsonArrayUnique(jsonArray) {
-	var n = {},
+	const n = {},
 		r = [];
-	for (var i = 0; i < jsonArray.length; i++) {
+	for (let i = 0; i < jsonArray.length; i++) {
 		if (!n[jsonArray[i].path]) {
 			n[jsonArray[i].path] = true;
 			r.push(jsonArray[i]);
@@ -141,10 +142,10 @@ exports.jsonArrayUnique = jsonArrayUnique;
  * @returns {boolean}
  */
 function hasArgument(argv, search) {
-	var ret = false;
+	let ret = false;
 
-	for (var i = 0; i < argv.length; i++) {
-		if (argv[i] == search) {
+	for (let i = 0; i < argv.length; i++) {
+		if (argv[i] === search) {
 			ret = true;
 			break;
 		}
@@ -169,7 +170,7 @@ exports.errorHandler = errorHandler;
  */
 function downloadFile(url, localPath, successCallback, refreshCallback) {
 	http.get(url, function (res) {
-		var data = '';
+		let data = '';
 
 		res.setEncoding('utf8');
 		res.on('data', function (chunk) {
@@ -178,7 +179,7 @@ function downloadFile(url, localPath, successCallback, refreshCallback) {
 
 		res.on('end', function () {
 			//检测CDN文件与本地文件是否内容完全一致
-			var fileContent = fs.readFileSync(localPath).toString();
+			const fileContent = fs.readFileSync(localPath).toString();
 			if (fileContent === data) {
 				successCallback();
 			} else {
@@ -340,7 +341,7 @@ function cutOutMD5(md5Str) {
 exports.cutOutMD5 = cutOutMD5;
 
 function delFiles() {
-	var del = require('del');
+	const del = require('del');
 	return del.sync(
 		[
 			path.join(global.staticDirectory, 'deploy/*'),
@@ -403,9 +404,9 @@ exports.mkdirRecursive = mkdirRecursive;
 // 需要添加的属性：crossOrigin: anonymous
 function walkThroughProperties(props) {
 	let hasCrossOrigin = false;
-	let testOnlyIdx = [];
-	let md5Idx = [];
-	let compileIdx = [];
+	const testOnlyIdx = [];
+	const md5Idx = [];
+	const compileIdx = [];
 	let src = '';
 	for (let i = 0; i < props.length; i++) {
 		const node = props[i];

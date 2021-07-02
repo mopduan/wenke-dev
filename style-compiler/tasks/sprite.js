@@ -99,7 +99,7 @@ async function spritesBuilder(_spritePath, childPath, constPaths) {
 
 	file.mkdirRecursive(spriteDistPath);
 	file.mkdirRecursive(spriteScssPath);
-	let _imgSrc = `${_spritePath}/*.{png,jpg,gif}`;
+	const _imgSrc = `${_spritePath}/*.{png,jpg,gif}`;
 
 	let spritesmithConfig = {
 		padding: 2,
@@ -127,5 +127,7 @@ async function spritesBuilder(_spritePath, childPath, constPaths) {
 	}
 
 	await spriteBundler(spritesmithConfig);
-	del.sync([path.join(spriteTempPath, '**')]);
+	del.sync([path.join(spriteTempPath, '**')], {
+		force: true
+	});
 }
