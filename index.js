@@ -95,14 +95,7 @@ module.exports = async function (program) {
 			[
 				__dirname + '/node_modules/@babel/plugin-proposal-decorators',
 				{ legacy: true }
-			],
-			[
-				__dirname +
-					'/node_modules/@babel/plugin-proposal-class-properties',
-				{ loose: false }
-			],
-			__dirname + '/node_modules/@babel/plugin-syntax-dynamic-import',
-			__dirname + '/node_modules/@babel/plugin-syntax-import-meta'
+			]
 		]
 	};
 
