@@ -60,6 +60,7 @@
     "jest": "27.0.6",
     "minimatch": "3.0.4",
     "node-fetch": "2.6.1",
+    "node-polyfill-webpack-plugin": "1.1.4",
     "node-sass": "6.0.1",
     "postcss": "8.3.5",
     "postcss-assets": "6.0.0",
@@ -80,7 +81,7 @@
     "url2": "1.0.4",
     "webpack": "5.41.1",
     "worker-farm": "1.7.0",
-    "node-polyfill-webpack-plugin": "1.1.4"
+    "readable-stream": "3.6.0"
   },
   "jest": {
     "verbose": true,

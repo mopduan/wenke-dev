@@ -63,10 +63,8 @@ module.exports = async function (program) {
 	};
 
 	if (programArguments.preact) {
-		commonConfig.resolve.alias = {
-			react: 'preact-compat',
-			'react-dom': 'preact-compat'
-		};
+		commonConfig.resolve.alias['react'] = 'preact-compat';
+		commonConfig.resolve.alias['react-dom'] = 'preact-compat';
 	}
 
 	if (programArguments.np) {
