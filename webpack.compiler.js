@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const utils = require('./lib/utils');
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
 module.exports = function (
 	{
@@ -26,6 +27,7 @@ module.exports = function (
 	const config = {
 		context: contextPath,
 		entry: entryPath,
+		plugins: [new NodePolyfillPlugin()],
 		output: {
 			chunkLoadingGlobal: utils.uniqueVal(),
 			path: path.join(
@@ -63,6 +65,7 @@ module.exports = function (
 
 	config.externals = externals;
 	config.module = { rules: utils.getRules() };
+
 	utils.extendConfig(config, commonConfig);
 
 	const jsRules = {
