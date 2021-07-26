@@ -60,7 +60,8 @@ module.exports = function (
 		optimization: {
 			chunkIds: 'named',
 			moduleIds: 'named'
-		}
+		},
+		target: ['web', 'es5']
 	};
 
 	config.externals = externals;
