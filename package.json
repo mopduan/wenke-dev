@@ -40,6 +40,8 @@
   "dependencies": {
     "@babel/core": "7.14.6",
     "@babel/plugin-proposal-decorators": "7.14.5",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.14.5",
+    "@babel/plugin-proposal-optional-chaining": "^7.14.5",
     "@babel/preset-env": "7.14.7",
     "@babel/preset-react": "7.14.5",
     "autoprefixer": "10.2.6",
@@ -68,6 +70,7 @@
     "postcss-pxtorem": "6.0.0",
     "postcss-url-editor": "0.3.3",
     "prettier": "2.3.2",
+    "readable-stream": "3.6.0",
     "semver": "7.3.5",
     "shequfe-webfonts-generator": "0.5.0",
     "socket.io": "4.1.2",
@@ -80,8 +83,7 @@
     "underscore": "1.13.1",
     "url2": "1.0.4",
     "webpack": "5.41.1",
-    "worker-farm": "1.7.0",
-    "readable-stream": "3.6.0"
+    "worker-farm": "1.7.0"
   },
   "jest": {
     "verbose": true,
