@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const sass = require('node-sass');
+const sass = require('sass');
 const file = require('./file');
 const postcss = require('./postcss');
 
@@ -16,11 +16,8 @@ module.exports = function (_sourceFile, config, dev = false) {
 
 	const { divideBy2, rem, noHash } = configCopy.stylesOption;
 
-	const {
-		spriteCssLocation,
-		spriteDistLocation,
-		imgDistLocation
-	} = configCopy;
+	const { spriteCssLocation, spriteDistLocation, imgDistLocation } =
+		configCopy;
 
 	if (!spriteCssLocation) {
 		throw new Error('sass-compile function need spriteCssLocation config');

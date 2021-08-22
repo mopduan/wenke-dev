@@ -1,6 +1,6 @@
 {
   "name": "wenke-dev",
-  "version": "7.0.3",
+  "version": "7.0.4",
   "description": "dev tool for wenke-webpack",
   "main": "index.js",
   "scripts": {
@@ -61,7 +61,6 @@
     "minimatch": "3.0.4",
     "node-fetch": "2.6.1",
     "node-polyfill-webpack-plugin": "1.1.4",
-    "node-sass": "6.0.1",
     "postcss": "8.3.5",
     "postcss-assets": "6.0.0",
     "postcss-px-editor": "0.1.1",
@@ -81,7 +80,8 @@
     "url2": "1.0.4",
     "webpack": "5.41.1",
     "worker-farm": "1.7.0",
-    "readable-stream": "3.6.0"
+    "readable-stream": "3.6.0",
+    "sass": "1.38.0"
   },
   "jest": {
     "verbose": true,
