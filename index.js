@@ -105,6 +105,7 @@ module.exports = async function (program) {
 		'react-router': 'ReactRouter',
 		'react-router-dom': 'ReactRouterDOM',
 		'preact-redux': 'preactRedux',
+		'redux-thunk': 'ReduxThunk',
 		immutable: 'Immutable',
 		preact: 'preact',
 		preactHooks: 'preactHooks',
