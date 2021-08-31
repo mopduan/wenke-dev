@@ -23,7 +23,19 @@ if (maxConcurrentWorkers <= 2) {
 	maxConcurrentWorkers = 4;
 }
 
-const workerOptions = { maxConcurrentWorkers: maxConcurrentWorkers };
+const workerOptions = {
+	maxConcurrentWorkers: maxConcurrentWorkers,
+	onChild: childProcess => {
+		childProcess.on('message', data => {
+			if (global.socket && data === 'rebuild') {
+				global.socket.emit('refresh', {
+					refresh: 1
+				});
+				console.log('some static files changed: trigger refresh...');
+			}
+		});
+	}
+};
 
 if (process.platform === 'win32') {
 	workerOptions.maxConcurrentCallsPerWorker = 1;
@@ -156,9 +168,6 @@ module.exports = async function (program) {
 								: item + '/src/main/webapp/WEB-INF/view/src/';
 
 							templateWatchFiles.push(
-								path.join(webappViewSrcDir + '/**/*.vm')
-							);
-							templateWatchFiles.push(
 								path.join(webappViewSrcDir + '/**/*.html')
 							);
 							templateWatchFiles.push(
@@ -191,36 +200,6 @@ module.exports = async function (program) {
 									});
 									console.log(
 										'some files deleted: trigger refresh...'
-									);
-								}
-							});
-
-						const watcher = chokidar.watch(
-							path.join(
-								global.staticDirectory,
-								global.deployPrefix
-							),
-							{ awaitWriteFinish: true }
-						);
-
-						watcher
-							.on('change', () => {
-								if (global.socket) {
-									global.socket.emit('refresh', {
-										refresh: 1
-									});
-									console.log(
-										'some static files changed: trigger refresh...'
-									);
-								}
-							})
-							.on('unlink', () => {
-								if (global.socket) {
-									global.socket.emit('refresh', {
-										refresh: 1
-									});
-									console.log(
-										'some static files deleted: trigger refresh...'
 									);
 								}
 							});

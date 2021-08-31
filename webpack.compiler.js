@@ -115,8 +115,7 @@ module.exports = function (
 
 	compiler.watch(
 		{
-			aggregateTimeout: 300,
-			poll: true
+			poll: 200
 		},
 		function (err, stats) {
 			if (err) {
@@ -134,6 +133,8 @@ module.exports = function (
 					);
 					console.log(stats.toString());
 					console.log('=== rebuild complete end! ===');
+
+					process.send('rebuild');
 				} else {
 					console.log('=== build success start! stats info: ===');
 					console.log(stats.toString());
