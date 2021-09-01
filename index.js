@@ -119,7 +119,6 @@ module.exports = async function (program) {
 		antd: 'antd'
 	};
 
-	const np = !!programArguments.np;
 	const {
 		staticDirectory,
 		srcPrefix,
@@ -137,7 +136,6 @@ module.exports = async function (program) {
 				externals,
 				commonConfig,
 				babelSettings,
-				np,
 				staticDirectory,
 				srcPrefix,
 				sfPrefix,
@@ -173,26 +171,8 @@ module.exports = async function (program) {
 						utils.startWebSocketServer();
 						chokidar
 							.watch(templateWatchFiles)
-							.on('change', () => {
-								if (global.socket) {
-									global.socket.emit('refresh', {
-										refresh: 1
-									});
-									console.log(
-										'some files changed: trigger refresh...'
-									);
-								}
-							})
-							.on('unlink', () => {
-								if (global.socket) {
-									global.socket.emit('refresh', {
-										refresh: 1
-									});
-									console.log(
-										'some files deleted: trigger refresh...'
-									);
-								}
-							});
+							.on('change', utils.triggerRefresh)
+							.on('unlink', utils.triggerRefresh);
 					} else {
 						console.log('status: norefresh');
 					}
