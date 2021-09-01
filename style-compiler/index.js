@@ -1,6 +1,8 @@
 const path = require('path');
 const fs = require('fs');
 const del = require('del');
+const chokidar = require('chokidar');
+const utils = require('../lib/utils');
 const getConstPaths = require('./constPaths');
 const buildIconFont = require('./tasks/iconfont');
 const buildImage = require('./tasks/image');
@@ -14,19 +16,35 @@ module.exports = async function (programArguments) {
 	const uedDir = path.join(webappDirectory, `static/src/ued`);
 	const uedTaskDirs = recursiveFindDir(uedDir, 'src');
 
+	const uedDistDirs = recursiveFindDir(uedDir, 'dist');
+
 	const watchedDir = [];
-	for (let i = 0; i < uedTaskDirs.length; i++) {
-		const constPaths = getConstPaths(uedTaskDirs[i]);
 
-		watchedDir.push(
-			constPaths.uedTaskDir,
-			constPaths.spriteSrcPath,
-			constPaths.imgSrcLocation,
-			constPaths.iconPath,
-			constPaths.scssLocation
-		);
+	if (uedTaskDirs.length) {
+		for (let i = 0; i < uedTaskDirs.length; i++) {
+			const constPaths = getConstPaths(uedTaskDirs[i]);
 
-		await Compiler(constPaths);
+			watchedDir.push(
+				constPaths.uedTaskDir,
+				constPaths.spriteSrcPath,
+				constPaths.imgSrcLocation,
+				constPaths.iconPath,
+				constPaths.scssLocation
+			);
+
+			await Compiler(constPaths);
+		}
+	} else {
+		for (let index = 0; index < uedDistDirs.length; index++) {
+			const cssDistDir = path.join(uedDistDirs[index], 'dist/css');
+
+			watchedDir.push(cssDistDir);
+		}
+
+		chokidar
+			.watch(watchedDir)
+			.on('change', utils.triggerRefresh)
+			.on('unlink', utils.triggerRefresh);
 	}
 
 	outputLog('finish init bundle! These dirs are watched for changing');
