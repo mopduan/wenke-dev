@@ -4,6 +4,7 @@ const chalk = require('chalk');
 const scssCompile = require('../lib/sass-compile');
 const { glob } = require('glob');
 const outputLog = require('../lib/logger');
+const utils = require('../../lib/utils');
 
 async function build(constPaths) {
 	const { config, dev, scssLocation } = constPaths;
@@ -48,6 +49,8 @@ module.exports = async function buildScss(constPaths) {
 				const startTime = Date.now();
 				await scssCompile(changePath, config, dev);
 				outputLog(`rebuild success,take ${Date.now() - startTime}ms `);
+
+				utils.triggerRefresh();
 			} catch (error) {
 				console.log(chalk.bold.red(error));
 				throw error;

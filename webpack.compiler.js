@@ -9,7 +9,6 @@ module.exports = function (
 		externals,
 		commonConfig,
 		babelSettings,
-		np,
 		staticDirectory,
 		srcPrefix,
 		sfPrefix,
@@ -75,18 +74,17 @@ module.exports = function (
 		exclude: /(node_modules|bower_components)/,
 		include: [staticFilesSourceDir]
 	};
-	if (np) {
-		//针对模板工程需要引用工程下前端公用私有npm包
-		jsRules.exclude = [
-			path.join(__dirname, 'node_modules'),
-			/bower_components/
-		];
-		jsRules.include = [
-			path.join(staticDirectory, '../node_modules/@ares'),
-			staticDirectory,
-			/clientLib/
-		];
-	}
+
+	//针对模板工程需要引用工程下前端公用私有npm包
+	jsRules.exclude = [
+		path.join(__dirname, 'node_modules'),
+		/bower_components/
+	];
+	jsRules.include = [
+		path.join(staticDirectory, '../node_modules/@ares'),
+		staticDirectory,
+		/clientLib/
+	];
 
 	const tsRules = {
 		test: /\.tsx?$/,

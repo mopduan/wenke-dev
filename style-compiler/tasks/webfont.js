@@ -6,6 +6,7 @@ const chokidar = require('chokidar');
 const outputLog = require('../lib/logger');
 const writableTypes = ['ttf', 'woff', 'eot', 'svg'];
 const readableTypes = writableTypes.slice().concat('otf');
+const utils = require('../../lib/utils');
 
 class FontCreator {
 	static getCharCodeList(text) {
@@ -176,6 +177,8 @@ module.exports = async function (constPaths) {
 			const start = Date.now();
 			await bundleWebfont(constPaths);
 			outputLog(`rebuild success,take ${Date.now() - start}ms`);
+
+			utils.triggerRefresh();
 		}
 	});
 };

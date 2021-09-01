@@ -8,6 +8,7 @@ const chokidar = require('chokidar');
 const chalk = require('chalk');
 const del = require('del');
 const outputLog = require('../lib/logger');
+const utils = require('../../lib/utils');
 
 /**
  * 打包雪碧图
@@ -66,6 +67,8 @@ module.exports = async function buildSprite(constPaths) {
 						.replace('/', '');
 					await spritesBuilder(spritePath, spriteSubDir, constPaths);
 					outputLog(`rebuild success,take ${Date.now() - start}ms`);
+
+					utils.triggerRefresh();
 				} catch (error) {
 					console.log(chalk.bold.red(error.message));
 					throw error;

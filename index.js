@@ -27,11 +27,8 @@ const workerOptions = {
 	maxConcurrentWorkers: maxConcurrentWorkers,
 	onChild: childProcess => {
 		childProcess.on('message', data => {
-			if (global.socket && data === 'rebuild') {
-				global.socket.emit('refresh', {
-					refresh: 1
-				});
-				console.log('some static files changed: trigger refresh...');
+			if (data === 'rebuild') {
+				utils.triggerRefresh();
 			}
 		});
 	}
@@ -79,12 +76,10 @@ module.exports = async function (program) {
 		commonConfig.resolve.alias['react-dom'] = 'preact-compat';
 	}
 
-	if (programArguments.np) {
-		//公用的客户端私有npm包需要从项目目录下查找依赖包
-		commonConfig.resolve.modules.push(
-			path.join(programArguments.staticFilesDirectory, '../node_modules')
-		);
-	}
+	//公用的客户端私有npm包需要从项目目录下查找依赖包
+	commonConfig.resolve.modules.push(
+		path.join(programArguments.staticFilesDirectory, '../node_modules')
+	);
 
 	const _presets = [__dirname + '/node_modules/@babel/preset-env'];
 
@@ -162,16 +157,11 @@ module.exports = async function (program) {
 					if (!utils.hasArgument(process.argv, '--norefresh')) {
 						const templateWatchFiles = [];
 
-						webappDirectoryList.forEach(function (item) {
-							const webappViewSrcDir = programArguments.np
-								? item
-								: item + '/src/main/webapp/WEB-INF/view/src/';
-
+						webappDirectoryList.forEach(function (
+							webappViewSrcDir
+						) {
 							templateWatchFiles.push(
 								path.join(webappViewSrcDir + '/**/*.html')
-							);
-							templateWatchFiles.push(
-								path.join(webappViewSrcDir + '/**/*.tpl')
 							);
 							templateWatchFiles.push(
 								path.join(webappViewSrcDir + '/**/*.njk')

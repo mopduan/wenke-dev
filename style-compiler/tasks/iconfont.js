@@ -4,6 +4,7 @@ const webfontsGenerator = require('shequfe-webfonts-generator');
 const chokidar = require('chokidar');
 const unicodeRE = /^u([A-Z0-9]{4})-/;
 const outputLog = require('../lib/logger');
+const utils = require('../../lib/utils');
 
 function getSvgs(iconPath) {
 	return fs.readdirSync(iconPath).filter(file => /\.svg$/i.test(file));
@@ -130,6 +131,8 @@ module.exports = async constPaths => {
 			const start = Date.now();
 			await bundleIconFont(constPaths);
 			outputLog(`rebuild success,take ${Date.now() - start}ms`);
+
+			utils.triggerRefresh();
 		}
 	});
 };
