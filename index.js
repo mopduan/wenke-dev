@@ -1,8 +1,6 @@
 const path = require('path');
 const utils = require('./lib/utils');
 const validate = require('./lib/validate');
-const workerFarm = require('worker-farm');
-const os = require('os');
 const chokidar = require('chokidar');
 const uglifyIe8tips = require('./ie8.uglify');
 const stylesCompiler = require('./style-compiler/index');
@@ -11,37 +9,6 @@ global.srcPrefix = '/src/';
 global.deployPrefix = '/deploy/';
 global.localStaticResourcesPrefix = /\/sf/;
 global.sfPrefix = '/sf/';
-// In some cases cpus() returns undefined
-// https://github.com/nodejs/node/issues/19022
-const cpus = os.cpus() || { length: 1 };
-let maxConcurrentWorkers = cpus.length;
-if (maxConcurrentWorkers <= 2) {
-	maxConcurrentWorkers = 1;
-} else if (maxConcurrentWorkers <= 4) {
-	maxConcurrentWorkers = 2;
-} else if (maxConcurrentWorkers > 4) {
-	maxConcurrentWorkers = 4;
-}
-
-const workerOptions = {
-	maxConcurrentWorkers: maxConcurrentWorkers,
-	onChild: childProcess => {
-		childProcess.on('message', data => {
-			if (data === 'rebuild') {
-				utils.triggerRefresh();
-			}
-		});
-	}
-};
-
-if (process.platform === 'win32') {
-	workerOptions.maxConcurrentCallsPerWorker = 1;
-}
-
-const workers = workerFarm(
-	workerOptions,
-	require.resolve('./webpack.compiler.js')
-);
 
 module.exports = async function (program) {
 	const programArguments = program._optionValues;
@@ -51,7 +18,7 @@ module.exports = async function (program) {
 		return;
 	}
 
-	const { jsCompileList } = validate(programArguments);
+	const { entryList } = validate(programArguments);
 
 	if (programArguments.style) {
 		await stylesCompiler(programArguments);
@@ -124,64 +91,47 @@ module.exports = async function (program) {
 		srcPrefix,
 		deployPrefix,
 		webappDirectoryList,
-		sfPrefix
 	} = global;
-	let _leftCompileLen = jsCompileList.length;
-	for (let i = 0, len = jsCompileList.length; i < len; i++) {
-		const jsCompileItem = jsCompileList[i];
 
-		workers(
-			{
-				jsCompileItem,
-				externals,
-				commonConfig,
-				babelSettings,
-				staticDirectory,
-				srcPrefix,
-				sfPrefix,
-				deployPrefix,
-				webappDirectoryList,
-				childId: i
-			},
-			() => {
-				_leftCompileLen = _leftCompileLen - 1;
-				if (!_leftCompileLen) {
-					console.log(
-						`**************** total compile time: ${
-							Date.now() - global.startCompile
-						}ms ****************`
+	require('./webpack.compiler')({
+		entryList,
+		externals,
+		commonConfig,
+		babelSettings,
+		staticDirectory,
+		srcPrefix,
+		deployPrefix
+	},
+		() => {
+			console.log(
+				`**************** total compile time: ${Date.now() - global.startCompile
+				}ms ****************`
+			);
+
+			if (!utils.hasArgument(process.argv, '--norefresh')) {
+				const templateWatchFiles = [];
+
+				webappDirectoryList.forEach(function (
+					webappViewSrcDir
+				) {
+					templateWatchFiles.push(
+						path.join(webappViewSrcDir + '/**/*.html')
 					);
+					templateWatchFiles.push(
+						path.join(webappViewSrcDir + '/**/*.njk')
+					);
+				});
 
-					if (!utils.hasArgument(process.argv, '--norefresh')) {
-						const templateWatchFiles = [];
-
-						webappDirectoryList.forEach(function (
-							webappViewSrcDir
-						) {
-							templateWatchFiles.push(
-								path.join(webappViewSrcDir + '/**/*.html')
-							);
-							templateWatchFiles.push(
-								path.join(webappViewSrcDir + '/**/*.njk')
-							);
-						});
-
-						console.log('templateWatchFiles List: ');
-						console.log(templateWatchFiles);
-						utils.startWebSocketServer();
-						chokidar
-							.watch(templateWatchFiles)
-							.on('change', utils.triggerRefresh)
-							.on('unlink', utils.triggerRefresh);
-					} else {
-						console.log('status: norefresh');
-					}
-				}
+				console.log('templateWatchFiles List: ');
+				console.log(templateWatchFiles);
+				utils.startWebSocketServer();
+				chokidar
+					.watch(templateWatchFiles)
+					.on('change', utils.triggerRefresh)
+					.on('unlink', utils.triggerRefresh);
+			} else {
+				console.log('status: norefresh');
 			}
-		);
-	}
-
-	process.on('exit', function () {
-		workerFarm.end(workers);
-	});
+		}
+	);
 };
