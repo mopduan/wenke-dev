@@ -5,56 +5,33 @@ const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
 module.exports = function (
 	{
-		jsCompileItem,
+		entryList,
 		externals,
 		commonConfig,
 		babelSettings,
 		staticDirectory,
 		srcPrefix,
-		sfPrefix,
 		deployPrefix
 	},
 	callback
 ) {
-	const contextPath = path.join(staticDirectory, srcPrefix, 'js');
+	const { staticJSSrcDirectory } = global;
 	const staticFilesSourceDir = path.join(staticDirectory, srcPrefix);
-	const entryItem = jsCompileItem.path.replace(
-		utils.normalizePath(contextPath) + '/',
-		''
-	);
-	const entryPath = './' + entryItem;
 	const config = {
-		context: contextPath,
-		entry: entryPath,
+		context: staticJSSrcDirectory,
+		entry: entryList,
 		plugins: [new NodePolyfillPlugin()],
 		output: {
 			chunkLoadingGlobal: utils.uniqueVal(),
 			path: path.join(
 				staticDirectory,
 				deployPrefix,
-				'js',
-				utils
-					.normalizePath(path.dirname(jsCompileItem.path))
-					.replace(utils.normalizePath(contextPath), '')
+				'js'
 			),
-			filename: 'bundle.js',
-			assetModuleFilename: '[name][ext]',
-			chunkFilename: '[name].bundle.js',
-			publicPath: utils.normalizePath(
-				path.join(
-					sfPrefix,
-					utils.normalizePath(
-						path.join(
-							deployPrefix,
-							'js',
-							utils
-								.normalizePath(path.dirname(jsCompileItem.path))
-								.replace(utils.normalizePath(contextPath), '')
-						)
-					),
-					'/'
-				)
-			)
+			filename: '[name].js',
+			assetModuleFilename: 'assetmodule.[name][ext]',
+			chunkFilename: '[name].chunk.bundle.js',
+			publicPath: "auto"
 		},
 		optimization: {
 			chunkIds: 'named',
@@ -131,8 +108,7 @@ module.exports = function (
 					);
 					console.log(stats.toString());
 					console.log('=== rebuild complete end! ===');
-
-					process.send('rebuild');
+					utils.triggerRefresh();
 				} else {
 					console.log('=== build success start! stats info: ===');
 					console.log(stats.toString());

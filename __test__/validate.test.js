@@ -36,12 +36,16 @@ describe('test logic of verify cli arguments', () => {
 			np: true
 		};
 
-		const { jsCompileList } = verifyFn(validOption);
+		const { entryList } = verifyFn(validOption);
 
-		const strList = jsCompileList.map(item => item.path).join();
+		let strList = "";
 
-		expect(strList).toContain('src/js/test/1/main.js');
-		expect(strList).toContain('src/js/test/2/main.js');
+		for (const entry in entryList) {
+			strList += entryList[entry];
+		}
+
+		expect(strList).toContain('test/1/main.js');
+		expect(strList).toContain('test/2/main.js');
 		expect(strList).not.toContain('jquery-3.5.1.min.js');
 	});
 });
