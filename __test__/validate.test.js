@@ -31,17 +31,17 @@ describe('test logic of verify cli arguments', () => {
 
 	test('right case', () => {
 		const validOption = {
-			staticFilesDirectory: path.join(__dirname, './mock/views'),
-			webappDirectory: path.join(__dirname, './mock'),
-			np: true
+			webappDirectory: path.join(__dirname, './mock')
 		};
 
 		const { entryList } = verifyFn(validOption);
 
 		let strList = "";
 
-		for (const entry in entryList) {
-			strList += entryList[entry];
+		for (const tplKey in entryList) {
+			for (const entry in entryList[tplKey]) {
+				strList += entryList[tplKey][entry];
+			}
 		}
 
 		expect(strList).toContain('test/1/main.js');

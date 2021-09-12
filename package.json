@@ -1,6 +1,6 @@
 {
   "name": "wenke-dev",
-  "version": "8.0.0",
+  "version": "9.0.0",
   "description": "dev tool for wenke-webpack",
   "main": "index.js",
   "scripts": {
@@ -23,6 +23,7 @@
     "redux",
     "react-router",
     "babel",
+    "typescript",
     "es6",
     "es7",
     "es8",

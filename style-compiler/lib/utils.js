@@ -340,19 +340,6 @@ function cutOutMD5(md5Str) {
 
 exports.cutOutMD5 = cutOutMD5;
 
-function delFiles() {
-	const del = require('del');
-	return del.sync(
-		[
-			path.join(global.staticDirectory, 'deploy/*'),
-			path.join(global.templateDir, 'deploy/*')
-		],
-		{ force: true }
-	);
-}
-
-exports.delFiles = delFiles;
-
 /**
  * 递归创建文件夹
  * @param dir
@@ -486,11 +473,10 @@ function manipulateScriptAttribute(source, env, taskid, vid) {
 					) {
 						// reportAjax在测试环境时需要替换
 						if (env === 'test' && taskid && vid) {
-							_substitute = `"data-taskid": "${taskid}", "data-vid": "${vid}"${
-								_propIdx === node.properties.length - 1
+							_substitute = `"data-taskid": "${taskid}", "data-vid": "${vid}"${_propIdx === node.properties.length - 1
 									? ''
 									: ','
-							}`;
+								}`;
 						} else {
 							_substitute = '';
 						}
@@ -516,7 +502,7 @@ function manipulateScriptAttribute(source, env, taskid, vid) {
 			)
 				node.properties[node.properties.length - 1].update(
 					'"crossOrigin": "anonymous", ' +
-						node.properties[node.properties.length - 1].source()
+					node.properties[node.properties.length - 1].source()
 				);
 		}
 

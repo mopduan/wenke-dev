@@ -11,8 +11,7 @@ const buildSprite = require('./tasks/sprite');
 const buildWebfont = require('./tasks/webfont');
 const outputLog = require('./lib/logger');
 
-module.exports = async function (programArguments) {
-	const webappDirectory = programArguments.webappDirectory;
+module.exports = async (webappDirectory, jsCompilePromiseTask) => {
 	const uedDir = path.join(webappDirectory, `static/src/ued`);
 	const uedTaskDirs = recursiveFindDir(uedDir, 'src');
 
@@ -49,6 +48,9 @@ module.exports = async function (programArguments) {
 
 	outputLog('finish init bundle! These dirs are watched for changing');
 	console.log(watchedDir);
+	if (jsCompilePromiseTask instanceof Promise) {
+		jsCompilePromiseTask.then()
+	}
 };
 
 async function Compiler(constPaths) {
