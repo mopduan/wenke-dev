@@ -99,22 +99,22 @@ module.exports = (
 					if (!(hasWarnings || hasErrors)) {
 						if (rebuildCompile) {
 							console.log(
-								'=== rebuild complete start! ',
+								`=== ${webappName} rebuild complete start! `,
 								stats.endTime - stats.startTime + 'ms! stats info: ==='
 							);
 							console.log(stats.toString());
-							console.log('=== rebuild complete end! ===');
+							console.log(`=== ${webappName} rebuild complete end! ===`);
 							utils.triggerRefresh();
 						} else {
-							console.log('=== build success start! stats info: ===');
+							console.log(`=== ${webappName} build success start! stats info: ===`);
 							console.log(stats.toString());
-							console.log('=== build success end! ===');
+							console.log(`=== ${webappName} build success end! ===`);
 						}
 					} else {
 						if (hasWarnings) {
-							console.log('=== WARNINGS start! stats info: ===');
+							console.log(`=== ${webappName} WARNINGS start! stats info: ===`);
 							console.log(stats.toString());
-							console.log('=== WARNINGS end! ===');
+							console.log(`=== ${webappName} WARNINGS end! ===`);
 						}
 
 						if (hasErrors) {
@@ -128,7 +128,7 @@ module.exports = (
 						rebuildCompile = true;
 						console.log(
 							`**************** ${webappName} total compile time: ${Date.now() - global.startCompile[tplKey]
-							}ms ****************`
+							}ms **************** `
 						);
 					}
 
