@@ -49,7 +49,7 @@ module.exports = async (webappDirectory, jsCompilePromiseTask) => {
 	outputLog('finish init bundle! These dirs are watched for changing');
 	console.log(watchedDir);
 	if (jsCompilePromiseTask instanceof Promise) {
-		jsCompilePromiseTask.then()
+		jsCompilePromiseTask.then();
 	}
 };
 
