@@ -14,7 +14,6 @@ program
 	)
 	.option("--norefresh [don't auto refresh]", 'norefresh')
 	.option('--preact [use preact]', 'use preact')
-	.option('--ie8tips <ie8tips directory>', 'uglify ie8tips')
 	.option('--style', 'build style')
 	.parse(process.argv);
 

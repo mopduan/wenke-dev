@@ -2,7 +2,6 @@ const path = require('path');
 const utils = require('./lib/utils');
 const validate = require('./lib/validate');
 const chokidar = require('chokidar');
-const uglifyIe8tips = require('./ie8.uglify');
 const stylesCompiler = require('./style-compiler/index');
 
 global.srcPrefix = '/src/';
@@ -12,12 +11,6 @@ global.sfPrefix = '/sf/';
 
 module.exports = async (program) => {
 	const programArguments = program._optionValues;
-
-	if (programArguments.ie8tips) {
-		uglifyIe8tips(programArguments.ie8tips);
-		return;
-	}
-
 	const { entryList } = validate(programArguments);
 
 	const {
