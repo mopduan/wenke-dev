@@ -67,7 +67,6 @@
     "postcss-px-editor": "0.1.1",
     "postcss-pxtorem": "6.0.0",
     "postcss-url-editor": "0.3.3",
-    "prettier": "2.3.2",
     "semver": "7.3.5",
     "shequfe-webfonts-generator": "0.5.0",
     "socket.io": "4.1.2",
@@ -81,7 +80,8 @@
     "url2": "1.0.4",
     "webpack": "5.41.1",
     "readable-stream": "3.6.0",
-    "node-sass": "6.0.1"
+    "node-sass": "6.0.1",
+    "core-js": "3.1.4"
   },
   "jest": {
     "verbose": true,

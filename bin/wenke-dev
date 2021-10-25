@@ -7,14 +7,12 @@ const program = require('commander');
 program.version(require('../package').version);
 
 program
-	.option('-w, --webapp-directory [webapp directory]', 'webapp directory')
-	.option(
-		"-livereload-port, --livereload-port [livereload's port]",
-		"livereload's port"
-	)
-	.option("--norefresh [don't auto refresh]", 'norefresh')
-	.option('--preact [use preact]', 'use preact')
-	.option('--style', 'build style')
+	.option('-w, --webapp-directory [webapp directory]')
+	.option("-livereload-port, --livereload-port [livereload's port]")
+	.option("--norefresh [don't auto refresh]")
+	.option('--preact [use preact]')
+	.option('--style [build style]')
+	.option('-c, --common-library-directory [common-library directory]')
 	.parse(process.argv);
 
 utils

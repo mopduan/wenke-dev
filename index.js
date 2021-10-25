@@ -9,7 +9,7 @@ global.deployPrefix = '/deploy/';
 global.localStaticResourcesPrefix = /\/sf/;
 global.sfPrefix = '/sf/';
 
-module.exports = async (program) => {
+module.exports = async program => {
 	const programArguments = program._optionValues;
 	const { entryList } = validate(programArguments);
 
@@ -17,105 +17,94 @@ module.exports = async (program) => {
 		srcPrefix,
 		deployPrefix,
 		webappDirectoryList,
+		commonLibraryDirectory
 	} = global;
 	global.startCompile = {};
 
-	webappDirectoryList.forEach(async (webappDirectoryPath) => {
-		const templateViewSrcPagePath = path.join(webappDirectoryPath, 'views/src');
+	console.log('webpack compile start...');
+
+	console.log('webapp js files to compile');
+	console.log(entryList);
+
+	webappDirectoryList.forEach(async webappDirectoryPath => {
+		const templateViewSrcPagePath = path.join(
+			webappDirectoryPath,
+			'views/src'
+		);
 		const tplKey = utils.normalizePath(templateViewSrcPagePath);
 		global.startCompile[tplKey] = Date.now();
 		const entry = entryList[tplKey];
 		const staticDirectory = path.join(webappDirectoryPath, 'static');
-		const jsCompileParamsList = [];
-
-		const commonConfig = {
-			cache: true,
-			resolve: {
-				modules: [path.join(__dirname, 'node_modules')],
-				extensions: ['.js', '.jsx', '.ts', '.tsx'],
-				alias: {}
-			},
-			resolveLoader: {
-				modules: [path.join(__dirname, 'node_modules')]
-			},
-			devtool: 'inline-source-map',
-			mode: 'development'
-		};
-
-		if (programArguments.preact) {
-			commonConfig.resolve.alias['react'] = 'preact-compat';
-			commonConfig.resolve.alias['react-dom'] = 'preact-compat';
-		}
-
-		//公用的客户端私有npm包需要从项目目录下查找依赖包
-		commonConfig.resolve.modules.push(
-			path.join(webappDirectoryPath, 'node_modules')
-		);
-
-		const _presets = [__dirname + '/node_modules/@babel/preset-env'];
-
-		if (programArguments.preact) {
-			_presets.push([
-				__dirname + '/node_modules/@babel/preset-react',
-				{ pragma: 'h' }
-			]);
-		} else {
-			_presets.push(__dirname + '/node_modules/@babel/preset-react');
-		}
-
-		const babelSettings = {
-			cacheDirectory: true,
-			presets: _presets,
-			compact: false,
-			plugins: [
-				[
-					__dirname + '/node_modules/@babel/plugin-proposal-decorators',
-					{ legacy: true }
-				]
-			]
-		};
-
-		const externals = {
-			react: 'React',
-			'react-dom': 'ReactDOM',
-			redux: 'Redux',
-			'react-redux': 'ReactRedux',
-			'react-router': 'ReactRouter',
-			'react-router-dom': 'ReactRouterDOM',
-			'preact-redux': 'preactRedux',
-			'redux-thunk': 'ReduxThunk',
-			immutable: 'Immutable',
-			preact: 'preact',
-			preactHooks: 'preactHooks',
-			antd: 'antd'
-		};
 
 		if (programArguments.style) {
 			await stylesCompiler(webappDirectoryPath);
 		}
 
 		const webappName = path.basename(webappDirectoryPath);
+		const staticJSSrcDirectory = path.join(
+			staticDirectory,
+			srcPrefix,
+			'js'
+		);
+		const staticJSDeployDirectory = path.join(
+			staticDirectory,
+			deployPrefix,
+			'js'
+		);
 
 		await require('./webpack.compiler')({
 			entry,
-			externals,
-			commonConfig,
-			babelSettings,
+			webappDirectoryPath,
 			staticDirectory,
+			staticJSSrcDirectory,
+			staticJSDeployDirectory,
 			webappName,
-			srcPrefix,
-			deployPrefix,
-			tplKey
+			tplKey,
+			preact: programArguments.preact
 		});
 	});
+
+	if (commonLibraryDirectory) {
+		const entry = {
+			'js/404': './404/404.js',
+			'js/share/mobileShare': './share/mobileShare.js',
+			'js/hhy/main': './hhy/main.js',
+			'js/realNameVerify/main': './realNameVerify/main.js',
+			'js/polyfill/main': './polyfill/main.js'
+		};
+
+		console.log('common-library js files to compile');
+		console.log(entry);
+
+		const staticDirectory = commonLibraryDirectory;
+		const webappDirectoryPath = commonLibraryDirectory;
+		const webappName = path.basename(webappDirectoryPath);
+		const staticJSSrcDirectory = path.join(staticDirectory, srcPrefix);
+		const staticJSDeployDirectory = path.join(
+			staticDirectory,
+			deployPrefix
+		);
+		const tplKey = utils.normalizePath(webappDirectoryPath);
+
+		await require('./webpack.compiler')({
+			entry,
+			webappDirectoryPath,
+			staticDirectory,
+			staticJSSrcDirectory,
+			staticJSDeployDirectory,
+			webappName,
+			tplKey
+		});
+	}
 
 	if (!utils.hasArgument(process.argv, '--norefresh')) {
 		const templateWatchFiles = [];
 
-		webappDirectoryList.forEach((
-			webappDirectoryPath
-		) => {
-			const templateViewSrcPagePath = path.join(webappDirectoryPath, 'views/src');
+		webappDirectoryList.forEach(webappDirectoryPath => {
+			const templateViewSrcPagePath = path.join(
+				webappDirectoryPath,
+				'views/src'
+			);
 
 			templateWatchFiles.push(
 				path.join(templateViewSrcPagePath + '/**/*.html')

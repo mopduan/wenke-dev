@@ -99,6 +99,10 @@ livereload 服务端口, 默认为: 8999
 
 [编译 sass、iconfont、图片等样式相关静态文件](https://github.com/mopduan/wenke-dev/blob/master/style-compiler/README.md)
 
+### -c
+
+common-library工程路径
+
 ## Report an issue
 
 > 欢迎大家将使用 wenke-dev 中遇到的任何问题提交给我，提问地址：<a href="https://github.com/mopduan/wenke-dev/issues" target="_blank">Report an issue</a>
