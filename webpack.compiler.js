@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const utils = require('./lib/utils');
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
 module.exports = ({
 	entry,
@@ -79,7 +80,7 @@ module.exports = ({
 		const config = {
 			context: staticJSSrcDirectory,
 			entry: entry,
-			plugins: [],
+			plugins: [new NodePolyfillPlugin()],
 			output: {
 				chunkLoadingGlobal: utils.uniqueVal(),
 				path: staticJSDeployDirectory,
