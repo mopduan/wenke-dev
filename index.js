@@ -70,7 +70,8 @@ module.exports = async program => {
 			'js/share/mobileShare': './share/mobileShare.js',
 			'js/hhy/main': './hhy/main.js',
 			'js/realNameVerify/main': './realNameVerify/main.js',
-			'js/polyfill/main': './polyfill/main.js'
+			'js/polyfill/main': './polyfill/main.js',
+			'js/gray/main': './gray/main.js'
 		};
 
 		console.log('common-library js files to compile');
