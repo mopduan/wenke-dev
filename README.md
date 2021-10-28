@@ -66,7 +66,7 @@ wenke-dev -w Node.js工程目录（同时构建多个工程请用"," 英文逗�
 
 ### -w 必需
 
-Node.js 工程文件目录
+Node.js工程文件目录（同时构建多个工程请用"," 英文逗号分隔)
 
 ### --livereload-port
 
