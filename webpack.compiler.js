@@ -2,6 +2,7 @@ const webpack = require('webpack');
 const path = require('path');
 const utils = require('./lib/utils');
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 
 module.exports = ({
 	entry,
@@ -80,7 +81,7 @@ module.exports = ({
 		const config = {
 			context: staticJSSrcDirectory,
 			entry: entry,
-			plugins: [new NodePolyfillPlugin()],
+			plugins: [new CaseSensitivePathsPlugin(), new NodePolyfillPlugin()],
 			output: {
 				chunkLoadingGlobal: utils.uniqueVal(),
 				path: staticJSDeployDirectory,
