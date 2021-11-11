@@ -4,14 +4,21 @@ const sass = require('node-sass');
 const file = require('./file');
 const postcss = require('./postcss');
 
+function sassAlias(sourceFile, uedTaskDir) {
+	const content = fs
+		.readFileSync(sourceFile, { encoding: 'utf-8' })
+		.toString();
+
+	return content.replace('@ued/', uedTaskDir + '/');
+}
+
 /**
  * 编译scss文件
  * @param dir
  * @param config
  * @returns {Promise<any>}
  */
-
-module.exports = function (_sourceFile, config, dev = false) {
+module.exports = function ({ sourceFile, config, dev = false, uedTaskDir }) {
 	const configCopy = config ? config : { stylesOption: {} };
 
 	const { divideBy2, rem, noHash } = configCopy.stylesOption;
@@ -30,12 +37,30 @@ module.exports = function (_sourceFile, config, dev = false) {
 	return new Promise((resolve, reject) => {
 		sass.render(
 			{
-				file: _sourceFile,
+				file: sourceFile,
 				includePaths: [
 					path.join(__dirname, 'common-scss'),
 					spriteCssLocation
 				],
-				outputStyle: dev ? 'expanded' : 'compress'
+				outputStyle: dev ? 'expanded' : 'compress',
+				importer: function (url, prev) {
+					// hack 公共 template
+					if (url.indexOf('template') > -1) {
+						const dir = path.dirname(prev);
+						const realPath =
+							path
+								.resolve(dir, url.replace('../', ''))
+								.replace('template/', 'template/_') + '.scss';
+
+						const content = sassAlias(realPath, uedTaskDir);
+						return {
+							file: url,
+							contents: content
+						};
+					} else {
+						return { file: url };
+					}
+				}
 			},
 			async (err, result) => {
 				if (err) {
@@ -44,7 +69,7 @@ module.exports = function (_sourceFile, config, dev = false) {
 
 					reject(err);
 				} else {
-					const _outputPath = _sourceFile
+					const _outputPath = sourceFile
 						.replace('src/css', 'dist/css')
 						.replace(/\.scss$/, '.css');
 					file.mkdirRecursive(path.dirname(_outputPath));

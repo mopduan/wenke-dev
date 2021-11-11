@@ -39,7 +39,9 @@ module.exports = ({
 			path.join(webappDirectoryPath, 'node_modules')
 		);
 
-		const _presets = [__dirname + '/node_modules/@babel/preset-env'];
+		const _presets = [
+			[__dirname + '/node_modules/@babel/preset-env', { modules: false }]
+		];
 
 		if (preact) {
 			_presets.push([
@@ -92,7 +94,8 @@ module.exports = ({
 			},
 			optimization: {
 				chunkIds: 'named',
-				moduleIds: 'named'
+				moduleIds: 'named',
+				usedExports: true
 			},
 			target: ['web', 'es5']
 		};

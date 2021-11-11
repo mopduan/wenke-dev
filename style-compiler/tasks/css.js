@@ -7,7 +7,7 @@ const outputLog = require('../lib/logger');
 const utils = require('../../lib/utils');
 
 async function build(constPaths) {
-	const { config, dev, scssLocation } = constPaths;
+	const { config, dev, scssLocation, uedTaskDir } = constPaths;
 
 	const sassCompileList = glob.sync(path.join(scssLocation, '**/*.scss'), {
 		ignore: path.join(scssLocation, '**/_*.scss')
@@ -19,7 +19,7 @@ async function build(constPaths) {
 	for (let i = 0; i < compilePath.length; i++) {
 		const sourceFile = compilePath[i];
 		console.log(sourceFile);
-		await scssCompile(sourceFile, config, dev);
+		await scssCompile({ sourceFile, config, dev, uedTaskDir });
 	}
 }
 
