@@ -11,7 +11,7 @@ global.sfPrefix = '/sf/';
 
 module.exports = async program => {
 	const programArguments = program._optionValues;
-	const { entryList } = validate(programArguments);
+	const { preactEntryMap, reactEntryMap } = validate(programArguments);
 
 	const {
 		srcPrefix,
@@ -24,7 +24,8 @@ module.exports = async program => {
 	console.log('webpack compile start...');
 
 	console.log('webapp js files to compile');
-	console.log(entryList);
+	console.log('react entry map:', reactEntryMap);
+	console.log('preact entry map:', preactEntryMap);
 
 	webappDirectoryList.forEach(async webappDirectoryPath => {
 		const templateViewSrcPagePath = path.join(
@@ -33,7 +34,8 @@ module.exports = async program => {
 		);
 		const tplKey = utils.normalizePath(templateViewSrcPagePath);
 		global.startCompile[tplKey] = Date.now();
-		const entry = entryList[tplKey];
+		const preactEntry = preactEntryMap[tplKey];
+		const reactEntry = reactEntryMap[tplKey];
 		const staticDirectory = path.join(webappDirectoryPath, 'static');
 
 		if (programArguments.style) {
@@ -52,16 +54,32 @@ module.exports = async program => {
 			'js'
 		);
 
-		await require('./webpack.compiler')({
-			entry,
-			webappDirectoryPath,
-			staticDirectory,
-			staticJSSrcDirectory,
-			staticJSDeployDirectory,
-			webappName,
-			tplKey,
-			preact: programArguments.preact
-		});
+		await Promise.all([
+			Object.keys(reactEntry)?.length
+				? require('./webpack.compiler')({
+						entry: reactEntry,
+						webappDirectoryPath,
+						staticDirectory,
+						staticJSSrcDirectory,
+						staticJSDeployDirectory,
+						webappName,
+						tplKey,
+						preact: false
+				  })
+				: Promise.resolve(),
+			Object.keys(preactEntry)?.length
+				? require('./webpack.compiler')({
+						entry: preactEntry,
+						webappDirectoryPath,
+						staticDirectory,
+						staticJSSrcDirectory,
+						staticJSDeployDirectory,
+						webappName,
+						tplKey,
+						preact: true
+				  })
+				: Promise.resolve()
+		]);
 	});
 
 	if (commonLibraryDirectory) {

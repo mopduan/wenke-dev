@@ -206,7 +206,9 @@ module.exports = ({
 					if (!rebuildCompile) {
 						rebuildCompile = true;
 						console.log(
-							`**************** ${webappName} total compile time: ${
+							`**************** ${webappName} ${
+								preact ? 'preact' : 'react'
+							} total compile time: ${
 								Date.now() - global.startCompile[tplKey]
 							}ms **************** `
 						);

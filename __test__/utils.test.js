@@ -5,7 +5,8 @@ const {
 	isInArray,
 	jsonArrayUnique,
 	normalizePath,
-	getAllFilesByDir
+	getAllFilesByDir,
+	isKeyIncludesArrayItem
 } = require('../lib/utils');
 
 describe('test utils functions', () => {
@@ -41,6 +42,15 @@ describe('test utils functions', () => {
 	test('normalizePath()', () => {
 		const url = `\\Workspace\\test\\dir`;
 		expect(normalizePath(url)).toBe('/Workspace/test/dir');
+	});
+
+	test('isKeyIncludesArrayItem()', () => {
+		const key = '/baike_wap_njk/index/bundle/';
+
+		expect(isKeyIncludesArrayItem(key, ['index'])).toBe(true);
+		expect(isKeyIncludesArrayItem()).toBe(undefined);
+		expect(isKeyIncludesArrayItem('1', [])).toBe(undefined);
+		expect(isKeyIncludesArrayItem(key, ['lemma'])).toBe(undefined);
 	});
 });
 
