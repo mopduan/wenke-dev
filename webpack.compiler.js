@@ -1,8 +1,19 @@
 const webpack = require('webpack');
 const path = require('path');
+const os = require('os');
 const utils = require('./lib/utils');
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+//配置thread-loader
+const cpus = os.cpus() || { length: 1 };
+const maxWorker = cpus.length - 1;
+const threadLoader = require('thread-loader');
+const threadConfig = {
+	workers: maxWorker,
+	workerParallelJobs: 50,
+	poolTimeout: 2000
+};
+threadLoader.warmup(threadConfig, ['ts-loader', 'babel-loader', 'css-loader']);
 
 module.exports = ({
 	entry,
@@ -28,7 +39,7 @@ module.exports = ({
 			devtool: 'inline-source-map',
 			mode: 'development'
 		};
-
+		const pathName = webappName.replaceAll('-', '_');
 		if (preact) {
 			commonConfig.resolve.alias['react'] = 'preact-compat';
 			commonConfig.resolve.alias['react-dom'] = 'preact-compat';
@@ -86,8 +97,8 @@ module.exports = ({
 				chunkLoadingGlobal: utils.uniqueVal(),
 				path: staticJSDeployDirectory,
 				filename: '[name].js',
-				assetModuleFilename: webappName + '.assetmodule.[name][ext]',
-				chunkFilename: webappName + '.[name].chunk.bundle.js',
+				assetModuleFilename: `${pathName}/assets/${webappName}.assetmodule.[name][ext]`,
+				chunkFilename: `${pathName}/chunks/${webappName}.[name].chunk.bundle.js`,
 				publicPath: 'auto'
 			},
 			optimization: {
@@ -114,6 +125,7 @@ module.exports = ({
 						{
 							loader: 'style-loader'
 						},
+						{ loader: 'thread-loader', options: threadConfig },
 						{
 							loader: 'css-loader'
 						}
@@ -126,19 +138,24 @@ module.exports = ({
 
 		const jsRules = {
 			test: /\.(js|jsx)$/,
-			use: [{ loader: 'babel-loader', options: babelSettings }],
+			use: [
+				{ loader: 'thread-loader', options: threadConfig },
+				{ loader: 'babel-loader', options: babelSettings }
+			],
 			exclude: [path.join(__dirname, 'node_modules')]
 		};
 
 		const tsRules = {
 			test: /\.tsx?$/,
 			use: [
+				{ loader: 'thread-loader', options: threadConfig },
 				// tsc编译后，再用babel处理
 				{ loader: 'babel-loader', options: babelSettings },
 				{
 					loader: 'ts-loader',
 					options: {
 						transpileOnly: true, // discard semantic checker & faster builds
+						happyPackMode: true,
 						configFile: path.resolve(
 							staticDirectory,
 							'../tsconfig.json'

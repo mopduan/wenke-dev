@@ -72,6 +72,7 @@
     "spritesheet-templates": "10.5.2",
     "spritesmith": "3.4.0",
     "style-loader": "3.0.0",
+    "thread-loader": "3.0.4",
     "ts-loader": "9.2.3",
     "typescript": "4.3.4",
     "uglify-js": "3.13.10",
