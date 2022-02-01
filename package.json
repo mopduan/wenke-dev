@@ -1,6 +1,6 @@
 {
   "name": "wenke-dev",
-  "version": "11.0.0",
+  "version": "11.0.1",
   "description": "dev tool for wenke-webpack",
   "main": "index.js",
   "scripts": {
@@ -59,7 +59,7 @@
     "imagemin-pngquant": "9.0.2",
     "jest": "27.0.6",
     "minimatch": "3.0.4",
-    "node-fetch": "2.6.1",
+    "node-fetch": "2.6.7",
     "node-polyfill-webpack-plugin": "1.1.4",
     "postcss": "8.3.5",
     "postcss-assets": "6.0.0",
