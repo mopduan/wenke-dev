@@ -98,7 +98,6 @@ module.exports = async program => {
 
 	if (commonLibraryDirectory) {
 		const entry = {
-			'js/404': './404/404.js',
 			'js/share/mobileShare': './share/mobileShare.js',
 			'js/hhy/main': './hhy/main.js',
 			'js/realNameVerify/main': './realNameVerify/main.js',
