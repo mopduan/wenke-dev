@@ -14,12 +14,15 @@ program
 	.option('--react [use react] [boolean or string]')
 	.option('--style [build style]')
 	.option('-c, --common-library-directory [common-library directory]')
+	.option('--disableforceupdate [disable force update]')
+	.option('--hmr [enable hmr]')
 	.parse(process.argv);
 
+const { disableforceupdate } = program._optionValues;
 utils
 	.verifyVersion()
 	.then(checkRes => {
-		if (!checkRes) return;
+		if (!disableforceupdate && !checkRes) return;
 		wenkeDev(program);
 	})
 	.catch(err => {

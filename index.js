@@ -144,6 +144,9 @@ module.exports = async program => {
 			templateWatchFiles.push(
 				path.join(templateViewSrcPagePath + '/**/*.njk')
 			);
+			templateWatchFiles.push(
+				path.join(webappDirectoryPath, 'views/deploy', '/**/*.js')
+			);
 		});
 
 		console.log('templateWatchFiles List: ');
