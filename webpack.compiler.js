@@ -197,14 +197,12 @@ module.exports = ({
 						if (!(hasWarnings || hasErrors)) {
 							if (rebuildCompile) {
 								console.log(
-									`=== ${webappName} rebuild complete start! `,
-									stats.endTime -
-										stats.startTime +
-										'ms! stats info: ==='
+									`=== ${webappName} rebuild complete start! stats info: ===`
 								);
 								console.log(stats.toString());
 								console.log(
-									`=== ${webappName} rebuild complete end! ===`
+									`=== ${webappName} rebuild complete end! rebuild compile time: `,
+									stats.endTime - stats.startTime + 'ms! ==='
 								);
 								utils.triggerRefresh();
 							} else {
