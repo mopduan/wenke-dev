@@ -6,6 +6,7 @@ const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const WebpackDevServer = require('webpack-dev-server');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const fs = require('fs');
 
 module.exports = ({
 	entry,
@@ -18,17 +19,21 @@ module.exports = ({
 	preact
 }) => {
 	return new Promise((resolve, reject) => {
+		const tsConfigFilePath = path.resolve(
+			staticDirectory,
+			'../tsconfig.json'
+		);
+		const tsConfigFilePathExists = fs.existsSync(tsConfigFilePath);
 		const commonConfig = {
 			cache: true,
 			resolve: {
-				plugins: [
-					new TsconfigPathsPlugin({
-						configFile: path.resolve(
-							staticDirectory,
-							'../tsconfig.json'
-						)
-					})
-				],
+				plugins: tsConfigFilePathExists
+					? [
+							new TsconfigPathsPlugin({
+								configFile: tsConfigFilePath
+							})
+					  ]
+					: [],
 				modules: [path.join(__dirname, 'node_modules')],
 				extensions: ['.js', '.jsx', '.ts', '.tsx'],
 				alias: {}
@@ -50,10 +55,11 @@ module.exports = ({
 			path.join(webappDirectoryPath, 'node_modules')
 		);
 
-		const _presets = [
-			__dirname + '/node_modules/@babel/preset-env',
-			__dirname + '/node_modules/@babel/preset-typescript'
-		];
+		const _presets = [__dirname + '/node_modules/@babel/preset-env'];
+
+		if (tsConfigFilePathExists) {
+			_presets.push(__dirname + '/node_modules/@babel/preset-typescript');
+		}
 
 		if (preact) {
 			_presets.push([
