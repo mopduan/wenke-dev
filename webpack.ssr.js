@@ -90,59 +90,59 @@ module.exports = ({ entry, webappDirectoryPath, webappName, tplKey }) => {
 			(err, stats) => {
 				if (err) {
 					reject(err);
-				} else {
-					const hasWarnings = stats.hasWarnings();
-					const hasErrors = stats.hasErrors();
+					return;
+				}
+				const hasWarnings = stats.hasWarnings();
+				const hasErrors = stats.hasErrors();
 
-					if (!(hasWarnings || hasErrors)) {
-						if (rebuildCompile) {
-							console.log(
-								`=== ${webappName} ssr rebuild complete start! `,
-								stats.endTime -
-									stats.startTime +
-									'ms! stats info: ==='
-							);
-							console.log(stats.toString());
-							console.log(
-								`=== ${webappName} ssr rebuild complete end! ===`
-							);
-							utils.triggerRefresh();
-						} else {
-							console.log(
-								`=== ${webappName} ssr build success start! stats info: ===`
-							);
-							console.log(stats.toString());
-							console.log(
-								`=== ${webappName} ssr build success end! ===`
-							);
-						}
-					} else {
-						if (hasWarnings) {
-							console.log(
-								`=== ${webappName} WARNINGS start! stats info: ===`
-							);
-							console.log(stats.toString());
-							console.log(`=== ${webappName} WARNINGS end! ===`);
-						}
-
-						if (hasErrors) {
-							console.log('=== ERRORS start ===');
-							console.log(stats.toString());
-							console.log('=== ERRORS end ===');
-						}
-					}
-
-					if (!rebuildCompile) {
-						rebuildCompile = true;
+				if (!(hasWarnings || hasErrors)) {
+					if (rebuildCompile) {
 						console.log(
-							`**************** ${webappName} ssr total compile time: ${
-								Date.now() - global.ssrStartCompile[tplKey]
-							}ms **************** `
+							`=== ${webappName} ssr rebuild complete start! `,
+							stats.endTime -
+								stats.startTime +
+								'ms! stats info: ==='
+						);
+						console.log(stats.toString());
+						console.log(
+							`=== ${webappName} ssr rebuild complete end! ===`
+						);
+						utils.triggerRefresh();
+					} else {
+						console.log(
+							`=== ${webappName} ssr build success start! stats info: ===`
+						);
+						console.log(stats.toString());
+						console.log(
+							`=== ${webappName} ssr build success end! ===`
 						);
 					}
+				} else {
+					if (hasWarnings) {
+						console.log(
+							`=== ${webappName} WARNINGS start! stats info: ===`
+						);
+						console.log(stats.toString());
+						console.log(`=== ${webappName} WARNINGS end! ===`);
+					}
 
-					resolve();
+					if (hasErrors) {
+						console.log('=== ERRORS start ===');
+						console.log(stats.toString());
+						console.log('=== ERRORS end ===');
+					}
 				}
+
+				if (!rebuildCompile) {
+					rebuildCompile = true;
+					console.log(
+						`**************** ${webappName} ssr total compile time: ${
+							Date.now() - global.ssrStartCompile[tplKey]
+						}ms **************** `
+					);
+				}
+
+				resolve();
 			}
 		);
 	});
