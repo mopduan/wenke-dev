@@ -180,73 +180,76 @@ module.exports = ({
 
 		const compiler = webpack(config);
 		if (global.onlyReact && global.hmr) {
-			new WebpackDevServer(config.devServer, compiler).start();
-		} else {
-			let rebuildCompile = false;
-			compiler.watch(
-				{
-					poll: 200
-				},
-				(err, stats) => {
-					if (err) {
-						reject(err);
+			new WebpackDevServer(config.devServer, compiler)
+				.start()
+				.then(() => {
+					resolve();
+				})
+				.catch(e => {
+					reject(e);
+				});
+			return;
+		}
+		let rebuildCompile = false;
+		compiler.watch(
+			{
+				poll: 200
+			},
+			(err, stats) => {
+				if (err) {
+					reject(err);
+					return;
+				}
+				const hasWarnings = stats.hasWarnings();
+				const hasErrors = stats.hasErrors();
+
+				if (!(hasWarnings || hasErrors)) {
+					if (rebuildCompile) {
+						console.log(
+							`=== ${webappName} rebuild complete start! stats info: ===`
+						);
+						console.log(stats.toString());
+						console.log(
+							`=== ${webappName} rebuild complete end! rebuild compile time: `,
+							stats.endTime - stats.startTime + 'ms! ==='
+						);
+						utils.triggerRefresh();
 					} else {
-						const hasWarnings = stats.hasWarnings();
-						const hasErrors = stats.hasErrors();
+						console.log(
+							`=== ${webappName} build success start! stats info: ===`
+						);
+						console.log(stats.toString());
+						console.log(`=== ${webappName} build success end! ===`);
+					}
+				} else {
+					if (hasWarnings) {
+						console.log(
+							`=== ${webappName} WARNINGS start! stats info: ===`
+						);
+						console.log(stats.toString());
+						console.log(`=== ${webappName} WARNINGS end! ===`);
+					}
 
-						if (!(hasWarnings || hasErrors)) {
-							if (rebuildCompile) {
-								console.log(
-									`=== ${webappName} rebuild complete start! stats info: ===`
-								);
-								console.log(stats.toString());
-								console.log(
-									`=== ${webappName} rebuild complete end! rebuild compile time: `,
-									stats.endTime - stats.startTime + 'ms! ==='
-								);
-								utils.triggerRefresh();
-							} else {
-								console.log(
-									`=== ${webappName} build success start! stats info: ===`
-								);
-								console.log(stats.toString());
-								console.log(
-									`=== ${webappName} build success end! ===`
-								);
-							}
-						} else {
-							if (hasWarnings) {
-								console.log(
-									`=== ${webappName} WARNINGS start! stats info: ===`
-								);
-								console.log(stats.toString());
-								console.log(
-									`=== ${webappName} WARNINGS end! ===`
-								);
-							}
-
-							if (hasErrors) {
-								console.log('=== ERRORS start ===');
-								console.log(stats.toString());
-								console.log('=== ERRORS end ===');
-							}
-						}
-
-						if (!rebuildCompile) {
-							rebuildCompile = true;
-							console.log(
-								`**************** ${webappName} ${
-									preact ? 'preact' : 'react'
-								} total compile time: ${
-									Date.now() - global.startCompile[tplKey]
-								}ms **************** `
-							);
-						}
-
-						resolve();
+					if (hasErrors) {
+						console.log('=== ERRORS start ===');
+						console.log(stats.toString());
+						console.log('=== ERRORS end ===');
 					}
 				}
-			);
-		}
+
+				if (!rebuildCompile) {
+					rebuildCompile = true;
+					console.log(
+						`**************** ${webappName} ${
+							preact ? 'preact' : 'react'
+						} total compile time: ${
+							Date.now() - global.startCompile[tplKey]
+						}ms **************** `
+					);
+				}
+
+				resolve();
+			}
+		);
 	});
 };
