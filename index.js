@@ -73,7 +73,6 @@ module.exports = async program => {
 				? require('./webpack.compiler')({
 						entry: reactEntry,
 						webappDirectoryPath,
-						staticDirectory,
 						staticJSSrcDirectory,
 						staticJSDeployDirectory,
 						webappName,
@@ -85,7 +84,6 @@ module.exports = async program => {
 				? require('./webpack.compiler')({
 						entry: preactEntry,
 						webappDirectoryPath,
-						staticDirectory,
 						staticJSSrcDirectory,
 						staticJSDeployDirectory,
 						webappName,
@@ -121,7 +119,6 @@ module.exports = async program => {
 		await require('./webpack.compiler')({
 			entry,
 			webappDirectoryPath,
-			staticDirectory,
 			staticJSSrcDirectory,
 			staticJSDeployDirectory,
 			webappName,

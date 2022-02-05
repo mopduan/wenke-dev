@@ -8,9 +8,9 @@ const babelSettings = [
 		loader: 'babel-loader',
 		options: {
 			cacheDirectory: true,
-			sourceType: 'unambiguous',
 			presets: [
-				[path.join(__dirname, 'node_modules/@babel/preset-react')]
+				__dirname + '/node_modules/@babel/preset-react',
+				__dirname + '/node_modules/@babel/preset-typescript'
 			],
 			compact: false,
 			plugins: []
@@ -37,14 +37,15 @@ module.exports = ({ entry, webappDirectoryPath, webappName, tplKey }) => {
 		plugins: [new CaseSensitivePathsPlugin()],
 		output: {
 			path: path.join(webappDirectoryPath, 'views'),
-			filename: '[name]'
+			filename: '[name].js'
 		},
 		target: ['node'],
 		module: {
 			rules: [
 				{
-					test: /\.(js|jsx)$/,
-					use: babelSettings
+					test: /\.(js|jsx|ts|tsx)$/,
+					use: babelSettings,
+					exclude: [path.join(__dirname, 'node_modules')]
 				}
 			]
 		},
@@ -74,8 +75,8 @@ module.exports = ({ entry, webappDirectoryPath, webappName, tplKey }) => {
 					}
 				}
 			},
-			chunkIds: 'deterministic',
-			moduleIds: 'deterministic'
+			chunkIds: 'named',
+			moduleIds: 'named'
 		}
 	};
 

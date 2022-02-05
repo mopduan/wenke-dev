@@ -9,7 +9,6 @@ const WebpackDevServer = require('webpack-dev-server');
 module.exports = ({
 	entry,
 	webappDirectoryPath,
-	staticDirectory,
 	staticJSSrcDirectory,
 	staticJSDeployDirectory,
 	webappName,
