@@ -90,9 +90,9 @@ common-library工程路径
 
 启用热更新与内存IO
 
-### --disableforceupdate
+### --esbuild
 
-禁用强制更新
+启用esbuild
 
 ### --disableforceupdate
 
