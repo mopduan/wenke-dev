@@ -16,6 +16,7 @@ program
 	.option('-c, --common-library-directory [common-library directory]')
 	.option('--disableforceupdate [disable force update]')
 	.option('--hmr [enable hmr]')
+	.option('--esbuild [enable esbuild]')
 	.parse(process.argv);
 
 const { disableforceupdate } = program._optionValues;

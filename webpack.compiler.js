@@ -154,13 +154,54 @@ module.exports = ({
 
 	Object.assign(config, commonConfig);
 
-	const jsRules = {
-		test: /\.(js|jsx|ts|tsx)$/,
-		use: [{ loader: 'babel-loader', options: babelSettings }],
-		exclude: [path.join(__dirname, 'node_modules')]
-	};
+	if (global.esbuild) {
+		config.module.rules.push({
+			test: /\.(js|jsx)$/,
+			use: [
+				{
+					loader: 'esbuild-loader',
+					options: {
+						loader: 'jsx',
+						target: 'esnext'
+					}
+				}
+			],
+			exclude: [path.join(__dirname, 'node_modules')]
+		});
 
-	config.module.rules.push(jsRules);
+		config.module.rules.push({
+			test: /\.(ts|tsx)$/,
+			use: [
+				{
+					loader: 'esbuild-loader',
+					options: {
+						loader: 'tsx',
+						target: 'esnext',
+						tsconfigRaw: JSON.stringify({
+							compilerOptions: {
+								baseUrl: '.',
+								allowJs: true,
+								checkJs: false,
+								noImplicitAny: true,
+								jsx: 'react',
+								sourceMap: true,
+								outDir: 'static/depoly'
+							},
+							include: ['static/**/*.tsx', 'static/**/*.ts'],
+							exclude: ['node_modules']
+						})
+					}
+				}
+			],
+			exclude: [path.join(__dirname, 'node_modules')]
+		});
+	} else {
+		config.module.rules.push({
+			test: /\.(js|jsx|ts|tsx)$/,
+			use: [{ loader: 'babel-loader', options: babelSettings }],
+			exclude: [path.join(__dirname, 'node_modules')]
+		});
+	}
 
 	let rebuildCompile = false;
 	const compilerCallback = (err, stats, resolve, reject) => {

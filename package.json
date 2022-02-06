@@ -84,7 +84,8 @@
     "react-refresh": "0.11.0",
     "webpack-dev-server": "4.7.3",
     "@babel/preset-typescript": "7.16.7",
-    "got": "11.8.2"
+    "got": "11.8.2",
+    "esbuild-loader": "2.18.0"
   },
   "jest": {
     "verbose": true,
