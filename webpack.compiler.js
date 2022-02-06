@@ -179,16 +179,12 @@ module.exports = ({
 						target: 'esnext',
 						tsconfigRaw: JSON.stringify({
 							compilerOptions: {
-								baseUrl: '.',
 								allowJs: true,
 								checkJs: false,
 								noImplicitAny: true,
 								jsx: 'react',
-								sourceMap: true,
-								outDir: 'static/depoly'
-							},
-							include: ['static/**/*.tsx', 'static/**/*.ts'],
-							exclude: ['node_modules']
+								sourceMap: true
+							}
 						})
 					}
 				}
