@@ -260,8 +260,11 @@ module.exports = ({
 
 	if (global.onlyReact) {
 		config.devServer = {
-			hot: !!(global.onlyReact && global.hmr),
-			port: 9989,
+			hot: !!global.hmr,
+			port:
+				global.webappDirectoryList.length === 2
+					? global.multiWebappDevServerPorts.shift()
+					: 9989,
 			allowedHosts: 'all'
 		};
 
