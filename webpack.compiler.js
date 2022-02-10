@@ -281,7 +281,7 @@ module.exports = ({
 				}
 		  }).wrap(config)
 		: config;
-	if (global.onlyReact) {
+	if (global.onlyReact && !global.ba) {
 		config.devServer = {
 			hot: !!global.hmr,
 			port:
