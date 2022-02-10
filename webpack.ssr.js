@@ -55,12 +55,10 @@ module.exports = ({ entry, webappDirectoryPath, webappName, tplKey }) => {
 				cacheGroups: {
 					commons: {
 						filename: 'deploy/[name].js',
-						chunks: 'initial',
+						chunks: 'all',
 						minChunks: 2,
 						name: 'commons',
-						maxInitialRequests: 5,
-						minSize: 0 // 默认是30kb，minSize设置为0之后
-						// 多次引用的utility1.js和utility2.js会被压缩到commons中
+						minSize: 0
 					},
 					reactlib: {
 						filename: 'deploy/[name].js',
@@ -68,8 +66,8 @@ module.exports = ({ entry, webappDirectoryPath, webappName, tplKey }) => {
 							return /react|redux|prop-types/.test(
 								module.context
 							);
-						}, // 直接使用 test 来做路径匹配，抽离react相关代码
-						chunks: 'initial',
+						},
+						chunks: 'all',
 						name: 'reactlib',
 						priority: 10
 					}
