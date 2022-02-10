@@ -1,6 +1,6 @@
 {
   "name": "wenke-dev",
-  "version": "12.7.0",
+  "version": "12.8.1",
   "description": "dev tool for wenke-webpack",
   "main": "index.js",
   "scripts": {
@@ -75,7 +75,7 @@
     "url2": "1.0.4",
     "webpack": "5.68.0",
     "readable-stream": "3.6.0",
-    "node-sass": "6.0.1",
+    "node-sass": "7.0.1",
     "core-js": "3.1.4",
     "case-sensitive-paths-webpack-plugin": "2.4.0",
     "react": "17.0.2",
