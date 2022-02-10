@@ -17,6 +17,8 @@ program
 	.option('--disableforceupdate [disable force update]')
 	.option('--hmr [enable hmr]')
 	.option('--esbuild [enable esbuild]')
+	.option('--smp [use speed-measure-webpack-plugin]')
+	.option('--ba [use webpack-bundle-analyzer]')
 	.parse(process.argv);
 
 const { disableforceupdate } = program._optionValues;

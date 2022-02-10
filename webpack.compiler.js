@@ -5,6 +5,9 @@ const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const WebpackDevServer = require('webpack-dev-server');
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
+const BundleAnalyzerPlugin =
+	require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = ({
 	entry,
@@ -106,6 +109,17 @@ module.exports = ({
 
 	if (global.onlyReact && global.hmr) {
 		webpackPlugins.push(new ReactRefreshWebpackPlugin());
+	}
+
+	if (global.ba) {
+		webpackPlugins.push(
+			new BundleAnalyzerPlugin({
+				analyzerPort:
+					global.webappDirectoryList.length === 2
+						? global.multiWebappBaPorts.shift()
+						: 7791
+			})
+		);
 	}
 
 	const config = {
@@ -258,6 +272,15 @@ module.exports = ({
 		resolve && resolve();
 	};
 
+	const finalWebpackConfig = global.smp
+		? new SpeedMeasurePlugin({
+				outputTarget: smpInfo => {
+					console.log(`=== ${webappName} smp info start! ===`);
+					console.log(smpInfo);
+					console.log(`=== ${webappName} smp info end! ===`);
+				}
+		  }).wrap(config)
+		: config;
 	if (global.onlyReact) {
 		config.devServer = {
 			hot: !!global.hmr,
@@ -270,14 +293,14 @@ module.exports = ({
 
 		return new WebpackDevServer(
 			config.devServer,
-			webpack(config, (err, stats) => {
+			webpack(finalWebpackConfig, (err, stats) => {
 				compilerCallback(err, stats);
 			})
 		).start();
 	}
 
 	return new Promise((resolve, reject) => {
-		webpack(config, (err, stats) => {
+		webpack(finalWebpackConfig, (err, stats) => {
 			compilerCallback(err, stats, resolve, reject);
 		});
 	});
