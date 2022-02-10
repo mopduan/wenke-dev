@@ -94,6 +94,14 @@ common-library工程路径
 
 启用esbuild
 
+### --smp
+
+启用speed-measure-webpack-plugin
+
+### --ba
+
+启用webpack-bundle-analyzer
+
 ### --disableforceupdate
 
 禁用强制更新
