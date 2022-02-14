@@ -32,7 +32,6 @@ module.exports = ({ entry, webappDirectoryPath, webappName, tplKey }) => {
 			modules: [path.join(__dirname, 'node_modules')]
 		},
 		devtool: 'source-map',
-		plugins: [],
 		entry: entry,
 		plugins: [new CaseSensitivePathsPlugin()],
 		output: {
