@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const utils = require('./lib/utils');
+const nodeExternals = require('webpack-node-externals');
 
 const babelSettings = [
 	{
@@ -24,8 +25,8 @@ module.exports = ({ entry, webappDirectoryPath, webappName, tplKey }) => {
 		mode: 'development',
 		cache: true,
 		resolve: {
-			modules: [path.join(__dirname, 'node_modules')],
-			extensions: ['.js', '.jsx', '.ts', '.tsx'],
+			modules: [],
+			extensions: utils.ssrTemplateExtensionList,
 			alias: {}
 		},
 		resolveLoader: {
@@ -39,6 +40,14 @@ module.exports = ({ entry, webappDirectoryPath, webappName, tplKey }) => {
 			filename: '[name].js'
 		},
 		target: ['node'],
+		externalsPresets: { node: true },
+		externals: [
+			nodeExternals({
+				additionalModuleDirs: [
+					path.join(webappDirectoryPath, 'node_modules')
+				]
+			})
+		],
 		module: {
 			rules: [
 				{
@@ -58,17 +67,6 @@ module.exports = ({ entry, webappDirectoryPath, webappName, tplKey }) => {
 						minChunks: 2,
 						name: 'commons',
 						minSize: 0
-					},
-					reactlib: {
-						filename: 'deploy/[name].js',
-						test: module => {
-							return /react|redux|prop-types/.test(
-								module.context
-							);
-						},
-						chunks: 'all',
-						name: 'reactlib',
-						priority: 10
 					}
 				}
 			},
