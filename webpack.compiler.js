@@ -23,7 +23,9 @@ module.exports = ({
 		resolve: {
 			modules: [path.join(__dirname, 'node_modules')],
 			extensions: utils.ssrTemplateExtensionList,
-			alias: {}
+			alias: {
+				'@isomorphic': path.join(webappDirectoryPath, 'isomorphic')
+			}
 		},
 		resolveLoader: {
 			modules: [path.join(__dirname, 'node_modules')]
@@ -48,7 +50,7 @@ module.exports = ({
 	);
 
 	const _presets = [
-		__dirname + '/node_modules/@babel/preset-env',
+		[__dirname + '/node_modules/@babel/preset-env', { modules: false }],
 		__dirname + '/node_modules/@babel/preset-typescript'
 	];
 
@@ -152,6 +154,7 @@ module.exports = ({
 				test: /\.(html|tpl)$/i,
 				type: 'asset/source'
 			},
+			utils.isomorphicCSSHashReplaceLoader,
 			{
 				test: /\.css$/i,
 				use: [
@@ -159,7 +162,10 @@ module.exports = ({
 						loader: 'style-loader'
 					},
 					{
-						loader: 'css-loader'
+						loader: 'css-loader',
+						options: {
+							sourceMap: false
+						}
 					}
 				]
 			}

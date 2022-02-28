@@ -2,7 +2,11 @@
 
 [![NPM](https://nodei.co/npm/wenke-dev.svg?downloads=true)](https://nodei.co/npm/wenke-dev/)
 
-> wenke-dev 实时开发辅助工具, 主要用于将 ES6/7/8、TypeScript、React、Preact、Node.js 端&浏览器端模板、SASS、CSS、iconfont、图片等静态资源实时编译为浏览器端正常运行的代码
+wenke-dev 实时开发辅助工具：
+* 1、支持ES6/7/8、TypeScript、React、Preact、SASS、CSS、iconfont、图片等静态资源实时构建为浏览器端正常运行的ES5代码
+* 2、支持React SSR
+* 3、支持React同构渲染
+* 4、支持HMR热更新
 
 ## 安装
 

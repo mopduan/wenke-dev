@@ -25,9 +25,11 @@ module.exports = ({ entry, webappDirectoryPath, webappName, tplKey }) => {
 		mode: 'development',
 		cache: true,
 		resolve: {
-			modules: [],
+			modules: [path.join(webappDirectoryPath, 'node_modules')],
 			extensions: utils.ssrTemplateExtensionList,
-			alias: {}
+			alias: {
+				'@isomorphic': path.join(webappDirectoryPath, 'isomorphic')
+			}
 		},
 		resolveLoader: {
 			modules: [path.join(__dirname, 'node_modules')]
@@ -36,13 +38,17 @@ module.exports = ({ entry, webappDirectoryPath, webappName, tplKey }) => {
 		entry: entry,
 		plugins: [new CaseSensitivePathsPlugin()],
 		output: {
-			path: path.join(webappDirectoryPath, 'views'),
-			filename: '[name].js'
+			path: webappDirectoryPath,
+			filename: 'views/[name].js',
+			assetModuleFilename:
+				'static/deploy/ssr/' + webappName + '.assetmodule.[name][ext]',
+			publicPath: '//hhy.sogoucdn.com/'
 		},
 		target: ['node'],
 		externalsPresets: { node: true },
 		externals: [
 			nodeExternals({
+				allowlist: ['@ares/ssr/css'],
 				additionalModuleDirs: [
 					path.join(webappDirectoryPath, 'node_modules')
 				]
@@ -50,6 +56,22 @@ module.exports = ({ entry, webappDirectoryPath, webappName, tplKey }) => {
 		],
 		module: {
 			rules: [
+				{
+					test: /\.(jpe?g|png|gif|svg|eot|ttf|woff|woff2)$/i,
+					type: 'asset/resource'
+				},
+				{
+					test: /\.css$/,
+					use: [
+						{
+							loader: 'css-loader',
+							options: {
+								sourceMap: false
+							}
+						}
+					]
+				},
+				utils.isomorphicCSSHashReplaceLoader,
 				{
 					test: /\.(js|jsx|ts|tsx)$/,
 					use: babelSettings,
@@ -62,7 +84,7 @@ module.exports = ({ entry, webappDirectoryPath, webappName, tplKey }) => {
 				chunks: 'all',
 				cacheGroups: {
 					commons: {
-						filename: 'deploy/[name].js',
+						filename: 'views/deploy/[name].js',
 						chunks: 'all',
 						minChunks: 2,
 						name: 'commons',
