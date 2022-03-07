@@ -157,10 +157,16 @@ module.exports = ({
 			utils.isomorphicCSSHashReplaceLoader,
 			{
 				test: /\.css$/i,
+				exclude: /\/isomorphic\//i,
 				use: [
 					{
 						loader: 'style-loader'
-					},
+					}
+				]
+			},
+			{
+				test: /\.css$/i,
+				use: [
 					{
 						loader: 'css-loader',
 						options: {
