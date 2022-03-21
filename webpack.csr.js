@@ -240,19 +240,19 @@ module.exports = ({
 		if (!(hasWarnings || hasErrors)) {
 			if (rebuildCompile) {
 				console.log(
-					`=== ${webappName} rebuild complete start! stats info: ===`
+					`=== ${webappName} csr rebuild complete start! stats info: ===`
 				);
 				console.log(stats.toString());
 				console.log(
-					`=== ${webappName} rebuild complete end! rebuild compile time: `,
+					`=== ${webappName} csr rebuild complete end! rebuild compile time: `,
 					stats.endTime - stats.startTime + 'ms! ==='
 				);
 			} else {
 				console.log(
-					`=== ${webappName} build success start! stats info: ===`
+					`=== ${webappName} csr build success start! stats info: ===`
 				);
 				console.log(stats.toString());
-				console.log(`=== ${webappName} build success end! ===`);
+				console.log(`=== ${webappName} csr build success end! ===`);
 			}
 		} else {
 			if (hasWarnings) {
@@ -275,7 +275,7 @@ module.exports = ({
 			console.log(
 				`**************** ${webappName} ${
 					preact ? 'preact' : 'react'
-				} total compile time: ${
+				} csr total compile time: ${
 					Date.now() - global.startCompile[tplKey]
 				}ms **************** `
 			);

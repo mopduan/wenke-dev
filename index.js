@@ -70,7 +70,7 @@ module.exports = async program => {
 
 		await Promise.all([
 			Object.keys(reactEntry)?.length
-				? require('./webpack.compiler')({
+				? require('./webpack.csr')({
 						entry: reactEntry,
 						webappDirectoryPath,
 						staticJSSrcDirectory,
@@ -81,7 +81,7 @@ module.exports = async program => {
 				  })
 				: Promise.resolve(),
 			Object.keys(preactEntry)?.length
-				? require('./webpack.compiler')({
+				? require('./webpack.csr')({
 						entry: preactEntry,
 						webappDirectoryPath,
 						staticJSSrcDirectory,
@@ -116,7 +116,7 @@ module.exports = async program => {
 		);
 		const tplKey = utils.normalizePath(webappDirectoryPath);
 
-		await require('./webpack.compiler')({
+		await require('./webpack.csr')({
 			entry,
 			webappDirectoryPath,
 			staticJSSrcDirectory,
