@@ -42,9 +42,10 @@ module.exports = ({ entry, webappDirectoryPath, webappName, tplKey }) => {
 			filename: 'views/[name].js',
 			assetModuleFilename:
 				'static/deploy/ssr/' + webappName + '.assetmodule.[name][ext]',
-			publicPath: '//hhy.sogoucdn.com/'
+			publicPath: '//hhy.sogoucdn.com/',
+			libraryTarget: 'commonjs2'
 		},
-		target: ['node'],
+		target: ['node', 'es2022'],
 		externalsPresets: { node: true },
 		externals: [
 			nodeExternals({
