@@ -3,7 +3,7 @@
 [![NPM](https://nodei.co/npm/wenke-dev.svg?downloads=true)](https://nodei.co/npm/wenke-dev/)
 
 wenke-dev 实时开发辅助工具：
-* 1、支持ES6/7/8、TypeScript、React、Preact、SASS、CSS、iconfont、图片等静态资源实时构建为浏览器端正常运行的ES5代码
+* 1、支持ES6/7/8、TypeScript、React、SASS、CSS、iconfont、图片等静态资源实时构建为浏览器端正常运行的ES5代码
 * 2、支持React SSR
 * 3、支持React同构渲染
 * 4、支持HMR热更新
@@ -77,10 +77,6 @@ livereload 服务端口, 默认为: 8999
 ### --norefresh
 
 禁用 livereload 服务, 当此参数存在时, --livereload-port 参数设置无效
-
-### --preact
-
-使用 preact 来编译工程
 
 ### --style
 

@@ -34,15 +34,9 @@ describe('test logic of verify cli arguments', () => {
 			webappDirectory: path.join(__dirname, './mock')
 		};
 
-		const { preactEntryMap, reactEntryMap } = verifyFn(validOption);
+		const { reactEntryMap } = verifyFn(validOption);
 
 		let strList = '';
-
-		for (const tplKey in preactEntryMap) {
-			for (const entry in preactEntryMap[tplKey]) {
-				strList += preactEntryMap[tplKey][entry];
-			}
-		}
 
 		for (const tplKey in reactEntryMap) {
 			for (const entry in reactEntryMap[tplKey]) {

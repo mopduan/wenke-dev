@@ -11,8 +11,7 @@ global.sfPrefix = '/sf/';
 
 module.exports = async program => {
 	const programArguments = program._optionValues;
-	const { preactEntryMap, reactEntryMap, ssrEntryMap } =
-		validate(programArguments);
+	const { reactEntryMap, ssrEntryMap } = validate(programArguments);
 
 	const {
 		srcPrefix,
@@ -27,7 +26,6 @@ module.exports = async program => {
 
 	console.log('webapp js files to compile');
 	console.log('react entry map:', reactEntryMap);
-	console.log('preact entry map:', preactEntryMap);
 	console.log('ssr entry map:', ssrEntryMap);
 
 	webappDirectoryList.forEach(async webappDirectoryPath => {
@@ -38,7 +36,6 @@ module.exports = async program => {
 		const tplKey = utils.normalizePath(templateViewSrcPagePath);
 		global.startCompile[tplKey] = Date.now();
 		global.ssrStartCompile[tplKey] = Date.now();
-		const preactEntry = preactEntryMap[tplKey];
 		const reactEntry = reactEntryMap[tplKey];
 		const ssrEntry = ssrEntryMap[tplKey];
 		const staticDirectory = path.join(webappDirectoryPath, 'static');
@@ -76,19 +73,7 @@ module.exports = async program => {
 						staticJSSrcDirectory,
 						staticJSDeployDirectory,
 						webappName,
-						tplKey,
-						preact: false
-				  })
-				: Promise.resolve(),
-			Object.keys(preactEntry)?.length
-				? require('./webpack.csr')({
-						entry: preactEntry,
-						webappDirectoryPath,
-						staticJSSrcDirectory,
-						staticJSDeployDirectory,
-						webappName,
-						tplKey,
-						preact: true
+						tplKey
 				  })
 				: Promise.resolve()
 		]);

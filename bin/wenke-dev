@@ -10,7 +10,6 @@ program
 	.option('-w, --webapp-directory [webapp directory]')
 	.option("-livereload-port, --livereload-port [livereload's port]")
 	.option("--norefresh [don't auto refresh]")
-	.option('--preact [use preact] [boolean or string]')
 	.option('--react [use react] [boolean or string]')
 	.option('--style [build style]')
 	.option('-c, --common-library-directory [common-library directory]')

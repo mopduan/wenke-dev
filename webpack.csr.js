@@ -15,8 +15,7 @@ module.exports = ({
 	staticJSSrcDirectory,
 	staticJSDeployDirectory,
 	webappName,
-	tplKey,
-	preact
+	tplKey
 }) => {
 	const commonConfig = {
 		cache: true,
@@ -39,11 +38,6 @@ module.exports = ({
 		}
 	};
 
-	if (preact) {
-		commonConfig.resolve.alias['react'] = 'preact-compat';
-		commonConfig.resolve.alias['react-dom'] = 'preact-compat';
-	}
-
 	//公用的客户端私有npm包需要从项目目录下查找依赖包
 	commonConfig.resolve.modules.push(
 		path.join(webappDirectoryPath, 'node_modules')
@@ -54,14 +48,7 @@ module.exports = ({
 		__dirname + '/node_modules/@babel/preset-typescript'
 	];
 
-	if (preact) {
-		_presets.push([
-			__dirname + '/node_modules/@babel/preset-react',
-			{ pragma: 'h' }
-		]);
-	} else {
-		_presets.push(__dirname + '/node_modules/@babel/preset-react');
-	}
+	_presets.push(__dirname + '/node_modules/@babel/preset-react');
 
 	const babelPlugins = [
 		[
@@ -70,7 +57,7 @@ module.exports = ({
 		]
 	];
 
-	if (global.onlyReact && global.hmr) {
+	if (global.hmr) {
 		babelPlugins.push(require.resolve('react-refresh/babel'));
 	}
 
@@ -93,23 +80,19 @@ module.exports = ({
 	};
 
 	const defaultExternals = {
-		'preact-redux': 'preactRedux',
-		preact: 'preact',
-		preactHooks: 'preactHooks',
 		antd: 'antd'
 	};
 
-	const externals =
-		global.onlyReact && global.hmr
-			? defaultExternals
-			: Object.assign(reactExternals, defaultExternals);
+	const externals = global.hmr
+		? defaultExternals
+		: Object.assign(reactExternals, defaultExternals);
 
 	const webpackPlugins = [
 		new CaseSensitivePathsPlugin(),
 		new NodePolyfillPlugin()
 	];
 
-	if (global.onlyReact && global.hmr) {
+	if (global.hmr) {
 		webpackPlugins.push(new ReactRefreshWebpackPlugin());
 	}
 
@@ -273,9 +256,7 @@ module.exports = ({
 		if (!rebuildCompile) {
 			rebuildCompile = true;
 			console.log(
-				`**************** ${webappName} ${
-					preact ? 'preact' : 'react'
-				} csr total compile time: ${
+				`**************** ${webappName} csr total compile time: ${
 					Date.now() - global.startCompile[tplKey]
 				}ms **************** `
 			);
@@ -293,7 +274,7 @@ module.exports = ({
 				}
 		  }).wrap(config)
 		: config;
-	if (global.onlyReact && !global.ba) {
+	if (!global.ba) {
 		config.devServer = {
 			hot: !!global.hmr,
 			port:

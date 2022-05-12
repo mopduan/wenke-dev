@@ -30,7 +30,7 @@
     "name": "new-baike",
     //...
     "scripts": {
-        "wenke-dev": "wenke-dev -w $(pwd) -s $(pwd)/static --preact --np --style",
+        "wenke-dev": "wenke-dev -w $(pwd) -s $(pwd)/static --style",
         // other scripts...
     }
 } 
