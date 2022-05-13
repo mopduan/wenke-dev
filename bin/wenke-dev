@@ -9,7 +9,6 @@ program.version(require('../package').version);
 program
 	.option('-w, --webapp-directory [webapp directory]')
 	.option("-livereload-port, --livereload-port [livereload's port]")
-	.option("--norefresh [don't auto refresh]")
 	.option('--react [use react] [boolean or string]')
 	.option('--style [build style]')
 	.option('-c, --common-library-directory [common-library directory]')

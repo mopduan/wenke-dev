@@ -45,7 +45,7 @@ describe('test utils functions', () => {
 	});
 
 	test('isKeyIncludesArrayItem()', () => {
-		const key = '/baike_wap_njk/index/bundle/';
+		const key = '/baike_wap/index/bundle/';
 
 		expect(isKeyIncludesArrayItem(key, ['index'])).toBe(true);
 		expect(isKeyIncludesArrayItem()).toBe(undefined);
@@ -55,11 +55,11 @@ describe('test utils functions', () => {
 });
 
 describe('test extract files', () => {
-	test('get all njk files in provided directory', () => {
+	test('get all ssr files in provided directory', () => {
 		const providedDir = path.join(__dirname, 'mock/views/src');
-		const res = getAllFilesByDir(providedDir, ['.njk']).join();
+		const res = getAllFilesByDir(providedDir, ['.js']).join();
 
-		expect(res).toContain('/src/template2.njk');
-		expect(res).toContain('/src/template1.njk');
+		expect(res).toContain('/src/template2.js');
+		expect(res).toContain('/src/template1.js');
 	});
 });

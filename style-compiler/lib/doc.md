@@ -47,14 +47,9 @@ path.join(webappDir,  `/static/src/ued/${app_name}/${pc_or_wap}/dist/css`)
 4. 写入目标地址
 5. 删除temp文件
 
-
-## 改进
-
-1. --np 时   -w 参数也是传的是node-app的目录
-
 ## 监听机制
 
-1. njk 中引入的css 会存入  global.cssCompileList, 进而找到对应的src目录的 scss 文件， 对这些 scss 文件进行监听，修改则重新编译
+1. ssr模板中引入的css 会存入  global.cssCompileList, 进而找到对应的src目录的 scss 文件， 对这些 scss 文件进行监听，修改则重新编译
 2. 雪碧图 监听 src/asset/sprite/ 目录，  有添加或删除则重新打包对应的子雪碧图
 
 

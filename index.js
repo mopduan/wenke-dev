@@ -111,28 +111,5 @@ module.exports = async program => {
 		});
 	}
 
-	if (!utils.hasArgument(process.argv, '--norefresh')) {
-		const templateWatchFiles = [];
-
-		webappDirectoryList.forEach(webappDirectoryPath => {
-			const templateViewSrcPagePath = path.join(
-				webappDirectoryPath,
-				'views/src'
-			);
-
-			templateWatchFiles.push(
-				path.join(templateViewSrcPagePath + '/**/*.njk')
-			);
-		});
-
-		console.log('templateWatchFiles List: ');
-		console.log(templateWatchFiles);
-		utils.startWebSocketServer();
-		chokidar
-			.watch(templateWatchFiles)
-			.on('change', utils.triggerRefresh)
-			.on('unlink', utils.triggerRefresh);
-	} else {
-		console.log('status: norefresh');
-	}
+	utils.startWebSocketServer();
 };

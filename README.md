@@ -56,13 +56,7 @@ wenke-dev -w Node.js工程目录（同时构建多个工程请用"," 英文逗�
     static
     └─src
 
-构建后的静态资源会放置在与 src 同级目录下的 deploy 目录，无需用户手动创建，构建时会自动建立，编译后的目录结构如下：
-
-    static
-    ├─deploy
-    └─src
-
-更详细的目录规范请参考[wenke](https://github.com/mopduan/wenke)中的目录规范说明
+由于使用了webpack-dev-server构建静态资源，因此需要在本地配置转发规则。
 
 ## 命令行参数说明
 
@@ -73,10 +67,6 @@ Node.js工程文件目录（同时构建多个工程请用"," 英文逗号分隔
 ### --livereload-port
 
 livereload 服务端口, 默认为: 8999
-
-### --norefresh
-
-禁用 livereload 服务, 当此参数存在时, --livereload-port 参数设置无效
 
 ### --style
 
