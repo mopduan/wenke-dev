@@ -17,7 +17,22 @@ module.exports = ({
 	webappName,
 	tplKey
 }) => {
-	const commonConfig = {
+	const webpackConfig = {
+		context: staticJSSrcDirectory,
+		entry: entry,
+		output: {
+			chunkLoadingGlobal: utils.uniqueVal(),
+			path: staticJSDeployDirectory,
+			filename: '[name].js',
+			assetModuleFilename: webappName + '.assetmodule.[name][ext]',
+			chunkFilename: webappName + '.[name].chunk.bundle.js',
+			publicPath: 'auto'
+		},
+		optimization: {
+			chunkIds: 'named',
+			moduleIds: 'named'
+		},
+		target: ['web', 'es5'],
 		cache: true,
 		resolve: {
 			modules: [path.join(__dirname, 'node_modules')],
@@ -39,7 +54,7 @@ module.exports = ({
 	};
 
 	//公用的客户端私有npm包需要从项目目录下查找依赖包
-	commonConfig.resolve.modules.push(
+	webpackConfig.resolve.modules.push(
 		path.join(webappDirectoryPath, 'node_modules')
 	);
 
@@ -96,38 +111,9 @@ module.exports = ({
 		webpackPlugins.push(new ReactRefreshWebpackPlugin());
 	}
 
-	if (global.ba) {
-		webpackPlugins.push(
-			new BundleAnalyzerPlugin({
-				analyzerPort:
-					global.webappDirectoryList.length === 2
-						? global.multiWebappBaPorts.shift()
-						: 7791
-			})
-		);
-	}
-
-	const config = {
-		context: staticJSSrcDirectory,
-		entry: entry,
-		plugins: webpackPlugins,
-		output: {
-			chunkLoadingGlobal: utils.uniqueVal(),
-			path: staticJSDeployDirectory,
-			filename: '[name].js',
-			assetModuleFilename: webappName + '.assetmodule.[name][ext]',
-			chunkFilename: webappName + '.[name].chunk.bundle.js',
-			publicPath: 'auto'
-		},
-		optimization: {
-			chunkIds: 'named',
-			moduleIds: 'named'
-		},
-		target: ['web', 'es5']
-	};
-
-	config.externals = externals;
-	config.module = {
+	webpackConfig.plugins = webpackPlugins;
+	webpackConfig.externals = externals;
+	webpackConfig.module = {
 		rules: [
 			{
 				test: /\.(jpe?g|png|gif|svg|eot|ttf|woff|woff2)$/i,
@@ -161,10 +147,8 @@ module.exports = ({
 		]
 	};
 
-	Object.assign(config, commonConfig);
-
 	if (global.esbuild) {
-		config.module.rules.push({
+		webpackConfig.module.rules.push({
 			test: /\.(js|jsx)$/,
 			use: [
 				{
@@ -178,7 +162,7 @@ module.exports = ({
 			exclude: [path.join(__dirname, 'node_modules')]
 		});
 
-		config.module.rules.push({
+		webpackConfig.module.rules.push({
 			test: /\.(ts|tsx)$/,
 			use: [
 				{
@@ -201,7 +185,7 @@ module.exports = ({
 			exclude: [path.join(__dirname, 'node_modules')]
 		});
 	} else {
-		config.module.rules.push({
+		webpackConfig.module.rules.push({
 			test: /\.(js|jsx|ts|tsx)$/,
 			use: [{ loader: 'babel-loader', options: babelSettings }],
 			exclude: [path.join(__dirname, 'node_modules')]
@@ -272,29 +256,39 @@ module.exports = ({
 					console.log(smpInfo);
 					console.log(`=== ${webappName} smp info end! ===`);
 				}
-		  }).wrap(config)
-		: config;
-	if (!global.ba) {
-		config.devServer = {
-			hot: !!global.hmr,
-			port:
-				global.webappDirectoryList.length === 2
-					? global.multiWebappDevServerPorts.shift()
-					: 9989,
-			allowedHosts: 'all'
-		};
+		  }).wrap(webpackConfig)
+		: webpackConfig;
 
-		return new WebpackDevServer(
-			config.devServer,
-			webpack(finalWebpackConfig, (err, stats) => {
-				compilerCallback(err, stats);
+	if (global.ba) {
+		finalWebpackConfig.plugins.push(
+			new BundleAnalyzerPlugin({
+				analyzerPort:
+					global.webappDirectoryList.length === 2
+						? global.multiWebappBaPorts.shift()
+						: 7791
 			})
-		).start();
+		);
+
+		return new Promise((resolve, reject) => {
+			webpack(finalWebpackConfig, (err, stats) => {
+				compilerCallback(err, stats, resolve, reject);
+			});
+		});
 	}
 
-	return new Promise((resolve, reject) => {
+	finalWebpackConfig.devServer = {
+		hot: !!global.hmr,
+		port:
+			global.webappDirectoryList.length === 2
+				? global.multiWebappDevServerPorts.shift()
+				: 9989,
+		allowedHosts: 'all'
+	};
+
+	return new WebpackDevServer(
+		finalWebpackConfig.devServer,
 		webpack(finalWebpackConfig, (err, stats) => {
-			compilerCallback(err, stats, resolve, reject);
-		});
-	});
+			compilerCallback(err, stats);
+		})
+	).start();
 };
