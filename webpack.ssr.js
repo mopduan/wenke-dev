@@ -111,56 +111,38 @@ module.exports = ({ entry, webappDirectoryPath, webappName, tplKey }) => {
 					reject(err);
 					return;
 				}
+
 				const hasWarnings = stats.hasWarnings();
 				const hasErrors = stats.hasErrors();
+				const hasWarningsOrErrors = hasWarnings || hasErrors;
 
-				if (!(hasWarnings || hasErrors)) {
-					if (rebuildCompile) {
-						console.log(
-							`=== ${webappName} ssr rebuild complete start! `,
-							stats.endTime -
-								stats.startTime +
-								'ms! stats info: ==='
-						);
-						console.log(stats.toString());
-						console.log(
-							`=== ${webappName} ssr rebuild complete end! ===`
-						);
-						utils.triggerRefresh();
-					} else {
-						console.log(
-							`=== ${webappName} ssr build success start! stats info: ===`
-						);
-						console.log(stats.toString());
-						console.log(
-							`=== ${webappName} ssr build success end! ===`
-						);
-					}
-				} else {
-					if (hasWarnings) {
-						console.log(
-							`=== ${webappName} WARNINGS start! stats info: ===`
-						);
-						console.log(stats.toString());
-						console.log(`=== ${webappName} WARNINGS end! ===`);
-					}
+				let compileTimeInfo = rebuildCompile
+					? stats.endTime - stats.startTime + 'ms!'
+					: '';
+				let buildType = rebuildCompile ? 'rebuild complete' : 'build';
+				if (hasWarningsOrErrors) {
+					buildType = 'WARNINGS/ERRORS';
+				}
+				let logStartInfo = `=== ${webappName} ssr ${buildType} start! ${compileTimeInfo} stats info: ===`;
+				let logEndInfo = `=== ${webappName} ssr ${buildType} end! ===`;
 
-					if (hasErrors) {
-						console.log('=== ERRORS start ===');
-						console.log(stats.toString());
-						console.log('=== ERRORS end ===');
-					}
+				console.log(logStartInfo);
+				console.log(stats.toString());
+				console.log(logEndInfo);
+
+				utils.triggerRefresh();
+
+				if (rebuildCompile) {
+					resolve();
+					return;
 				}
 
-				if (!rebuildCompile) {
-					rebuildCompile = true;
-					console.log(
-						`**************** ${webappName} ssr total compile time: ${
-							Date.now() - global.ssrStartCompile[tplKey]
-						}ms **************** `
-					);
-				}
-
+				rebuildCompile = true;
+				console.log(
+					`**************** ${webappName} ssr total compile time: ${
+						Date.now() - global.ssrStartCompile[tplKey]
+					}ms **************** `
+				);
 				resolve();
 			}
 		);
