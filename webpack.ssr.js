@@ -28,6 +28,7 @@ module.exports = ({ entry, webappDirectoryPath, webappName, tplKey }) => {
 			modules: [path.join(webappDirectoryPath, 'node_modules')],
 			extensions: utils.ssrTemplateExtensionList,
 			alias: {
+				'@src': path.join(webappDirectoryPath, 'static/src'),
 				'@isomorphic': path.join(webappDirectoryPath, 'isomorphic')
 			}
 		},
