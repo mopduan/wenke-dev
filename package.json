@@ -82,7 +82,7 @@
     "react-refresh": "0.11.0",
     "webpack-dev-server": "4.7.3",
     "@babel/preset-typescript": "7.16.7",
-    "got": "11.8.2",
+    "got": "11.8.5",
     "esbuild-loader": "2.18.0",
     "speed-measure-webpack-plugin": "1.5.0",
     "webpack-bundle-analyzer": "4.5.0",
