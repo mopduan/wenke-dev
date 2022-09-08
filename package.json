@@ -75,7 +75,7 @@
     "url2": "1.0.4",
     "webpack": "5.68.0",
     "readable-stream": "3.6.0",
-    "node-sass": "7.0.1",
+    "node-sass": "7.0.2",
     "core-js": "3.1.4",
     "case-sensitive-paths-webpack-plugin": "2.4.0",
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.4",
